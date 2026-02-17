@@ -1,0 +1,35 @@
+{
+  "activeTheme": "6e195d25-4ef9-4c24-b0ab-98290d1440bf",
+  "themes": {
+    "default": {
+      "name": "Default",
+      "colors": {
+        "primary": "#1976d2",
+        "secondary": "#dc004e",
+        "background": "#ffffff",
+        "text": "#000000"
+      },
+      "font": "Roboto"
+    },
+    "6e195d25-4ef9-4c24-b0ab-98290d1440bf": {
+      "name": "test",
+      "colors": {
+        "background": "#ffcccc",
+        "primary": "#b2bfcd",
+        "secondary": "#ff99bd",
+        "text": "#ffffff"
+      },
+      "font": "Comic Sans MS"
+    },
+    "69b08017-30c5-431f-a90d-ef0009704975": {
+      "name": "test again",
+      "colors": {
+        "background": "#903737",
+        "primary": "#eef2f6",
+        "secondary": "#9f1d4b",
+        "text": "#ff0000"
+      },
+      "font": "Helvetica"
+    }
+  }
+}
