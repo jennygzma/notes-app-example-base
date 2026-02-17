@@ -1,0 +1,27 @@
+{
+  "active_theme_id": "da587153-a519-495e-be92-30339daefc65",
+  "themes": [
+    {
+      "id": "default",
+      "name": "Default",
+      "colors": {
+        "primary": "#1976d2",
+        "secondary": "#dc004e",
+        "background": "#ffffff",
+        "text": "#000000"
+      },
+      "font": "Roboto"
+    },
+    {
+      "id": "da587153-a519-495e-be92-30339daefc65",
+      "name": "test",
+      "colors": {
+        "primary": "#bddeff",
+        "secondary": "#ccb3bb",
+        "background": "#d1d1d1",
+        "text": "#6e6e6e"
+      },
+      "font": "Courier New"
+    }
+  ]
+}

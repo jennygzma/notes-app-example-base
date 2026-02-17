@@ -15,6 +15,7 @@ class LocalStorage:
         self.inspirations_file = self.base_path / "inspirations.json"
         self.categories_file = self.base_path / "inspiration_categories.json"
         self.links_file = self.base_path / "links.json"
+        self.settings_file = self.base_path / "settings.json"
         
         self._init_files()
     
@@ -23,6 +24,26 @@ class LocalStorage:
                      self.categories_file, self.links_file]:
             if not file.exists():
                 self._write_json(file, [])
+        
+        if not self.settings_file.exists():
+            default_settings = {
+                "active_theme_id": "default",
+                "themes": [
+                    {
+                        "id": "default",
+                        "name": "Default",
+                        "colors": {
+                            "primary": "#1976d2",
+                            "secondary": "#dc004e",
+                            "background": "#ffffff",
+                            "text": "#000000"
+                        },
+                        "font": "Roboto"
+                    }
+                ]
+            }
+            with open(self.settings_file, 'w') as f:
+                json.dump(default_settings, f, indent=2)
     
     def _read_json(self, file_path: Path) -> List[Dict]:
         with open(file_path, 'r') as f:
@@ -248,3 +269,144 @@ class LocalStorage:
             self._write_json(self.links_file, filtered)
             return True
         return False
+    
+    def get_settings(self) -> Dict:
+        try:
+            with open(self.settings_file, 'r') as f:
+                settings = json.load(f)
+            
+            if not isinstance(settings, dict):
+                raise ValueError("Settings must be a dict")
+            
+            if "active_theme_id" not in settings or "themes" not in settings:
+                raise ValueError("Missing required fields")
+            
+            if not isinstance(settings["themes"], list) or len(settings["themes"]) == 0:
+                raise ValueError("Themes must be a non-empty list")
+            
+            return settings
+        except (FileNotFoundError, json.JSONDecodeError, ValueError):
+            default_settings = {
+                "active_theme_id": "default",
+                "themes": [
+                    {
+                        "id": "default",
+                        "name": "Default",
+                        "colors": {
+                            "primary": "#1976d2",
+                            "secondary": "#dc004e",
+                            "background": "#ffffff",
+                            "text": "#000000"
+                        },
+                        "font": "Roboto"
+                    }
+                ]
+            }
+            with open(self.settings_file, 'w') as f:
+                json.dump(default_settings, f, indent=2)
+            return default_settings
+    
+    def update_active_theme(self, theme_id: str) -> Dict:
+        settings = self.get_settings()
+        
+        theme_exists = any(theme["id"] == theme_id for theme in settings["themes"])
+        if not theme_exists:
+            raise ValueError(f"Theme with id '{theme_id}' does not exist")
+        
+        settings["active_theme_id"] = theme_id
+        with open(self.settings_file, 'w') as f:
+            json.dump(settings, f, indent=2)
+        
+        return settings
+    
+    def create_theme(self, theme_data: Dict) -> str:
+        required_fields = ["name", "colors", "font"]
+        if not all(field in theme_data for field in required_fields):
+            raise ValueError("Theme must include name, colors, and font")
+        
+        required_colors = ["primary", "secondary", "background", "text"]
+        if not all(color in theme_data["colors"] for color in required_colors):
+            raise ValueError("Theme colors must include primary, secondary, background, and text")
+        
+        settings = self.get_settings()
+        
+        theme_id = self._generate_id()
+        new_theme = {
+            "id": theme_id,
+            "name": theme_data["name"],
+            "colors": theme_data["colors"],
+            "font": theme_data["font"]
+        }
+        
+        settings["themes"].append(new_theme)
+        with open(self.settings_file, 'w') as f:
+            json.dump(settings, f, indent=2)
+        
+        return theme_id
+    
+    def update_theme(self, theme_id: str, theme_data: Dict) -> Dict:
+        settings = self.get_settings()
+        
+        theme_index = next((i for i, theme in enumerate(settings["themes"]) if theme["id"] == theme_id), None)
+        if theme_index is None:
+            raise ValueError(f"Theme with id '{theme_id}' does not exist")
+        
+        theme = settings["themes"][theme_index]
+        
+        if "name" in theme_data:
+            theme["name"] = theme_data["name"]
+        if "font" in theme_data:
+            theme["font"] = theme_data["font"]
+        if "colors" in theme_data:
+            if not isinstance(theme["colors"], dict):
+                theme["colors"] = {}
+            for key, value in theme_data["colors"].items():
+                theme["colors"][key] = value
+        
+        with open(self.settings_file, 'w') as f:
+            json.dump(settings, f, indent=2)
+        
+        return settings
+    
+    def delete_theme(self, theme_id: str) -> Dict:
+        if theme_id == "default":
+            raise ValueError("Cannot delete the default theme")
+        
+        settings = self.get_settings()
+        
+        original_length = len(settings["themes"])
+        settings["themes"] = [theme for theme in settings["themes"] if theme["id"] != theme_id]
+        
+        if len(settings["themes"]) == original_length:
+            raise ValueError(f"Theme with id '{theme_id}' does not exist")
+        
+        if settings["active_theme_id"] == theme_id:
+            settings["active_theme_id"] = "default"
+        
+        with open(self.settings_file, 'w') as f:
+            json.dump(settings, f, indent=2)
+        
+        return settings
+    
+    def reset_to_default(self) -> Dict:
+        default_settings = {
+            "active_theme_id": "default",
+            "themes": [
+                {
+                    "id": "default",
+                    "name": "Default",
+                    "colors": {
+                        "primary": "#1976d2",
+                        "secondary": "#dc004e",
+                        "background": "#ffffff",
+                        "text": "#000000"
+                    },
+                    "font": "Roboto"
+                }
+            ]
+        }
+        
+        with open(self.settings_file, 'w') as f:
+            json.dump(default_settings, f, indent=2)
+        
+        return default_settings
