@@ -1,0 +1,20 @@
+Analyze this note and classify it as either "inspiration" or "task".
+
+Inspiration: Creative ideas, things to explore (songs, art, travel, activities, places)
+Task: Actionable items with deadlines or specific actions
+
+Note Title: {title}
+Note Body: {body}
+
+Respond with JSON:
+{{
+  "classification": "inspiration" or "task",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "brief explanation"
+}}
+
+Examples:
+- "Song cover idea: Bohemian Rhapsody" → {{"classification": "inspiration", "confidence": 0.95, "reasoning": "Creative musical idea"}}
+- "Finish presentation by Friday" → {{"classification": "task", "confidence": 0.98, "reasoning": "Actionable with deadline"}}
+- "Places to visit in NYC" → {{"classification": "inspiration", "confidence": 0.92, "reasoning": "Exploration ideas"}}
+- "Call dentist to schedule appointment" → {{"classification": "task", "confidence": 0.97, "reasoning": "Specific action needed"}}

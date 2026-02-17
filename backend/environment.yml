@@ -1,0 +1,12 @@
+name: notes-app
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+    - Flask==3.0.0
+    - Flask-CORS==4.0.0
+    - openai==1.57.4
+    - python-dotenv==1.0.0

@@ -1,0 +1,5 @@
+
+# Zoro learning system - user-specific data
+.zoro/
+.clinerules/
+.env

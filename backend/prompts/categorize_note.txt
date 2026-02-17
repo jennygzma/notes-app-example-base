@@ -1,0 +1,27 @@
+Analyze this note and categorize it as an inspiration.
+
+Note Title: {title}
+Note Body: {body}
+
+Existing Categories: {existing_categories}
+
+Common inspiration categories include:
+- song covers (songs to cover)
+- songs written (original songs to write)
+- art ideas (art projects or creative works)
+- NYC activities (things to do in New York City)
+- travel places (destinations to visit)
+
+Task:
+1. If the note fits an existing category, use that category name exactly
+2. If it doesn't fit any existing category but fits a common category above, suggest that category
+3. If it's a completely new type of inspiration, suggest a new category name (2-4 words, lowercase)
+4. Provide a confidence score (0.0 to 1.0)
+
+Respond in JSON format:
+{{
+  "category": "category name",
+  "confidence": 0.95,
+  "is_new_category": true/false,
+  "reasoning": "brief explanation"
+}}

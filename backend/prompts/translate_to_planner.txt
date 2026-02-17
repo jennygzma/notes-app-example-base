@@ -1,0 +1,26 @@
+Convert this note into a planner task/event.
+
+Note Title: {title}
+Note Body: {body}
+
+Task:
+1. Create a clear, actionable task title
+2. Write a brief task description
+3. Suggest a date (YYYY-MM-DD format) - use today's date or a reasonable future date
+4. Suggest a time (HH:mm format) if the note implies a specific time, otherwise null
+5. Suggest a view_type: "daily" (specific day task), "weekly" (week-level goal), "monthly" (month goal), "yearly" (long-term goal)
+
+Respond in JSON format:
+{{
+  "suggestions": [
+    {{
+      "title": "Clear task title",
+      "body": "Task description",
+      "date": "2025-10-31",
+      "time": "14:00" or null,
+      "view_type": "daily"
+    }}
+  ]
+}}
+
+You may suggest multiple tasks if the note implies multiple actions. Limit to 3 suggestions max.
