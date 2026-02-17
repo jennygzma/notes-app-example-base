@@ -10,7 +10,9 @@ import {
   CategorizeResponse,
   TranslateResponse,
   InspirationsGrouped,
-  Link
+  Link,
+  Settings,
+  Theme
 } from '../types';
 
 const api = axios.create({
@@ -92,4 +94,23 @@ export const aiApi = {
   
   translate: (noteId: string) => 
     api.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+};
+
+export const settingsApi = {
+  getSettings: () => api.get<Settings>('/api/settings/'),
+  
+  setActiveTheme: (themeId: string) => 
+    api.put<Settings>('/api/settings/active/', { theme_id: themeId }),
+  
+  createTheme: (theme: Theme) => 
+    api.post<{ theme_id: string }>('/api/settings/themes/', theme),
+  
+  updateTheme: (themeId: string, theme: Theme) => 
+    api.put<Settings>(`/api/settings/themes/${themeId}/`, theme),
+  
+  deleteTheme: (themeId: string) => 
+    api.delete(`/api/settings/themes/${themeId}/`),
+  
+  resetToDefault: () => 
+    api.post<Settings>('/api/settings/reset/'),
 };
