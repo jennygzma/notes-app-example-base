@@ -84,3 +84,19 @@ export interface TranslateResponse {
 export interface InspirationsGrouped {
   [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
 }
+
+export interface Theme {
+  name: string;
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+  };
+  font: string;
+}
+
+export interface Settings {
+  activeTheme: string;
+  themes: { [themeId: string]: Theme };
+}

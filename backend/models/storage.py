@@ -248,3 +248,20 @@ class LocalStorage:
             self._write_json(self.links_file, filtered)
             return True
         return False
+    
+    def save(self, key: str, data: Dict):
+        """Generic save method for any data type"""
+        file_path = self.base_path / f"{key}.json"
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=2)
+    
+    def load(self, key: str) -> Optional[Dict]:
+        """Generic load method for any data type"""
+        file_path = self.base_path / f"{key}.json"
+        if not file_path.exists():
+            return None
+        with open(file_path, 'r') as f:
+            return json.load(f)
+
+# Create a global storage instance
+storage = LocalStorage()
