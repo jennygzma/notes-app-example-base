@@ -3,3 +3,13 @@
 .zoro/
 .clinerules/
 .env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Generated runtime data
+backend/generated/settings.json
