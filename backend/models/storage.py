@@ -5,6 +5,18 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import uuid
 
+DEFAULT_THEME = {
+    "id": "default",
+    "name": "Default",
+    "colors": {
+        "primary": "#1976d2",
+        "secondary": "#dc004e",
+        "background": "#ffffff",
+        "text": "#000000"
+    },
+    "font": "Roboto"
+}
+
 class LocalStorage:
     def __init__(self, base_path: str = "generated"):
         self.base_path = Path(base_path)
@@ -15,6 +27,7 @@ class LocalStorage:
         self.inspirations_file = self.base_path / "inspirations.json"
         self.categories_file = self.base_path / "inspiration_categories.json"
         self.links_file = self.base_path / "links.json"
+        self.settings_file = self.base_path / "settings.json"
         
         self._init_files()
     
@@ -248,3 +261,20 @@ class LocalStorage:
             self._write_json(self.links_file, filtered)
             return True
         return False
+    
+    def read_settings(self) -> Dict:
+        if not self.settings_file.exists():
+            default_settings = {
+                "active_theme_id": "default",
+                "themes": [DEFAULT_THEME]
+            }
+            self.write_settings(default_settings)
+            return default_settings
+        
+        with open(self.settings_file, 'r') as f:
+            return json.load(f)
+    
+    def write_settings(self, data: Dict):
+        self.base_path.mkdir(parents=True, exist_ok=True)
+        with open(self.settings_file, 'w') as f:
+            json.dump(data, f, indent=2)
