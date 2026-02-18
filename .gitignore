@@ -1,5 +1,14 @@
-
 # Zoro learning system - user-specific data
 .zoro/
 .clinerules/
 .env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Backend generated data
+backend/generated/

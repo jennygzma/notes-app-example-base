@@ -34,5 +34,221 @@
     "is_analyzed": false,
     "created_at": "2026-02-17T01:56:27.163434Z",
     "updated_at": "2026-02-17T01:57:18.020594Z"
+  },
+  {
+    "id": "aee0a8b0-1988-4aae-a958-1af07d9c5cef",
+    "title": "Pivot features for eval",
+    "body": "- Show a preview of the PDF instead of the icon after its done processing\n- Persist chat\n- \n- Improve the model for custom listening \n    - Trigger word PIVOT \n    - I made a bunch of people say PIVOT and then made a model to build it \n    - Making sure it works correctly\n\n\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:39:28.279543Z",
+    "updated_at": "2026-02-18T21:47:50.866564Z"
+  },
+  {
+    "id": "76b8ab75-d10f-410c-b002-ca726ad146c8",
+    "title": "Apps for eval",
+    "body": "Notes App\n- Just apple notes app \u2014 add autocategorization\n- Add inspiration dashboard ? \n- Add settings component\n\nParmida App\n- Add new learning module\n- Add settings component \n\nReya App\n\n\n\nMaybe Haonan app ? \n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:47:37.709344Z",
+    "updated_at": "2026-02-18T21:47:46.680306Z"
+  },
+  {
+    "id": "e2661817-471a-49b6-a11c-226ad5f91d09",
+    "title": "ZORO SYSTEM ",
+    "body": "Update cline extension itself to support this\n\nDynamically add rules or remove rules as we go \n\nSearch across the \u201cprocess\u201d to see what went wrong\n\nRule conflicting/rule retrieval \n- Testing conflicting rules in the pilot \n\nMonitoring agents should be in a separate service? \n\nremove the \u201cmerge connect\u201d thing from the conflict\n\nDynamic planning/cascading\n\n Consider a vs code extension on top of cline?? \n\nRule adding with a plan that user can add themselves \n\nMeta rule/rule organization tab\n\nSupport rule dragging into different categories if I want to recategorize, espiclaly the ones that only have one or two categories \n\nGemini + amazon support \n\nTextbox for chat name is blue ew\n\nIs the verdict ever fail? \n\n\n\n\nDONE STUFF\nRule deletion and favoriting and a\nCheck dynamic reflection clean logic \n\nRules can also be nested in the tree. Like some stuff is in the step, or the phase, or overall.. lie some coding conventions\u2026 and some can be in the subsets. \nMake sure token cleaning by both supervisor and rule learning agents things r okay\nDynamic reflection replanning/explainign whats going on\n\n\n- Perhaps the organization tab is like u can see all the meta categories it generated\n- U an combo categories if they\u2019re the same\n- You can delete them \n- Prune rules\n- Recategorize them if u want \n\nOption to delete the current extended plan \n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:48:05.148310Z",
+    "updated_at": "2026-02-18T21:48:21.413334Z"
+  },
+  {
+    "id": "fe4f7646-2ca8-490f-a8eb-955503fe13dc",
+    "title": "users",
+    "body": "\nParmida\nFaris \nNikos\nAngela\nHenry \nTao\nSitong\nVivian \nSebastian\n\nSweta ?\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:48:22.771955Z",
+    "updated_at": "2026-02-18T21:48:38.901724Z"
+  },
+  {
+    "id": "a8ce2c54-851f-4452-b954-d7145adbc06b",
+    "title": "Microsoft Research (PROSE Team), Redmond, WA (Remote) Mentors: Emerson Murphy-Hill",
+    "body": "",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:48:47.189299Z",
+    "updated_at": "2026-02-18T21:48:54.008069Z"
+  },
+  {
+    "id": "1886c1bc-af18-444f-977b-0dc20ad67ccf",
+    "title": "Super Bowl groceries",
+    "body": "Avocado\nTortilla chips\nOnion\nGarlic\nTomato\nCilantro\nBell pepper\nLime\n\nJalepeno\nCream cheese\nTurkey bacon ?\nCheddar\nChives\n\nFranks red hot\nRanch ?\nCream cheese \n\nButter\nCumin\nSalt\nPepper\nGarlic salt\nOnion \n\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:49:06.729519Z",
+    "updated_at": "2026-02-18T21:49:11.982241Z"
+  },
+  {
+    "id": "7d896d8d-73f3-4826-ae99-fe556c965dc5",
+    "title": "tao testing system",
+    "body": "Remove cline as subdirectory module\nHave it fOLLOW ZORO RULES ATURALLY BETER IT NEEDS O BE IN SYSTEM ORINOT\n\n\nAutomatic script to get chats \n\n\n\n\nIn the past of building double agents\n- They will create a lot of files and I cannot easily track what file is doing what, and they are all there and I dont now which one is test and improve on, and I will ask cursor the question of what file is actually making the changes or what prompt is it actually calling. I change one line in the prompt to say this in Chinese to see what is actually called\n- They have many extra steps for me, like they will create some error handling things if the call doesnt work and they will output some hardcoded stuff, I cannot see the bug because I thought it is AI generation but otherwise I see it is a hardcoded messages\n- I dont know what is I actually doing until I test it and the folder gets larger and larger so its frustrating if I open a thread to do a task and I dont know. I also feel pressured to open a new task because I am worried that it is going to lose context and it feels more safe to keep on the same thread\n- To what degree ?\u2028give a huge large prompt and then I start tweaking it if it doesnt work, and then I will dump all my stuff, no grammar no spelling, and then and I trust it to do it well and \n- Experimental coder, don\u2019t have a super strong sense of I want something in a structure or a format because I just want it to work and test and I dont even look at what it says \n\nEveryone uses tool very differently, understanding practices \n\n\nPossible features for double agents\n\nSettings component \nWhats happening now feature, like what am I doing now, am I currently planning, when people ecome back you can see what the agent is doing, planning executing, what emails athey are doing, lik ea feedback instead of having to scroll to the bottom. Small canvas showing whats going on, a place to show all the new feeds \nInformation summary insights page for the whole system like an information digest so they can only see the top right to see what is going on in the screen \n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:49:42.903264Z",
+    "updated_at": "2026-02-18T21:49:52.905577Z"
+  },
+  {
+    "id": "1da0e39a-aeb8-447d-bad9-f27e45ba63de",
+    "title": "building zoro system extension development host",
+    "body": "The chrome console to the right:\u2028- Type: __\"Developer: Toggle Developer Tools\"__\n\nExtension development host\n\nrm -rf dist/ && node esbuild.mjs",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:49:59.378728Z",
+    "updated_at": "2026-02-18T21:50:10.733904Z"
+  },
+  {
+    "id": "daea0c28-7933-4e8f-a988-4fc0b08f1c1e",
+    "title": "Nikos office code ",
+    "body": "230831",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:50:16.056396Z",
+    "updated_at": "2026-02-18T21:50:21.868045Z"
+  },
+  {
+    "id": "99c8e5a4-cd6c-49d3-84a1-74b44ea50795",
+    "title": "Packing",
+    "body": "Use all the time\nSkin care\nTeeth stuff\nEye stuff\nSleep stuff\n\nUse less commonly\nGrooming\n\nNext to the bed\nSleep stuff\nSkin care \nJewelry \nFoot \n\nIn the bathroom \nEye stuff\nTeeth stuff\nGrooming ",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:50:26.270444Z",
+    "updated_at": "2026-02-18T21:50:31.439302Z"
+  },
+  {
+    "id": "269b9a66-d0c2-4e1a-82d5-bf81f0f00a73",
+    "title": "Birthday",
+    "body": "Jenny\nBrenda \nParmida\nAmy\nHannah?\n\nNikos\nFaris\nSebastian\nGiorgios\nVahab \nKenny \nDaniel ?\nSon ? \n\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:50:37.516143Z",
+    "updated_at": "2026-02-18T21:50:47.129287Z"
+  },
+  {
+    "id": "26546a0e-2742-4dd7-a8b3-a875a208859b",
+    "title": "AWS bedrock setup",
+    "body": "\naccess key \nAKIA5MYBN2BVHBAN47PL\n\nsecret access key\n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\n\n\naws bedrock create-inference-profile \\\n  --region us-east-1 \\\n  --inference-profile-name pals-jm5676-claude-sonnet-4-5 \\\n  --model-source copyFrom=\"arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0\" \\\n  --tags key=billing-tag1,value=jm5676 key=project,value=pals\n\n\n\narn:aws:bedrock:us-east-1:920736616554:application-inference-profile/sac03yzmleb8\n\n\nimport boto3\nimport json\nimport os\n\n# Create the client (it will auto-discover the bearer token)\nclient = boto3.client(\n\u00a0\u00a0\u00a0\u00a0service_name=\"bedrock-runtime\",\n\u00a0\u00a0\u00a0\u00a0region_name=\"us-east-1\",\u00a0\u00a0# Make sure this matches the region where the key was generated\n)\n\n# Example: Invoke Claude 3 Sonnet via an application inference profile\n# Replace with your profile ARN or ID.\ninference_profile_id = \"arn:aws:bedrock:us-east-1:920736616554:application-inference-profile/sac03yzmleb8\"\n\nresponse = client.invoke_model(\n\u00a0\u00a0\u00a0\u00a0modelId=inference_profile_id,\n\u00a0\u00a0\u00a0\u00a0body=json.dumps(\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0{\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\"anthropic_version\": \"bedrock-2023-05-31\",\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\"max_tokens\": 1000,\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\"messages\": [{\"role\": \"user\", \"content\": \"Hello, how are you?\"}],\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0}\n\u00a0\u00a0\u00a0\u00a0),\n)\n\nresponse_body = json.loads(response.get(\"body\").read())\nprint(response_body[\"content\"][0][\"text\"])\n\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:50:52.660384Z",
+    "updated_at": "2026-02-18T21:51:04.904190Z"
+  },
+  {
+    "id": "39d3b56a-6270-4b9b-b05a-906bb938a8e8",
+    "title": "Testbed of eval",
+    "body": "Notes app where date and time are saved in specific format \nSpecific schema \nJson issues\n\nRefactoring\nError handling\nState management\nService integration (api errors)",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:51:31.119864Z",
+    "updated_at": "2026-02-18T21:51:38.335144Z"
+  },
+  {
+    "id": "cbdad4db-78b1-402b-ad69-038866c95c16",
+    "title": "",
+    "body": "Hi Christian and Carmen,\n\nThank you so much for the offer and for all the time and care the team put into the process. It was so nice to meet you guys on during the interview \u2014 it really was one of the warmest interviews I had ever had! I am genuinely excited about the work and the chance to collaborate with the team, which made this a very difficult decision.\n\nAfter a lot of thought, I\u2019ve decided to move forward with another commitment that I had already signed before receiving the interview. This was not an easy choice at all, and I want to emphasize how much I appreciated the opportunity and how strongly I felt about the team and the research direction. \n\nIf there are any opportunities in the fall or spring, I would be extremely interested in staying in touch and would be thrilled to explore the possibility of interning with Microsoft then.\n\nThank you again for your understanding. I hope you guys have a wonderful summer! I truly hope our paths cross again soon.\n\nBest regards,\u2028Jenny\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:51:58.465460Z",
+    "updated_at": "2026-02-18T21:52:07.675267Z"
+  },
+  {
+    "id": "3b372ccb-6ffb-48cf-8ae7-0a7abedcdbff",
+    "title": "emails",
+    "body": "\nHi Valentina,\n\nHope you\u2019re doing well! I wanted to share a bit more context\u2014I recently received an offer for a coding agent research team at Microsoft. Just want to clarify that I\u2019m still really excited about Adobe and fully planning to stick with it!\n\nSince I\u2019m also hoping to do a fall/spring internship this year, Lydia suggested it might be okay to check in with you about the timing for Adobe. Totally understand if summer is the main focus, but I thought I\u2019d mention it\u2014it would be great to explore both if possible, though no worries either way!\n\nThanks so much,\nJenny\n\n\n \nHi Christian and Carmen,\n\nThank you so much for the offer and for all the time and care the team put into the process, and answering all my questions. I was genuinely excited about the work you guys do and how aligned we are and the chance to collaborate with the team and honestly it was one of my favorite interviews ever, which made this a very difficult decision.\n\nAfter a lot of thought, I\u2019ve decided to move forward with a prior commitment with Adobe that I had already signed before receiving this interview. This was not an easy choice at all and I spent so long deliberating it. I want to emphasize how much I appreciate the opportunity and how strongly I felt about the team and the research direction.\n\nIf there are any opportunities in the fall or spring, I would be extremely interested in staying in touch and would be thrilled to explore the possibility of interning with Microsoft then. I would love to work with you guys. \n\nThank you again for your understanding. I truly hope our paths cross again soon.\n\nBest regards,\nJenny\n\n\nHi Valentina,\n\nYeah for more context, I just received a summer offer for a coding agent research team. I wanted to see if there was a way I would be able to fit both in this year (since I want to do a fall/spring internship this year) and Lydia mentioned it wouldn\u2019t hurt to ask. I totally understand that you prefer summer internships, I just wanted to check to see if doing both would be possible. I\u2019m planning on sticking with Adobe anyways since I\u2019m really excited about it :) \n\nThanks, \nJenny \n\n\n\n\n\n\n\n\n\n\nHi Valentina,\n\nYeah for more context, I just received a summer offer for MSR\u2019s agent research team (I had applied at the same time and they just got back to me). I just wanted to see if there was a way I could be able to fit both in my schedule since I plan on trying to do a fall or spring internship anyways this year. I talked with Lydia who said it wouldn\u2019t hurt to ask. I totally understand if you prefer summer internships, but I just wanted to check to see if it\u2019d be possible/there was any flexibility. I\u2019m planning on sticking with Adobe anyways since I\u2019m really excited about it :) \n\nThanks, \nJenny \n\n\n\nHi Valentina!\n\nGot it! Yeah for more context, I was just trying to plan my summer and blah blah. Happy to just intern for the summer ! Sorry for the hassle ",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:52:19.861225Z",
+    "updated_at": "2026-02-18T21:52:43.721999Z"
+  },
+  {
+    "id": "d3eefcea-eeb3-4c8e-8a7e-3063d219a55f",
+    "title": "Cline needs to auto do zoro plan",
+    "body": "Quick way to learn rules immediately\n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:52:56.104496Z",
+    "updated_at": "2026-02-18T21:53:06.825532Z"
+  },
+  {
+    "id": "5090712c-f927-4a5e-af1f-861cba9a537e",
+    "title": "Pros and cons list",
+    "body": "\nMicrosoft pros\n- [ ] More relevant to what I\u2019m doing now\n- [ ] Can meet more interns and researchers, more of a social life in Redmond\n- [ ] I can build systems even tho my mentors usually do empirical study \n- [ ] Very hot field right now, it\u2019s kinda relevant to all fields \n- [ ] Is it a better name than Adobe for agents \n\nMicrosoft cons\n- [x] Submitting to diff conferences like IEEE\n- [ ] Mentors are not as big name in HCI but bigger name in SWE research\n- [ ] Mentors excel at empirical research \n- [ ] Got it myself, so I could get it again if I wanted to bc it seems to be easier for me to get SWE research interviews \n- [ ] Do I wanna be pigeonholed into this field? I am ok w it rn bc it\u2019s helpful for my career \n\nAdobe pros \n- [ ] Mira is a huge name in HCI field\n- [ ] Get paid 3k more I think \n- [ ] I\u2019ve always wanted to try out creativity and video \n- [ ] Got it via Lydia connection so idk if I can get this particular internship  again \n- [ ] If I renege it\u2019s bad \n\nAdobe cons\n- [ ] In Boston there r only 5 intern, could be lonely\n- [ ] Valentina seems super quiet, would I go crazy?\n- [ ] Adobe isn\u2019t as big of a name in agents \n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:53:08.728035Z",
+    "updated_at": "2026-02-18T21:53:22.586340Z"
+  },
+  {
+    "id": "5823df8b-b372-4623-84bc-f4c33319a5b1",
+    "title": "china dfoods to try ",
+    "body": "\ncoconut chicken hotpot\uff1a\u6da6\u56ed\u56db\u5b63\nbeef hot pot \uff08meatballs\uff09\uff1a\u516b\u5408\u91cc\nhunan cuisine\uff1a\u5c0f\u8fa3\u6912\u65b0\u95fb\u8def\u5e97\nsteamed seafood ayce\uff1a \u821f\u5e02\u6c34\u4ea7",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:53:28.901687Z",
+    "updated_at": "2026-02-18T21:53:35.647918Z"
+  },
+  {
+    "id": "8e4b6955-cfda-4212-8faa-ee583faa4a74",
+    "title": "2025 travel highlight recap",
+    "body": "My fav AESTHETIC pics from this year!! (Plus some from last year)\n\nTravel log !! \n(Jan) big island, Hawaii for conference\n(Feb) back to ny! \n(April - may) HUUUGE asia trip.. japan yokohama for conference, and took day trips  Kamakura, Fujikiwajizio\nThen I just went to Tokyo -> kyoto -> nara -> osaka with my sister and tao\nThen me and my sister went back to motherland and went shanghai for 2 day layover and saw uncle, and finally went to shenzhen (and Zhu hai and Zhong san) to visit my extended family.. swore id go back for longer next time :) \n(June) SF explorations and bay explorations!! (Lowkey suffered post travel depression) But I was home for the summer! \n(June) SD with hs friends \n(June) mammoth lakes + Yosemite couples road trip\n(July) American river + Tahoe for July 4!!\n(August) Seattle real quick for nikos google thing lol\n(August) Athens and milos!!\n(November) boston real quick for a break + home for thanksgiving \n(December) home for Christmas then Taiwan for new years!\n\nBig island \nNyc, ny\nSf\n2 Bay Area( Napa, Sausalito, Carmel by the sea)\n3 Y\nShanghai\n2 Shenzhen (Zhu hai Zhong san)\nSeoul \nMammoth lakes\nYosemite, American river, Tahoe\nSD\nSeattle, Boston \nAthens\n2 Milos \nTaiwan \n\nJan \n- Went to Hawaii for conference and I fuckin love the beach \n- Chilled in bay and went back to nyc \n\nFeb \n- Color factory in nyc (lowkey scam but whatever)\n- First flowers ever lol \n- I love going to flushing and need to go more this yr\n\nMarch \n- Made first poster \n- Won the c as in Charlie thing bc I drew one piece and got a bottle of wine and im the GOAT\n- Went home for spring break and found my grandpas research paper from Germany on google and he was happy \n\nApril\n- Greek easter! \n- Went to yokohoma for CHI! Gave first presentation \n- Also took day trips to mt fuji and Kamakura\u2026 second time in Japan I felt less like a tourist and paid attention to prices and when iw as getting scammed -_- \n\nMay\n- First animal cafe (and maid cafe -_-)\n- WAGYU WAGYU WAGYU !!\n- Kyoto -> nara -> osaka.. nara was so cool\n- Shanghai -> Shehnzhen (Zhu hai, zhongshan.)\n- Hangout with grandpa :) and asked him alot abt the past \n- Seoul \n- Graduation w vahab \n- Reunited with nikos and went to Carmel by the sea! + he met my fam \n\nJune\n- Explored SF much more this month! Had the best butter chicken of my life \n- Mammoth lakes and yosemite road trip!\n- Went to SD with hs friends.. I want to settle down there I can see it\n- Started editing vlogs as documentation hobby ! \n- Began my huge fuckin matcha drink making phase \n\nJuly \n- Tahoe and American river rafting w siblings + friends!\n- I want to ideate research from scratch lol \n- Surfing in SC and living out of Stanford \n- Started my substack like ive always wanted for funny essays (but the more recent ones have been too serious and I have vulnerability hangover) \n\nAugust \n- Met nikos fam in greece! Stayed in Athens and visited nafplio \n- Went to milos\u2026 literally the most gorgeous place ever I love greece and the islands and cant wait to explore more \n- Think I started rlly figuring out a makeup routine \n- Back to nyc for school\n\nSeptember\n- US open and met new friends (so appreciative <3) \n- Tryna figure out school again\n- Developed a self care routine and started hobbies like painting!\n\nOctober\n- Lotsa burnout :/ and doubted myself alot \n- Cooked more and went through a grandma phase (still lowkey in it)\n- Did a lot of painting in the city \n- were dorian and ionian greek columns for halloween lol \n\nNovember\n- Went to Boston!!\n- Surprise bday for nikos <3 + our anniversary!\n- Went some for thanksgiving and rode zooks and was near a shooting lol.. recovered from burn out a bit\n- Tried to spend more time alone \n- Established some double date buds \n\nDecember\n- Wrapped up work for the year and lots of things came full circle\n- Realized (again) how I should be trusting myself.. reflecting on the year and feeling grateful overall @ my growth\n- Relearned \u201cthe lark\u201d\n- Cooked food\n- Taiwan for new years~\n\nTalk to strangers\nBe more friendly without being salty even if I feel super uncomfortable because I thin someone dislikes me\u2026 don\u2019t overgive tho \nSlow down with what I want and dont want and dont jump to extremes\nTrust nikos wants the best for us more instead of freaking out. Be less codependent and more mindful of my internal experience \n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:53:52.932905Z",
+    "updated_at": "2026-02-18T21:54:22.978452Z"
+  },
+  {
+    "id": "f1467d29-8b4c-4c35-9300-93c8a29abacd",
+    "title": "2025 recap",
+    "body": "Year of self protection! \n\nPayoff of the hard work in research from 2024 and trying to figure out what\u2019s next career wise \n\nstarted to really trying to process an interpersonally traumatic 2024 and reevaluate why I keep putting ppl above me when they don\u2019t appreciate or really see me, decided to continuously try to protect my energy more and work through my self-sacrificing behavior \n\nFeeling a better sense of stability and learning to release control/ manage conflict better through my relationship \n\nJanuary \n- conference in Hawaii! I love the beach I need to settle down near a beach \n- began realizing how my mental health slides when I\u2019m at home\n- Still feeling incredibly lonely and recovering from 2024\n\nFebruary\n- struggling with feeling a sense of non-belonging n ppl that align w my fundamental morals \n- Trying to depend on my siblings more for support \n\nMarch\n- had bad habits of overgiving and not realizing it\n- Had no life outside of work lol \n- Felt like I was getting trapped in unhealthy dynamics but also didn\u2019t know what to do bc it didn\u2019t seem like I could meet people that would actually vibe with me so I brushed my feelings away and didn\u2019t change my behavior \n\nApril\n- Finally got to enjoy nyc after paper submission and run around town \n- Greek Easter\n- went to CHI! First paper was a success and felt like my work was paying off \n\nMay\n- Continued travelling to Japan with Tao and my sister!! So chill and nice \n- Went to see my grandpa and extended family in China and was emo about being away from them (I promised myself to take advantage of being a student as much as possible and come back often)\n- Realized at how bad I am at noticing I something is wrong and how it\u2019s usually too late bc I doubt my intuition\n\nJune\n- spent the summer in the bay before the phd!\n- Went to SD w hs friends!\n- Told my advisor I wanted to learn how to develop my own ideas from scratch \n- Realized the depth at which *childhood trauma* is the cause for me to absorb blame and overgive and end up in bad situations \n- Mental health slid after fat triggers \n- First couples trip with Nikos to mammoth lakes where I drove entire time\n\nJuly \n- decided I need to stand up for myself and actively tried to remove myself from bad situations \n- Went to Tahoe and rafting for July 4th! \n- Had many mental breakdowns reliving past interpersonal conflicts, also trauma dumped it all over nikos lol\n- got to hang out w the friends in the bay! And hang out w grandparents and bonded w my grandpa abt research \n- Decided to heavily explore and prioritize hobbies like art, vlogging, painting, music in the future \n\nAugust\n- went to Greece to meet Nikos family! I have loved Greece ever since 6th grade and now I feel like I manifested it \n- Came back to nyc and had panic attacks of feeling like I couldn\u2019t rely on anyone\n- Trying to be intentional of what type of friends I want to make and the type of community I want to build\n\nSeptember \n- met friends who matched my energy better and I didn\u2019t feel like I was over exerting myself into forcing square into a circle\n- Started PhD officially and trying to navigate around my advisor lol\n- Put way too much pressure on myself and forgot why I liked research to begin with \n- Began doing a lot more self care as a form of self soothing\n\nOctober \n- Continued to put unnecessary pressure on myself and hold myself to an insane standard work-wise\n- Beat myself up over situations bc of self-doubt\n- Became too codependent because I was so scared \n- Burnt out like crazy\n\nNovember\n- tried to make mental shift again to spend more time alone\n- still doubted myself and my decisions a lot but felt more validated about my gut intuitions (but I shouldn\u2019t have to wait for external validation for me to feel some type of way!)\n- Felt more healthy but still prone to panic attacks and not even realizing something is triggering me \n- Relationship with work was changing for the better again although still in the gutter \n- Many double dates!! Happy to find double date situations \n\nDecember \n- Validated that the situation I was trying to leave was worth leaving and that I need to trust my intuition \n- Tryna fuckin push thru some panic attacks, learning to regulate by waiting until my heart rate comes down to take my thoughts seriously\n- Trying to figure out what\u2019s fair vs not and what i can reasonably expect of myself and others \n- Instinctively operated from a place of scarcity/low self esteem again bc my mental health slides at home lol \n- Went to Taiwan before going back to motherland to hang out w my extended family fam!  \n\nOverall I had to confront of a lot of things with myself this year and shed behavior that was not serving me! Ongoing process :) \n\nnext year I want to manage my anxiety and ocd a lot better and let things go (as a form of taking care of myself) without trying to control the future.  Continuing to be more intentional/practice self care and I start to work through some of my resentments so I can exist with more peace and safety. I want to trust more with people who show me they\u2019ve trust worthy instead of letting the past fuck shit up and build a stronger community and get better at communicating things I dislike ",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:54:32.215744Z",
+    "updated_at": "2026-02-18T21:54:47.383952Z"
+  },
+  {
+    "id": "ced14556-e45f-44e6-a01f-06a9b53f3772",
+    "title": "Things I want",
+    "body": "New walking shoes ? Like adidas sambas (green)\nDainty leather loafer like shoes (vagabond)\nClogs \nLong sleeve running tight \nAdidas qipao jacket \nSheer tights possibly Uniqlo \nMatcha whisks \nHobonichi /travel journal/ something that Is thick and can close for a junk journal \nPens \nBrown beanie \nEyeshadow palette \niPhone case \nAirPods case \nHalf trench jacket \nThin sunglasses \nNetted shoulder \nLip stain \nBurberry perfume \nCamera \n\nUniqlo wool ",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:54:51.903841Z",
+    "updated_at": "2026-02-18T21:55:09.521593Z"
+  },
+  {
+    "id": "7769ad55-bcd1-4cae-a1e1-3c420d9466ec",
+    "title": "Massachusetts",
+    "body": "Nantucket\nCape cod \nMartha\u2019s vineyard \nPortland, maine \nNewport, Rhode Island \nBlock island, rhode island \n\nRockport, Massachusetts\nMystic Connecticut \nAcadia national park\nBerkshires\nWhite mountains\nStowe \nSalem \n\nOgunquit, maine",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:55:20.052496Z",
+    "updated_at": "2026-02-18T21:55:26.823699Z"
+  },
+  {
+    "id": "b3268c16-7326-4163-84cb-3386a359997e",
+    "title": "Packing",
+    "body": "Use all the time\nSkin care\nTeeth stuff\nEye stuff\nSleep stuff\n\nUse less commonly\nGrooming\n\nNext to the bed\nSleep stuff\nSkin care \nJewelry \nFoot \n\nIn the bathroom \nEye stuff\nTeeth stuff\nGrooming \n",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:55:32.123236Z",
+    "updated_at": "2026-02-18T21:55:37.630689Z"
+  },
+  {
+    "id": "46f93e29-57cc-43a5-bebb-eebf21266c58",
+    "title": "Journals",
+    "body": "Research journal \nPlanner/reflection journal\nJunk journal/ scrapbook \nTravel journal t",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-18T21:55:44.647397Z",
+    "updated_at": "2026-02-18T21:55:50.089199Z"
   }
 ]
