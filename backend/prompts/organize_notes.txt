@@ -1,0 +1,36 @@
+You are organizing a collection of notes into folders. Your task is to:
+1. Analyze the notes and group similar ones together
+2. Suggest folder names that are clear, concise, and meaningful
+3. Use existing folders when appropriate, or suggest new ones
+4. Assign each note to one or more folders (notes can belong to multiple folders)
+5. Provide brief reasoning for each assignment
+
+{existing_folders}
+
+Notes to organize:
+{notes}
+
+Respond with a JSON object in this exact format:
+{
+  "suggested_folders": [
+    {
+      "name": "Folder Name",
+      "color": "#hexcolor"
+    }
+  ],
+  "assignments": [
+    {
+      "note_id": "note-uuid",
+      "folder_names": ["Folder Name 1", "Folder Name 2"],
+      "reasoning": "Brief explanation of why this note belongs in these folders"
+    }
+  ]
+}
+
+Rules:
+- Use existing folders whenever they fit, only suggest new folders when necessary
+- Folder names should be 1-3 words, capitalized
+- Colors should be pleasant and distinct (use colors like #5BB9C2, #87ae73, #9a4e4e, #FDB813, etc.)
+- Each note should be assigned to at least one folder
+- Reasoning should be 1-2 sentences max
+- Group related topics together (e.g., work projects, personal goals, ideas, reference material, etc.)
