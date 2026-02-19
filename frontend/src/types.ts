@@ -6,6 +6,14 @@ export interface Note {
   is_analyzed: boolean;
   created_at: string;
   updated_at: string;
+  folder_ids?: string[];
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  color?: string;
+  created_at: string;
 }
 
 export interface PlannerItem {
@@ -83,4 +91,15 @@ export interface TranslateResponse {
 
 export interface InspirationsGrouped {
   [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
+}
+
+export interface OrganizeFoldersResponse {
+  suggested_folders: Array<{
+    name: string;
+    color?: string;
+  }>;
+  note_assignments: Array<{
+    note_id: string;
+    folder_names: string[];
+  }>;
 }

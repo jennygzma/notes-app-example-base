@@ -75,3 +75,27 @@ def get_note_links(note_id):
             planner_items.append(item)
     
     return jsonify(planner_items), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['GET'])
+def get_note_folders(note_id):
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    folders = storage.get_note_folders(note_id)
+    return jsonify(folders), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['PUT'])
+def update_note_folders(note_id):
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    data = request.json
+    folder_ids = data.get('folder_ids', [])
+    
+    try:
+        folders = storage.set_note_folders(note_id, folder_ids)
+        return jsonify(folders), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400

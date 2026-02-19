@@ -10,7 +10,9 @@ import {
   CategorizeResponse,
   TranslateResponse,
   InspirationsGrouped,
-  Link
+  Link,
+  Folder,
+  OrganizeFoldersResponse
 } from '../types';
 
 const api = axios.create({
@@ -92,4 +94,24 @@ export const aiApi = {
   
   translate: (noteId: string) => 
     api.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+};
+
+export const foldersApi = {
+  getAll: () => api.get<Folder[]>('/api/folders/'),
+  
+  create: (data: { name: string; color?: string }) => api.post<Folder>('/api/folders/', data),
+  
+  delete: (id: string) => api.delete(`/api/folders/${id}/`),
+  
+  getNoteFolders: (noteId: string) => api.get<Folder[]>(`/api/notes/${noteId}/folders/`),
+  
+  updateNoteFolders: (noteId: string, folderIds: string[]) => 
+    api.put<Folder[]>(`/api/notes/${noteId}/folders/`, { folder_ids: folderIds }),
+  
+  organize: (dryRun: boolean = true, noteIds?: string[], result?: OrganizeFoldersResponse) => 
+    api.post<OrganizeFoldersResponse>('/api/folders/organize/', { 
+      dry_run: dryRun, 
+      note_ids: noteIds,
+      result: result 
+    }),
 };

@@ -12,11 +12,14 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../services/api';
+import FolderSidebar from './FolderSidebar';
+import OrganizeDialog from './OrganizeDialog';
+import { Note, PlannerItem, CategorizeResponse, TranslateResponse, OrganizeFoldersResponse } from '../types';
+import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../services/api';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -46,6 +49,10 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     noteId: string;
     reasoning: string;
   } | null>(null);
+  const [folderFilter, setFolderFilter] = useState<'all' | 'unorganized' | string>('all');
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizeSuggestions, setOrganizeSuggestions] = useState<OrganizeFoldersResponse | null>(null);
+  const [organizingNotes, setOrganizingNotes] = useState(false);
 
   useEffect(() => {
     loadNotes();
@@ -230,14 +237,51 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   };
 
+  const handleOrganizeWithAI = async () => {
+    setOrganizingNotes(true);
+    setOrganizeDialogOpen(true);
+    try {
+      const response = await foldersApi.organize(true);
+      setOrganizeSuggestions(response.data);
+    } catch (error) {
+      showSnackbar('Failed to get AI suggestions', 'error');
+      setOrganizeDialogOpen(false);
+    } finally {
+      setOrganizingNotes(false);
+    }
+  };
+
+  const handleApplyOrganization = async (result: OrganizeFoldersResponse) => {
+    try {
+      await foldersApi.organize(false, undefined, result);
+      showSnackbar('Notes organized successfully', 'success');
+      await loadNotes();
+    } catch (error) {
+      showSnackbar('Failed to apply organization', 'error');
+      throw error;
+    }
+  };
+
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info') => {
     setSnackbar({ open: true, message, severity });
   };
 
+  const filteredNotes = notes.filter((note) => {
+    if (folderFilter === 'all') return true;
+    if (folderFilter === 'unorganized') return !note.folder_ids || note.folder_ids.length === 0;
+    return note.folder_ids?.includes(folderFilter);
+  });
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <NotesList
+      <FolderSidebar
         notes={notes}
+        selectedFilter={folderFilter}
+        onFilterChange={setFolderFilter}
+        onFoldersChange={loadNotes}
+      />
+      <NotesList
+        notes={filteredNotes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
@@ -258,6 +302,14 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       />
 
       <Fab
+        color="secondary"
+        sx={{ position: 'fixed', bottom: 80, right: 16 }}
+        onClick={handleOrganizeWithAI}
+      >
+        <AutoAwesomeIcon />
+      </Fab>
+
+      <Fab
         color="primary"
         sx={{ position: 'fixed', bottom: 16, right: 16 }}
         onClick={handleCreateNote}
@@ -274,6 +326,18 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         onConfirm={handleConfirmTask}
         suggestions={translateSuggestions}
         loading={translatingNoteId !== null}
+      />
+
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        onClose={() => {
+          setOrganizeDialogOpen(false);
+          setOrganizeSuggestions(null);
+        }}
+        onApply={handleApplyOrganization}
+        suggestions={organizeSuggestions}
+        notes={notes}
+        loading={organizingNotes}
       />
 
       <Dialog open={categoryDialog?.open || false} onClose={handleRejectCategory}>

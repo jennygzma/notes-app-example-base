@@ -77,9 +77,18 @@ const NotesList: React.FC<NotesListProps> = ({
               key={note.id}
               selected={selectedNoteId === note.id}
               onClick={() => onSelectNote(note)}
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData('noteId', note.id);
+                e.dataTransfer.effectAllowed = 'move';
+              }}
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
+                cursor: 'grab',
+                '&:active': {
+                  cursor: 'grabbing',
+                },
                 '&.Mui-selected': {
                   backgroundColor: 'action.selected',
                   '&:hover': {
