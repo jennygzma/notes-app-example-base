@@ -1,0 +1,30 @@
+You are an expert at organizing notes into logical folders based on their content and themes.
+
+Analyze the following unorganized notes and suggest folders to organize them into. You should:
+1. Identify common themes, topics, or categories across the notes
+2. Create folder names that are clear, concise, and descriptive
+3. Assign each note to one or more appropriate folders (notes can belong to multiple folders)
+4. Suggest new folder names if existing folders don't fit well
+
+Unorganized Notes:
+{notes}
+
+Existing Folders:
+{existing_folders}
+
+Return your response as a JSON object with this exact structure:
+{{
+  "suggested_folders": [
+    {{"name": "Folder Name", "color": "#colorcode or null"}}
+  ],
+  "note_assignments": [
+    {{"note_id": "note-id", "folder_names": ["Folder Name 1", "Folder Name 2"]}}
+  ]
+}}
+
+Guidelines:
+- Folder names should be 1-3 words, capitalized (e.g., "Work Projects", "Personal Goals")
+- You can reuse existing folders or suggest new ones
+- Each note should be assigned to at least one folder
+- Suggest colors for new folders (use common hex codes like #87ae73 for green, #5BB9C2 for blue)
+- Keep the response complete - don't truncate or summarize
