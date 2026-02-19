@@ -84,3 +84,30 @@ export interface TranslateResponse {
 export interface InspirationsGrouped {
   [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
 }
+
+export interface Folder {
+  id: string;
+  name: string;
+  color?: string;
+  created_at: string;
+}
+
+export interface NoteFolder {
+  id: string;
+  note_id: string;
+  folder_id: string;
+  created_at: string;
+}
+
+export interface OrganizeResponse {
+  suggested_folders: Array<{
+    name: string;
+    color: string;
+  }>;
+  assignments: Array<{
+    note_id: string;
+    folder_names: string[];
+    reasoning: string;
+  }>;
+  message?: string;
+}
