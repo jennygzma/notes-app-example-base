@@ -28,9 +28,21 @@ const NotesList: React.FC<NotesListProps> = ({
   searchQuery,
   onSearchChange,
 }) => {
+  const [draggingNoteId, setDraggingNoteId] = React.useState<string | null>(null);
+
   const getPreview = (body: string): string => {
     const firstLine = body.split('\n')[0].trim();
     return firstLine || 'No content';
+  };
+
+  const handleDragStart = (e: React.DragEvent, noteId: string) => {
+    e.dataTransfer.setData('noteId', noteId);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggingNoteId(noteId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingNoteId(null);
   };
 
   const filteredNotes = notes.filter(note => 
@@ -77,9 +89,17 @@ const NotesList: React.FC<NotesListProps> = ({
               key={note.id}
               selected={selectedNoteId === note.id}
               onClick={() => onSelectNote(note)}
+              draggable
+              onDragStart={(e) => handleDragStart(e, note.id)}
+              onDragEnd={handleDragEnd}
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
+                opacity: draggingNoteId === note.id ? 0.5 : 1,
+                cursor: 'grab',
+                '&:active': {
+                  cursor: 'grabbing',
+                },
                 '&.Mui-selected': {
                   backgroundColor: 'action.selected',
                   '&:hover': {

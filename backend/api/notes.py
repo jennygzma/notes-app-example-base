@@ -7,6 +7,9 @@ storage = LocalStorage()
 @notes_bp.route('/', methods=['GET'])
 def get_notes():
     notes = storage.get_notes()
+    for note in notes:
+        folder_ids = [nf["folder_id"] for nf in storage._read_json(storage.note_folders_file) if nf["note_id"] == note["id"]]
+        note["folder_ids"] = folder_ids
     return jsonify(notes), 200
 
 @notes_bp.route('/', methods=['POST'])
@@ -20,6 +23,7 @@ def create_note():
         title=data['title'],
         body=data.get('body', '')
     )
+    note["folder_ids"] = []
     return jsonify(note), 201
 
 @notes_bp.route('/<note_id>/', methods=['GET'])
@@ -27,6 +31,8 @@ def get_note(note_id):
     note = storage.get_note(note_id)
     if not note:
         return jsonify({"error": "Note not found"}), 404
+    folder_ids = [nf["folder_id"] for nf in storage._read_json(storage.note_folders_file) if nf["note_id"] == note_id]
+    note["folder_ids"] = folder_ids
     return jsonify(note), 200
 
 @notes_bp.route('/<note_id>/', methods=['PUT'])
@@ -40,6 +46,8 @@ def update_note(note_id):
     
     if not note:
         return jsonify({"error": "Note not found"}), 404
+    folder_ids = [nf["folder_id"] for nf in storage._read_json(storage.note_folders_file) if nf["note_id"] == note_id]
+    note["folder_ids"] = folder_ids
     return jsonify(note), 200
 
 @notes_bp.route('/<note_id>/', methods=['DELETE'])
@@ -59,6 +67,8 @@ def patch_note(note_id):
     
     if not note:
         return jsonify({"error": "Note not found"}), 404
+    folder_ids = [nf["folder_id"] for nf in storage._read_json(storage.note_folders_file) if nf["note_id"] == note_id]
+    note["folder_ids"] = folder_ids
     return jsonify(note), 200
 
 @notes_bp.route('/<note_id>/links/', methods=['GET'])
@@ -75,3 +85,26 @@ def get_note_links(note_id):
             planner_items.append(item)
     
     return jsonify(planner_items), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['GET'])
+def get_note_folders(note_id):
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    folders = storage.get_note_folders(note_id)
+    return jsonify(folders), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['PUT'])
+def update_note_folders(note_id):
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    data = request.json
+    folder_ids = data.get('folder_ids', [])
+    
+    storage.set_note_folders(note_id, folder_ids)
+    
+    folders = storage.get_note_folders(note_id)
+    return jsonify(folders), 200

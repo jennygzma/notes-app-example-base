@@ -1,3 +1,11 @@
+export interface Folder {
+  id: string;
+  name: string;
+  color?: string;
+  created_at: string;
+  note_count?: number;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -6,6 +14,7 @@ export interface Note {
   is_analyzed: boolean;
   created_at: string;
   updated_at: string;
+  folder_ids?: string[];
 }
 
 export interface PlannerItem {

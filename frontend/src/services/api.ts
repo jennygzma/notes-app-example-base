@@ -86,6 +86,24 @@ export const linksApi = {
   delete: (id: string) => api.delete(`/api/links/${id}/`),
 };
 
+export const foldersApi = {
+  getAll: () => api.get('/api/folders/'),
+  
+  create: (data: { name: string; color?: string }) => api.post('/api/folders/', data),
+  
+  delete: (id: string) => api.delete(`/api/folders/${id}/`),
+  
+  getNoteFolders: (noteId: string) => api.get(`/api/notes/${noteId}/folders/`),
+  
+  updateNoteFolders: (noteId: string, folderIds: string[]) => 
+    api.put(`/api/notes/${noteId}/folders/`, { folder_ids: folderIds }),
+  
+  organizePreview: () => api.post('/api/folders/organize/', {}),
+  
+  organizeApply: (data: { suggested_folders: any[]; note_assignments: any[] }) => 
+    api.post('/api/folders/organize/apply/', data),
+};
+
 export const aiApi = {
   classify: (noteId: string) =>
     api.post<{ classification: 'inspiration' | 'task'; confidence: number; reasoning: string }>('/api/ai/classify/', { note_id: noteId }),

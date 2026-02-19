@@ -73,3 +73,84 @@ class GPTClient:
             user_prompt=user_prompt,
             use_json=True
         )
+    
+    def _estimate_tokens(self, text: str) -> int:
+        return len(text) // 4
+    
+    def _chunk_notes(self, notes: list, max_tokens: int = 150000) -> list:
+        chunks = []
+        current_chunk = []
+        current_tokens = 0
+        
+        for note in notes:
+            note_text = json.dumps(note, indent=2)
+            note_tokens = self._estimate_tokens(note_text)
+            
+            if current_tokens + note_tokens > max_tokens and current_chunk:
+                chunks.append(current_chunk)
+                current_chunk = []
+                current_tokens = 0
+            
+            current_chunk.append(note)
+            current_tokens += note_tokens
+        
+        if current_chunk:
+            chunks.append(current_chunk)
+        
+        return chunks
+    
+    def _merge_organization_results(self, results: list) -> Dict:
+        all_folders = []
+        all_assignments = []
+        seen_folder_names = set()
+        
+        for result in results:
+            for folder in result.get("suggested_folders", []):
+                if folder["name"] not in seen_folder_names:
+                    all_folders.append(folder)
+                    seen_folder_names.add(folder["name"])
+            
+            all_assignments.extend(result.get("note_assignments", []))
+        
+        return {
+            "suggested_folders": all_folders,
+            "note_assignments": all_assignments
+        }
+    
+    def organize_notes(self, notes: list, existing_folders: list) -> Dict:
+        prompt_template = self._load_prompt("organize_notes")
+        existing_folders_text = json.dumps(existing_folders, indent=2) if existing_folders else "None"
+        
+        notes_text = json.dumps(notes, indent=2)
+        estimated_tokens = self._estimate_tokens(notes_text) + self._estimate_tokens(prompt_template) + self._estimate_tokens(existing_folders_text)
+        
+        if estimated_tokens > 150000:
+            chunks = self._chunk_notes(notes, max_tokens=140000)
+            results = []
+            
+            for chunk in chunks:
+                chunk_text = json.dumps(chunk, indent=2)
+                user_prompt = prompt_template.format(
+                    notes=chunk_text,
+                    existing_folders=existing_folders_text
+                )
+                
+                result = self._call_gpt(
+                    system_message="You are an expert at organizing notes into logical folders.",
+                    user_prompt=user_prompt,
+                    use_json=True
+                )
+                results.append(result)
+            
+            return self._merge_organization_results(results)
+        else:
+            user_prompt = prompt_template.format(
+                notes=notes_text,
+                existing_folders=existing_folders_text
+            )
+            
+            return self._call_gpt(
+                system_message="You are an expert at organizing notes into logical folders.",
+                user_prompt=user_prompt,
+                use_json=True
+            )

@@ -12,11 +12,13 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import FolderSidebar from './FolderSidebar';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../services/api';
+import OrganizeDialog from './OrganizeDialog';
+import { Note, PlannerItem, CategorizeResponse, TranslateResponse, Folder } from '../types';
+import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../services/api';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -34,6 +36,11 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [translatingNoteId, setTranslatingNoteId] = useState<string | null>(null);
   const [translateSuggestions, setTranslateSuggestions] = useState<TranslateResponse | null>(null);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [organizing, setOrganizing] = useState(false);
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizeSuggestions, setOrganizeSuggestions] = useState<any>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -49,6 +56,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   useEffect(() => {
     loadNotes();
+    loadFolders();
   }, []);
 
   useEffect(() => {
@@ -93,6 +101,32 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   };
 
+  const loadFolders = async () => {
+    try {
+      const response = await foldersApi.getAll();
+      setFolders(response.data);
+    } catch (error) {
+      showSnackbar('Failed to load folders', 'error');
+    }
+  };
+
+  const handleNoteDrop = async (noteId: string, folderId: string | null) => {
+    try {
+      const folderIds = folderId ? [folderId] : [];
+      await foldersApi.updateNoteFolders(noteId, folderIds);
+      await loadNotes();
+      showSnackbar('Note moved to folder', 'success');
+    } catch (error) {
+      showSnackbar('Failed to move note', 'error');
+    }
+  };
+
+  const filteredNotes = selectedFolderId === 'unorganized'
+    ? notes.filter(note => !note.folder_ids || note.folder_ids.length === 0)
+    : selectedFolderId
+    ? notes.filter(note => note.folder_ids?.includes(selectedFolderId))
+    : notes;
+
   const handleCreateNote = async () => {
     try {
       const response = await notesApi.create({ title: 'New Note', body: '' });
@@ -130,16 +164,13 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const handleCategorize = async (noteId: string) => {
     setCategorizingNoteId(noteId);
     try {
-      // First, classify the note
       const classifyResponse = await aiApi.classify(noteId);
       const classification = classifyResponse.data;
 
       if (classification.classification === 'task') {
-        // Route to task conversion
         setCategorizingNoteId(null);
         await handleConvertToTask(noteId);
       } else {
-        // Route to inspiration categorization
         const response = await inspirationsApi.categorize(noteId);
         const result: CategorizeResponse = response.data;
 
@@ -210,23 +241,45 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     if (!selectedNote) return;
 
     try {
-      // Create the planner item
       const taskResponse = await plannerApi.create(task);
       const createdTask = taskResponse.data;
 
-      // Create the link between note and task
       await linksApi.create(selectedNote.id, createdTask.id);
 
-      // Mark note as analyzed (classified as task)
       await notesApi.markAnalyzed(selectedNote.id);
 
       showSnackbar('Task created and linked to note', 'success');
       
-      // Reload notes and linked items
       loadNotes();
       loadLinkedItems(selectedNote.id);
     } catch (error) {
       showSnackbar('Failed to create task', 'error');
+    }
+  };
+
+  const handleOrganizeWithAI = async () => {
+    setOrganizing(true);
+    try {
+      const response = await foldersApi.organizePreview();
+      setOrganizeSuggestions(response.data);
+      setOrganizeDialogOpen(true);
+    } catch (error) {
+      showSnackbar('Failed to organize notes with AI', 'error');
+    } finally {
+      setOrganizing(false);
+    }
+  };
+
+  const handleApproveOrganization = async (approvedData: any) => {
+    try {
+      await foldersApi.organizeApply(approvedData);
+      await loadNotes();
+      await loadFolders();
+      setOrganizeDialogOpen(false);
+      setOrganizeSuggestions(null);
+      showSnackbar('Notes organized successfully', 'success');
+    } catch (error) {
+      showSnackbar('Failed to apply organization', 'error');
     }
   };
 
@@ -236,8 +289,17 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
+      <FolderSidebar
+        selectedFolderId={selectedFolderId}
+        onFolderSelect={setSelectedFolderId}
+        folders={folders}
+        onFoldersChange={loadFolders}
+        onNoteDrop={handleNoteDrop}
+        onOrganizeWithAI={handleOrganizeWithAI}
+        organizing={organizing}
+      />
       <NotesList
-        notes={notes}
+        notes={filteredNotes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
@@ -275,6 +337,20 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         suggestions={translateSuggestions}
         loading={translatingNoteId !== null}
       />
+
+      {organizeSuggestions && (
+        <OrganizeDialog
+          open={organizeDialogOpen}
+          onClose={() => {
+            setOrganizeDialogOpen(false);
+            setOrganizeSuggestions(null);
+          }}
+          suggestedFolders={organizeSuggestions.suggested_folders || []}
+          noteAssignments={organizeSuggestions.note_assignments || []}
+          notes={notes}
+          onApprove={handleApproveOrganization}
+        />
+      )}
 
       <Dialog open={categoryDialog?.open || false} onClose={handleRejectCategory}>
         <DialogTitle>New Category Discovered</DialogTitle>
