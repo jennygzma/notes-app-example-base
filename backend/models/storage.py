@@ -15,16 +15,21 @@ class LocalStorage:
         self.inspirations_file = self.base_path / "inspirations.json"
         self.categories_file = self.base_path / "inspiration_categories.json"
         self.links_file = self.base_path / "links.json"
+        self.folders_file = self.base_path / "folders.json"
+        self.note_folders_file = self.base_path / "note_folders.json"
         
         self._init_files()
     
     def _init_files(self):
         for file in [self.notes_file, self.planner_items_file, self.inspirations_file, 
-                     self.categories_file, self.links_file]:
+                     self.categories_file, self.links_file, self.folders_file, self.note_folders_file]:
             if not file.exists():
                 self._write_json(file, [])
     
     def _read_json(self, file_path: Path) -> List[Dict]:
+        if not file_path.exists():
+            self._write_json(file_path, [])
+            return []
         with open(file_path, 'r') as f:
             return json.load(f)
     
@@ -248,3 +253,91 @@ class LocalStorage:
             self._write_json(self.links_file, filtered)
             return True
         return False
+    
+    def create_folder(self, name: str, color: Optional[str] = None) -> Dict:
+        folders = self._read_json(self.folders_file)
+        folder = {
+            "id": self._generate_id(),
+            "name": name,
+            "color": color,
+            "created_at": self._now()
+        }
+        folders.append(folder)
+        self._write_json(self.folders_file, folders)
+        return folder
+    
+    def get_folders(self) -> List[Dict]:
+        return self._read_json(self.folders_file)
+    
+    def get_folder(self, folder_id: str) -> Optional[Dict]:
+        folders = self._read_json(self.folders_file)
+        return next((f for f in folders if f["id"] == folder_id), None)
+    
+    def update_folder(self, folder_id: str, name: Optional[str] = None, color: Optional[str] = None) -> Optional[Dict]:
+        folders = self._read_json(self.folders_file)
+        for folder in folders:
+            if folder["id"] == folder_id:
+                if name is not None:
+                    folder["name"] = name
+                if color is not None:
+                    folder["color"] = color
+                self._write_json(self.folders_file, folders)
+                return folder
+        return None
+    
+    def delete_folder(self, folder_id: str) -> bool:
+        folders = self._read_json(self.folders_file)
+        filtered = [f for f in folders if f["id"] != folder_id]
+        if len(filtered) < len(folders):
+            self._write_json(self.folders_file, filtered)
+            note_folders = self._read_json(self.note_folders_file)
+            note_folders = [nf for nf in note_folders if nf["folder_id"] != folder_id]
+            self._write_json(self.note_folders_file, note_folders)
+            return True
+        return False
+    
+    def add_note_to_folder(self, note_id: str, folder_id: str) -> Dict:
+        note_folders = self._read_json(self.note_folders_file)
+        
+        existing = next((nf for nf in note_folders if nf["note_id"] == note_id and nf["folder_id"] == folder_id), None)
+        if existing:
+            return existing
+        
+        note_folder = {
+            "id": self._generate_id(),
+            "note_id": note_id,
+            "folder_id": folder_id,
+            "created_at": self._now()
+        }
+        note_folders.append(note_folder)
+        self._write_json(self.note_folders_file, note_folders)
+        return note_folder
+    
+    def remove_note_from_folder(self, note_id: str, folder_id: str) -> bool:
+        note_folders = self._read_json(self.note_folders_file)
+        filtered = [nf for nf in note_folders if not (nf["note_id"] == note_id and nf["folder_id"] == folder_id)]
+        if len(filtered) < len(note_folders):
+            self._write_json(self.note_folders_file, filtered)
+            return True
+        return False
+    
+    def get_folders_for_note(self, note_id: str) -> List[Dict]:
+        note_folders = self._read_json(self.note_folders_file)
+        folder_ids = [nf["folder_id"] for nf in note_folders if nf["note_id"] == note_id]
+        
+        folders = self._read_json(self.folders_file)
+        return [f for f in folders if f["id"] in folder_ids]
+    
+    def get_notes_in_folder(self, folder_id: str) -> List[Dict]:
+        note_folders = self._read_json(self.note_folders_file)
+        note_ids = [nf["note_id"] for nf in note_folders if nf["folder_id"] == folder_id]
+        
+        notes = self._read_json(self.notes_file)
+        return [n for n in notes if n["id"] in note_ids]
+    
+    def get_unorganized_notes(self) -> List[Dict]:
+        note_folders = self._read_json(self.note_folders_file)
+        organized_note_ids = set(nf["note_id"] for nf in note_folders)
+        
+        notes = self._read_json(self.notes_file)
+        return [n for n in notes if n["id"] not in organized_note_ids]
