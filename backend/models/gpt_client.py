@@ -73,20 +73,3 @@ class GPTClient:
             user_prompt=user_prompt,
             use_json=True
         )
-    
-    def organize_notes(self, notes: list, existing_folders: list) -> Dict:
-        prompt_template = self._load_prompt("organize_notes")
-        
-        notes_text = json.dumps([{"id": n["id"], "title": n["title"], "body": n["body"]} for n in notes], indent=2)
-        folders_text = ', '.join([f["name"] for f in existing_folders]) if existing_folders else 'None'
-        
-        user_prompt = prompt_template.format(
-            existing_folders=folders_text,
-            notes=notes_text
-        )
-        
-        return self._call_gpt(
-            system_message="You are a helpful assistant that organizes notes into folders.",
-            user_prompt=user_prompt,
-            use_json=True
-        )

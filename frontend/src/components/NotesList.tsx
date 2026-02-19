@@ -19,8 +19,6 @@ interface NotesListProps {
   onSelectNote: (note: Note) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onDragStart?: (note: Note) => void;
-  onDragEnd?: () => void;
 }
 
 const NotesList: React.FC<NotesListProps> = ({
@@ -29,8 +27,6 @@ const NotesList: React.FC<NotesListProps> = ({
   onSelectNote,
   searchQuery,
   onSearchChange,
-  onDragStart,
-  onDragEnd,
 }) => {
   const getPreview = (body: string): string => {
     const firstLine = body.split('\n')[0].trim();
@@ -81,16 +77,9 @@ const NotesList: React.FC<NotesListProps> = ({
               key={note.id}
               selected={selectedNoteId === note.id}
               onClick={() => onSelectNote(note)}
-              draggable={!!onDragStart}
-              onDragStart={() => onDragStart?.(note)}
-              onDragEnd={() => onDragEnd?.()}
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
-                cursor: onDragStart ? 'grab' : 'pointer',
-                '&:active': {
-                  cursor: onDragStart ? 'grabbing' : 'pointer',
-                },
                 '&.Mui-selected': {
                   backgroundColor: 'action.selected',
                   '&:hover': {

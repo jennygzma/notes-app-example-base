@@ -12,14 +12,11 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
-import FolderSidebar from './FolderSidebar';
-import OrganizeDialog from './OrganizeDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse, Folder, OrganizeResponse } from '../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../services/api';
+import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../types';
+import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../services/api';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -37,16 +34,6 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [translatingNoteId, setTranslatingNoteId] = useState<string | null>(null);
   const [translateSuggestions, setTranslateSuggestions] = useState<TranslateResponse | null>(null);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
-  
-  // Folders state
-  const [folders, setFolders] = useState<Folder[]>([]);
-  const [unorganizedNotes, setUnorganizedNotes] = useState<Note[]>([]);
-  const [selectedView, setSelectedView] = useState<'all' | 'unorganized' | string>('all');
-  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
-  const [organizeSuggestions, setOrganizeSuggestions] = useState<OrganizeResponse | null>(null);
-  const [organizeLoading, setOrganizeLoading] = useState(false);
-  const [draggedNote, setDraggedNote] = useState<Note | null>(null);
-  
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -62,8 +49,6 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   useEffect(() => {
     loadNotes();
-    loadFolders();
-    loadUnorganizedNotes();
   }, []);
 
   useEffect(() => {
@@ -83,24 +68,6 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       setNotes(response.data);
     } catch (error) {
       showSnackbar('Failed to load notes', 'error');
-    }
-  };
-
-  const loadFolders = async () => {
-    try {
-      const response = await foldersApi.getAll();
-      setFolders(response.data);
-    } catch (error) {
-      showSnackbar('Failed to load folders', 'error');
-    }
-  };
-
-  const loadUnorganizedNotes = async () => {
-    try {
-      const response = await foldersApi.getUnorganized();
-      setUnorganizedNotes(response.data);
-    } catch (error) {
-      setUnorganizedNotes([]);
     }
   };
 
@@ -163,13 +130,16 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const handleCategorize = async (noteId: string) => {
     setCategorizingNoteId(noteId);
     try {
+      // First, classify the note
       const classifyResponse = await aiApi.classify(noteId);
       const classification = classifyResponse.data;
 
       if (classification.classification === 'task') {
+        // Route to task conversion
         setCategorizingNoteId(null);
         await handleConvertToTask(noteId);
       } else {
+        // Route to inspiration categorization
         const response = await inspirationsApi.categorize(noteId);
         const result: CategorizeResponse = response.data;
 
@@ -240,86 +210,23 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     if (!selectedNote) return;
 
     try {
+      // Create the planner item
       const taskResponse = await plannerApi.create(task);
       const createdTask = taskResponse.data;
+
+      // Create the link between note and task
       await linksApi.create(selectedNote.id, createdTask.id);
+
+      // Mark note as analyzed (classified as task)
       await notesApi.markAnalyzed(selectedNote.id);
 
       showSnackbar('Task created and linked to note', 'success');
       
+      // Reload notes and linked items
       loadNotes();
       loadLinkedItems(selectedNote.id);
     } catch (error) {
       showSnackbar('Failed to create task', 'error');
-    }
-  };
-
-  // Folders handlers
-  const handleOrganize = async () => {
-    setOrganizeLoading(true);
-    setOrganizeDialogOpen(true);
-    try {
-      const response = await foldersApi.organize();
-      setOrganizeSuggestions(response.data);
-    } catch (error) {
-      showSnackbar('Failed to organize notes', 'error');
-      setOrganizeDialogOpen(false);
-    } finally {
-      setOrganizeLoading(false);
-    }
-  };
-
-  const handleApplyOrganization = async (data: OrganizeResponse) => {
-    try {
-      await foldersApi.applyOrganization(data);
-      showSnackbar('Notes organized successfully', 'success');
-      await loadFolders();
-      await loadUnorganizedNotes();
-      await loadNotes();
-    } catch (error) {
-      showSnackbar('Failed to apply organization', 'error');
-    }
-  };
-
-  const handleDeleteFolder = async (folderId: string) => {
-    try {
-      await foldersApi.delete(folderId);
-      showSnackbar('Folder deleted', 'success');
-      await loadFolders();
-      await loadUnorganizedNotes();
-    } catch (error) {
-      showSnackbar('Failed to delete folder', 'error');
-    }
-  };
-
-  const handleDragStart = (note: Note) => {
-    setDraggedNote(note);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedNote(null);
-  };
-
-  const handleDropOnFolder = async (folderId: string) => {
-    if (!draggedNote) return;
-
-    try {
-      await foldersApi.addNoteToFolder(draggedNote.id, folderId);
-      showSnackbar('Note added to folder', 'success');
-      await loadUnorganizedNotes();
-    } catch (error) {
-      showSnackbar('Failed to add note to folder', 'error');
-    }
-  };
-
-  const getDisplayNotes = (): Note[] => {
-    if (selectedView === 'all') {
-      return notes;
-    } else if (selectedView === 'unorganized') {
-      return unorganizedNotes;
-    } else {
-      // Filter notes by folder (will be implemented when notes are loaded with folder info)
-      return notes;
     }
   };
 
@@ -329,31 +236,13 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <FolderSidebar
-        folders={folders}
-        allNotes={notes}
-        unorganizedNotes={unorganizedNotes}
-        selectedView={selectedView}
-        onSelectView={setSelectedView}
-        onSelectNote={setSelectedNote}
-        onDeleteFolder={handleDeleteFolder}
-        onRefresh={() => {
-          loadFolders();
-          loadUnorganizedNotes();
-        }}
-        onDropOnFolder={handleDropOnFolder}
-      />
-      
       <NotesList
-        notes={getDisplayNotes()}
+        notes={notes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
       />
-      
       <NoteDetail
         note={selectedNote}
         onUpdate={handleUpdateNote}
@@ -375,26 +264,6 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       >
         <AddIcon />
       </Fab>
-
-      <Fab
-        color="secondary"
-        sx={{ position: 'fixed', bottom: 16, right: 88 }}
-        onClick={handleOrganize}
-      >
-        <AutoAwesomeIcon />
-      </Fab>
-
-      <OrganizeDialog
-        open={organizeDialogOpen}
-        onClose={() => {
-          setOrganizeDialogOpen(false);
-          setOrganizeSuggestions(null);
-        }}
-        onApply={handleApplyOrganization}
-        suggestions={organizeSuggestions}
-        loading={organizeLoading}
-        allNotes={notes}
-      />
 
       <ConvertToTaskDialog
         open={convertDialogOpen}

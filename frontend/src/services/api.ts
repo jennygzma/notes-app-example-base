@@ -10,9 +10,7 @@ import {
   CategorizeResponse,
   TranslateResponse,
   InspirationsGrouped,
-  Link,
-  Folder,
-  OrganizeResponse
+  Link
 } from '../types';
 
 const api = axios.create({
@@ -94,37 +92,4 @@ export const aiApi = {
   
   translate: (noteId: string) => 
     api.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
-};
-
-export const foldersApi = {
-  getAll: () => api.get<Folder[]>('/api/folders/'),
-  
-  create: (data: { name: string; color?: string }) => api.post<Folder>('/api/folders/', data),
-  
-  getById: (id: string) => api.get<Folder>(`/api/folders/${id}/`),
-  
-  update: (id: string, data: { name?: string; color?: string }) => 
-    api.put<Folder>(`/api/folders/${id}/`, data),
-  
-  delete: (id: string) => api.delete(`/api/folders/${id}/`),
-  
-  getNotes: (folderId: string) => api.get<Note[]>(`/api/folders/${folderId}/notes/`),
-  
-  getUnorganized: () => api.get<Note[]>('/api/folders/unorganized/'),
-  
-  organize: () => api.post<OrganizeResponse>('/api/folders/organize/'),
-  
-  applyOrganization: (data: OrganizeResponse) => 
-    api.post('/api/folders/organize/apply/', data),
-  
-  getNoteFolders: (noteId: string) => api.get<Folder[]>(`/api/notes/${noteId}/folders/`),
-  
-  updateNoteFolders: (noteId: string, folderIds: string[]) => 
-    api.put<Folder[]>(`/api/notes/${noteId}/folders/`, { folder_ids: folderIds }),
-  
-  addNoteToFolder: (noteId: string, folderId: string) => 
-    api.post(`/api/notes/${noteId}/folders/${folderId}/`),
-  
-  removeNoteFromFolder: (noteId: string, folderId: string) => 
-    api.delete(`/api/notes/${noteId}/folders/${folderId}/`),
 };
