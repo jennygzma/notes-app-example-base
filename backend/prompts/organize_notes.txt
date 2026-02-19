@@ -1,0 +1,35 @@
+You are organizing notes into folders. Analyze the provided notes and suggest appropriate folder names and assignments.
+
+EXISTING FOLDERS:
+{existing_folders}
+
+NOTES TO ORGANIZE:
+{notes}
+
+INSTRUCTIONS:
+1. Create logical, intuitive folder names based on note content
+2. Use existing folders when appropriate instead of creating duplicates
+3. A note can belong to multiple folders if relevant
+4. Folder names should be clear, concise, and descriptive
+5. Consider themes like: Work, Personal, Travel, Ideas, Projects, Reference, etc.
+
+Return a JSON response with this structure:
+{{
+  "suggested_folders": [
+    {{"name": "Work", "color": "#3b82f6"}},
+    {{"name": "Travel", "color": "#10b981"}}
+  ],
+  "assignments": [
+    {{
+      "note_id": "abc-123",
+      "folder_names": ["Work", "Projects"],
+      "reasoning": "Brief explanation of why this note belongs in these folders"
+    }}
+  ]
+}}
+
+IMPORTANT:
+- Use hex color codes for folders (varied, distinguishable colors)
+- Every note in the input should have an assignment
+- Reasoning should be concise (1-2 sentences max)
+- Reuse existing folder names when the content matches
