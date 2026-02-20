@@ -71,20 +71,19 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const loadTasks = async () => {
     try {
       const { start, end } = getDateRange();
-      const response = await plannerApi.getItems({ 
-        date_start: start, 
+      const tasksData = await plannerApi.getItems({
+        date_start: start,
         date_end: end,
         view_type: viewType
       });
-      const tasksData = response.data;
       setTasks(tasksData);
       
       // Load linked notes for each task
-      const linksMap: { [taskId: string]: Note[] } = {};
+      const linksMap: Record<string, Note[]> = {};
       for (const task of tasksData) {
         try {
-          const notesResponse = await plannerApi.getLinks(task.id);
-          linksMap[task.id] = notesResponse.data;
+          const linkedNotes = await plannerApi.getLinks(task.id);
+          linksMap[task.id] = linkedNotes;
         } catch {
           linksMap[task.id] = [];
         }

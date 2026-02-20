@@ -1,3 +1,5 @@
+// ==================== Base Models ====================
+
 export interface Note {
   id: string;
   title: string;
@@ -43,9 +45,11 @@ export interface Link {
   created_at: string;
 }
 
+// ==================== Request Types ====================
+
 export interface CreateNoteRequest {
   title: string;
-  body: string;
+  body?: string;
 }
 
 export interface UpdateNoteRequest {
@@ -53,12 +57,72 @@ export interface UpdateNoteRequest {
   body?: string;
 }
 
+export interface PatchNoteRequest {
+  is_analyzed?: boolean;
+  is_inspiration?: boolean;
+}
+
 export interface CreatePlannerItemRequest {
   title: string;
   body: string;
   date: string;
   time?: string;
-  view_type: 'weekly' | 'monthly';
+  view_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
+export interface UpdatePlannerItemRequest {
+  title?: string;
+  body?: string;
+  date?: string;
+  time?: string;
+  view_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  status?: 'pending' | 'completed';
+}
+
+export interface CategorizeNoteRequest {
+  note_id: string;
+}
+
+export interface TranslateNoteRequest {
+  note_id: string;
+}
+
+export interface ClassifyNoteRequest {
+  note_id: string;
+}
+
+export interface CreateLinkRequest {
+  note_id: string;
+  planner_item_id: string;
+}
+
+export interface ApproveCategoryRequest {
+  note_id?: string;
+}
+
+// ==================== Response Types ====================
+
+export interface ErrorResponse {
+  error: string;
+  details?: string;
+}
+
+export interface ClassifyResponse {
+  classification: 'inspiration' | 'task';
+  confidence: number;
+  reasoning: string;
+}
+
+export interface TranslateSuggestion {
+  title: string;
+  body: string;
+  date: string;
+  time: string | null;
+  view_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
+export interface TranslateResponse {
+  suggestions: TranslateSuggestion[];
 }
 
 export interface CategorizeResponse {
@@ -71,16 +135,31 @@ export interface CategorizeResponse {
   status: 'created' | 'pending_approval';
 }
 
-export interface TranslateResponse {
-  suggestions: Array<{
-    title: string;
-    body: string;
-    date: string;
-    time: string | null;
-    view_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  }>;
+export interface ApproveCategoryResponse {
+  category: InspirationCategory;
+  inspiration?: Inspiration;
+}
+
+// ==================== Grouped Response Types ====================
+
+export interface NoteWithInspiration extends Note {
+  inspiration_id: string;
+  ai_confidence: number;
 }
 
 export interface InspirationsGrouped {
-  [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
+  [category: string]: NoteWithInspiration[];
+}
+
+// ==================== API Response Wrappers ====================
+
+export interface ApiResponse<T> {
+  data: T;
+  error?: ErrorResponse;
+}
+
+export interface ApiState<T> {
+  data: T | null;
+  loading: boolean;
+  error: ErrorResponse | null;
 }
