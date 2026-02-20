@@ -63,21 +63,21 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   }, [selectedNote]);
 
   const loadNotes = async () => {
-    try {
-      const response = await notesApi.getAll();
-      setNotes(response.data);
-    } catch (error) {
+    const response = await notesApi.getAll();
+    if (response.error) {
       showSnackbar('Failed to load notes', 'error');
+      return;
     }
+    setNotes(response.data);
   };
 
   const loadLinkedItems = async (noteId: string) => {
-    try {
-      const response = await notesApi.getLinks(noteId);
-      setLinkedItems(response.data);
-    } catch (error) {
+    const response = await notesApi.getLinks(noteId);
+    if (response.error) {
       setLinkedItems([]);
+      return;
     }
+    setLinkedItems(response.data);
   };
 
   const loadNoteCategory = async (noteId: string) => {
@@ -94,26 +94,26 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   };
 
   const handleCreateNote = async () => {
-    try {
-      const response = await notesApi.create({ title: 'New Note', body: '' });
-      const newNote = response.data;
-      setNotes([newNote, ...notes]);
-      setSelectedNote(newNote);
-      showSnackbar('Note created', 'success');
-    } catch (error) {
+    const response = await notesApi.create({ title: 'New Note', body: '' });
+    if (response.error) {
       showSnackbar('Failed to create note', 'error');
+      return;
     }
+    const newNote = response.data;
+    setNotes([newNote, ...notes]);
+    setSelectedNote(newNote);
+    showSnackbar('Note created', 'success');
   };
 
   const handleUpdateNote = async (id: string, title: string, body: string) => {
-    try {
-      const response = await notesApi.update(id, { title, body });
-      setNotes(notes.map(n => n.id === id ? response.data : n));
-      setSelectedNote(response.data);
-      showSnackbar('Note saved', 'success');
-    } catch (error) {
+    const response = await notesApi.update(id, { title, body });
+    if (response.error) {
       showSnackbar('Failed to save note', 'error');
+      return;
     }
+    setNotes(notes.map(n => n.id === id ? response.data : n));
+    setSelectedNote(response.data);
+    showSnackbar('Note saved', 'success');
   };
 
   const handleDeleteNote = async (id: string) => {
@@ -129,35 +129,38 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const handleCategorize = async (noteId: string) => {
     setCategorizingNoteId(noteId);
-    try {
-      // First, classify the note
-      const classifyResponse = await aiApi.classify(noteId);
-      const classification = classifyResponse.data;
+    
+    const classifyResponse = await aiApi.classify(noteId);
+    if (classifyResponse.error) {
+      showSnackbar('Failed to classify note', 'error');
+      setCategorizingNoteId(null);
+      return;
+    }
+    const classification = classifyResponse.data;
 
-      if (classification.classification === 'task') {
-        // Route to task conversion
+    if (classification.classification === 'task') {
+      setCategorizingNoteId(null);
+      await handleConvertToTask(noteId);
+    } else {
+      const response = await inspirationsApi.categorize(noteId);
+      if (response.error) {
+        showSnackbar('Failed to categorize note', 'error');
         setCategorizingNoteId(null);
-        await handleConvertToTask(noteId);
-      } else {
-        // Route to inspiration categorization
-        const response = await inspirationsApi.categorize(noteId);
-        const result: CategorizeResponse = response.data;
-
-        if (result.is_new_category) {
-          setCategoryDialog({
-            open: true,
-            category: result.category,
-            categoryId: result.category_id!,
-            noteId: noteId,
-            reasoning: result.reasoning || '',
-          });
-        } else {
-          showSnackbar(`Categorized as "${result.category}"`, 'success');
-        }
-        setCategorizingNoteId(null);
+        return;
       }
-    } catch (error) {
-      showSnackbar('Failed to process note with AI', 'error');
+      const result = response.data;
+
+      if (result.is_new_category) {
+        setCategoryDialog({
+          open: true,
+          category: result.category,
+          categoryId: result.category_id!,
+          noteId: noteId,
+          reasoning: result.reasoning || '',
+        });
+      } else {
+        showSnackbar(`Categorized as "${result.category}"`, 'success');
+      }
       setCategorizingNoteId(null);
     }
   };
@@ -209,25 +212,20 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   }) => {
     if (!selectedNote) return;
 
-    try {
-      // Create the planner item
-      const taskResponse = await plannerApi.create(task);
-      const createdTask = taskResponse.data;
-
-      // Create the link between note and task
-      await linksApi.create(selectedNote.id, createdTask.id);
-
-      // Mark note as analyzed (classified as task)
-      await notesApi.markAnalyzed(selectedNote.id);
-
-      showSnackbar('Task created and linked to note', 'success');
-      
-      // Reload notes and linked items
-      loadNotes();
-      loadLinkedItems(selectedNote.id);
-    } catch (error) {
+    const taskResponse = await plannerApi.create(task);
+    if (taskResponse.error) {
       showSnackbar('Failed to create task', 'error');
+      return;
     }
+    const createdTask = taskResponse.data;
+
+    await linksApi.create(selectedNote.id, createdTask.id);
+    await notesApi.markAnalyzed(selectedNote.id);
+
+    showSnackbar('Task created and linked to note', 'success');
+    
+    loadNotes();
+    loadLinkedItems(selectedNote.id);
   };
 
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info') => {

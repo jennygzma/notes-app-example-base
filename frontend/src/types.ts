@@ -51,6 +51,8 @@ export interface CreateNoteRequest {
 export interface UpdateNoteRequest {
   title?: string;
   body?: string;
+  is_inspiration?: boolean;
+  is_analyzed?: boolean;
 }
 
 export interface CreatePlannerItemRequest {
@@ -58,7 +60,16 @@ export interface CreatePlannerItemRequest {
   body: string;
   date: string;
   time?: string;
-  view_type: 'weekly' | 'monthly';
+  view_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
+export interface UpdatePlannerItemRequest {
+  title?: string;
+  body?: string;
+  date?: string;
+  time?: string;
+  view_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  status?: 'pending' | 'completed';
 }
 
 export interface CategorizeResponse {
@@ -71,16 +82,46 @@ export interface CategorizeResponse {
   status: 'created' | 'pending_approval';
 }
 
+export interface PlannerSuggestion {
+  title: string;
+  body: string;
+  date: string;
+  time: string | null;
+  view_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
 export interface TranslateResponse {
-  suggestions: Array<{
-    title: string;
-    body: string;
-    date: string;
-    time: string | null;
-    view_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  }>;
+  suggestions: PlannerSuggestion[];
+}
+
+export interface ClassifyResponse {
+  classification: 'inspiration' | 'task';
+  confidence: number;
+  reasoning: string;
 }
 
 export interface InspirationsGrouped {
   [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: any;
+}
+
+export type ApiResponse<T> = {
+  data: T;
+  error: null;
+} | {
+  data: null;
+  error: ApiError;
+};
+
+export type LoadingState = 'idle' | 'loading' | 'success' | 'error';
+
+export interface AsyncState<T> {
+  state: LoadingState;
+  data: T | null;
+  error: ApiError | null;
 }

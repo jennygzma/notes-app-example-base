@@ -1,95 +1,135 @@
-import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { apiClient } from './apiClient';
 import {
   Note,
   CreateNoteRequest,
   UpdateNoteRequest,
   PlannerItem,
   CreatePlannerItemRequest,
+  UpdatePlannerItemRequest,
   InspirationCategory,
   CategorizeResponse,
   TranslateResponse,
+  ClassifyResponse,
   InspirationsGrouped,
-  Link
+  Link,
+  ApiResponse,
 } from '../types';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
 export const notesApi = {
-  getAll: () => api.get<Note[]>('/api/notes/'),
+  getAll: async (): Promise<ApiResponse<Note[]>> => {
+    return apiClient.get<Note[]>('/api/notes/');
+  },
   
-  create: (data: CreateNoteRequest) => api.post<Note>('/api/notes/', data),
+  create: async (data: CreateNoteRequest): Promise<ApiResponse<Note>> => {
+    return apiClient.post<Note>('/api/notes/', data);
+  },
   
-  getById: (id: string) => api.get<Note>(`/api/notes/${id}/`),
+  getById: async (id: string): Promise<ApiResponse<Note>> => {
+    return apiClient.get<Note>(`/api/notes/${id}/`);
+  },
   
-  update: (id: string, data: UpdateNoteRequest) => api.put<Note>(`/api/notes/${id}/`, data),
+  update: async (id: string, data: UpdateNoteRequest): Promise<ApiResponse<Note>> => {
+    return apiClient.put<Note>(`/api/notes/${id}/`, data);
+  },
   
-  delete: (id: string) => api.delete(`/api/notes/${id}/`),
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    return apiClient.delete(`/api/notes/${id}/`);
+  },
   
-  getLinks: (id: string) => api.get<PlannerItem[]>(`/api/notes/${id}/links/`),
+  getLinks: async (id: string): Promise<ApiResponse<PlannerItem[]>> => {
+    return apiClient.get<PlannerItem[]>(`/api/notes/${id}/links/`);
+  },
   
-  markAnalyzed: (id: string) => api.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
+  markAnalyzed: async (id: string): Promise<ApiResponse<Note>> => {
+    return apiClient.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true });
+  },
 };
 
 export const plannerApi = {
-  getItems: (params?: {
+  getItems: async (params?: {
     date_start?: string;
     date_end?: string;
     view_type?: string;
     status?: string;
-  }) => api.get<PlannerItem[]>('/api/planner/items/', { params }),
+  }): Promise<ApiResponse<PlannerItem[]>> => {
+    return apiClient.get<PlannerItem[]>('/api/planner/items/', params);
+  },
   
-  create: (data: CreatePlannerItemRequest) => api.post<PlannerItem>('/api/planner/items/', data),
+  create: async (data: CreatePlannerItemRequest): Promise<ApiResponse<PlannerItem>> => {
+    return apiClient.post<PlannerItem>('/api/planner/items/', data);
+  },
   
-  getById: (id: string) => api.get<PlannerItem>(`/api/planner/items/${id}/`),
+  getById: async (id: string): Promise<ApiResponse<PlannerItem>> => {
+    return apiClient.get<PlannerItem>(`/api/planner/items/${id}/`);
+  },
   
-  update: (id: string, data: Partial<CreatePlannerItemRequest>) => 
-    api.put<PlannerItem>(`/api/planner/items/${id}/`, data),
+  update: async (id: string, data: UpdatePlannerItemRequest): Promise<ApiResponse<PlannerItem>> => {
+    return apiClient.put<PlannerItem>(`/api/planner/items/${id}/`, data);
+  },
   
-  delete: (id: string) => api.delete(`/api/planner/items/${id}/`),
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    return apiClient.delete(`/api/planner/items/${id}/`);
+  },
   
-  toggleComplete: (id: string) => api.patch<PlannerItem>(`/api/planner/items/${id}/complete/`),
+  toggleComplete: async (id: string): Promise<ApiResponse<PlannerItem>> => {
+    return apiClient.patch<PlannerItem>(`/api/planner/items/${id}/complete/`);
+  },
   
-  getLinks: (id: string) => api.get<Note[]>(`/api/planner/items/${id}/links/`),
+  getLinks: async (id: string): Promise<ApiResponse<Note[]>> => {
+    return apiClient.get<Note[]>(`/api/planner/items/${id}/links/`);
+  },
 };
 
 export const inspirationsApi = {
-  getAll: () => api.get<InspirationsGrouped>('/api/inspirations/'),
+  getAll: async (): Promise<ApiResponse<InspirationsGrouped>> => {
+    return apiClient.get<InspirationsGrouped>('/api/inspirations/');
+  },
   
-  getByNoteId: (noteId: string) => 
-    api.get<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>(`/api/inspirations/note/${noteId}/`),
+  getByNoteId: async (noteId: string): Promise<ApiResponse<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>> => {
+    return apiClient.get(`/api/inspirations/note/${noteId}/`);
+  },
   
-  categorize: (noteId: string) => 
-    api.post<CategorizeResponse>('/api/inspirations/categorize/', { note_id: noteId }),
+  categorize: async (noteId: string): Promise<ApiResponse<CategorizeResponse>> => {
+    return apiClient.post<CategorizeResponse>('/api/inspirations/categorize/', { note_id: noteId });
+  },
   
-  getCategories: () => api.get<InspirationCategory[]>('/api/inspirations/categories/'),
+  getCategories: async (): Promise<ApiResponse<InspirationCategory[]>> => {
+    return apiClient.get<InspirationCategory[]>('/api/inspirations/categories/');
+  },
   
-  getPendingCategories: () => api.get<InspirationCategory[]>('/api/inspirations/categories/pending/'),
+  getPendingCategories: async (): Promise<ApiResponse<InspirationCategory[]>> => {
+    return apiClient.get<InspirationCategory[]>('/api/inspirations/categories/pending/');
+  },
   
-  approveCategory: (categoryId: string, noteId?: string) => 
-    api.post(`/api/inspirations/categories/${categoryId}/approve/`, { note_id: noteId }),
+  approveCategory: async (categoryId: string, noteId?: string): Promise<ApiResponse<any>> => {
+    return apiClient.post(`/api/inspirations/categories/${categoryId}/approve/`, { note_id: noteId });
+  },
   
-  rejectCategory: (categoryId: string) => api.delete(`/api/inspirations/categories/${categoryId}/reject/`),
+  rejectCategory: async (categoryId: string): Promise<ApiResponse<void>> => {
+    return apiClient.delete(`/api/inspirations/categories/${categoryId}/reject/`);
+  },
   
-  deleteInspiration: (inspirationId: string) => api.delete(`/api/inspirations/${inspirationId}/`),
+  deleteInspiration: async (inspirationId: string): Promise<ApiResponse<void>> => {
+    return apiClient.delete(`/api/inspirations/${inspirationId}/`);
+  },
 };
 
 export const linksApi = {
-  create: (noteId: string, plannerItemId: string) => 
-    api.post<Link>('/api/links/', { note_id: noteId, planner_item_id: plannerItemId }),
+  create: async (noteId: string, plannerItemId: string): Promise<ApiResponse<Link>> => {
+    return apiClient.post<Link>('/api/links/', { note_id: noteId, planner_item_id: plannerItemId });
+  },
   
-  delete: (id: string) => api.delete(`/api/links/${id}/`),
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    return apiClient.delete(`/api/links/${id}/`);
+  },
 };
 
 export const aiApi = {
-  classify: (noteId: string) =>
-    api.post<{ classification: 'inspiration' | 'task'; confidence: number; reasoning: string }>('/api/ai/classify/', { note_id: noteId }),
+  classify: async (noteId: string): Promise<ApiResponse<ClassifyResponse>> => {
+    return apiClient.post<ClassifyResponse>('/api/ai/classify/', { note_id: noteId });
+  },
   
-  translate: (noteId: string) => 
-    api.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+  translate: async (noteId: string): Promise<ApiResponse<TranslateResponse>> => {
+    return apiClient.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId });
+  },
 };

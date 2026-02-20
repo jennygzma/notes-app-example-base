@@ -69,30 +69,30 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   };
 
   const loadTasks = async () => {
-    try {
-      const { start, end } = getDateRange();
-      const response = await plannerApi.getItems({ 
-        date_start: start, 
-        date_end: end,
-        view_type: viewType
-      });
-      const tasksData = response.data;
-      setTasks(tasksData);
-      
-      // Load linked notes for each task
-      const linksMap: { [taskId: string]: Note[] } = {};
-      for (const task of tasksData) {
-        try {
-          const notesResponse = await plannerApi.getLinks(task.id);
-          linksMap[task.id] = notesResponse.data;
-        } catch {
-          linksMap[task.id] = [];
-        }
-      }
-      setTaskLinkedNotes(linksMap);
-    } catch (error) {
+    const { start, end } = getDateRange();
+    const response = await plannerApi.getItems({ 
+      date_start: start, 
+      date_end: end,
+      view_type: viewType
+    });
+    if (response.error) {
       showSnackbar('Failed to load tasks', 'error');
+      return;
     }
+    const tasksData = response.data;
+    setTasks(tasksData);
+    
+    // Load linked notes for each task
+    const linksMap: { [taskId: string]: Note[] } = {};
+    for (const task of tasksData) {
+      const notesResponse = await plannerApi.getLinks(task.id);
+      if (notesResponse.error) {
+        linksMap[task.id] = [];
+      } else {
+        linksMap[task.id] = notesResponse.data;
+      }
+    }
+    setTaskLinkedNotes(linksMap);
   };
 
   const handleCreateTask = async (task: CreatePlannerItemRequest) => {

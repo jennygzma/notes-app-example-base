@@ -41,14 +41,14 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
   }, [initialSelectedCategory]);
 
   const loadInspirations = async () => {
-    try {
-      const response = await inspirationsApi.getAll();
+    setLoading(true);
+    const response = await inspirationsApi.getAll();
+    if (response.error) {
+      console.error('Failed to load inspirations:', response.error);
+    } else {
       setInspirations(response.data);
-    } catch (error) {
-      console.error('Failed to load inspirations:', error);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const getPreview = (body: string): string => {
