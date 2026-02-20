@@ -4,19 +4,15 @@ import {
   Fab,
   Snackbar,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
-import ConvertToTaskDialog from './ConvertToTaskDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../services/api';
+import FolderSidebar from './FolderSidebar';
+import OrganizeDialog from './OrganizeDialog';
+import { Note, PlannerItem, OrganizeResponse } from '../types';
+import { notesApi, foldersApi } from '../services/api';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -24,43 +20,38 @@ interface NotesViewProps {
   onNavigateToInspiration?: (category: string) => void;
 }
 
-const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigateToTask, onNavigateToInspiration }) => {
+const NotesView: React.FC<NotesViewProps> = ({
+  initialSelectedNoteId,
+  onNavigateToTask,
+  onNavigateToInspiration,
+}) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [linkedItems, setLinkedItems] = useState<PlannerItem[]>([]);
-  const [noteCategory, setNoteCategory] = useState<string | null>(null);
-  const [categorizingNoteId, setCategorizingNoteId] = useState<string | null>(null);
-  const [translatingNoteId, setTranslatingNoteId] = useState<string | null>(null);
-  const [translateSuggestions, setTranslateSuggestions] = useState<TranslateResponse | null>(null);
-  const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizeSuggestions, setOrganizeSuggestions] = useState<OrganizeResponse | null>(null);
+  const [organizeLoading, setOrganizeLoading] = useState(false);
+  
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
     severity: 'success',
   });
-  const [categoryDialog, setCategoryDialog] = useState<{
-    open: boolean;
-    category: string;
-    categoryId: string;
-    noteId: string;
-    reasoning: string;
-  } | null>(null);
 
   useEffect(() => {
     loadNotes();
   }, []);
 
   useEffect(() => {
-    if (selectedNote) {
-      loadLinkedItems(selectedNote.id);
-      if (selectedNote.is_inspiration) {
-        loadNoteCategory(selectedNote.id);
-      } else {
-        setNoteCategory(null);
+    if (initialSelectedNoteId) {
+      const note = notes.find(n => n.id === initialSelectedNoteId);
+      if (note) {
+        setSelectedNote(note);
       }
     }
-  }, [selectedNote]);
+  }, [initialSelectedNoteId, notes]);
 
   const loadNotes = async () => {
     try {
@@ -68,28 +59,6 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       setNotes(response.data);
     } catch (error) {
       showSnackbar('Failed to load notes', 'error');
-    }
-  };
-
-  const loadLinkedItems = async (noteId: string) => {
-    try {
-      const response = await notesApi.getLinks(noteId);
-      setLinkedItems(response.data);
-    } catch (error) {
-      setLinkedItems([]);
-    }
-  };
-
-  const loadNoteCategory = async (noteId: string) => {
-    try {
-      const response = await inspirationsApi.getByNoteId(noteId);
-      if (response.data && response.data.length > 0) {
-        setNoteCategory(response.data[0].category);
-      } else {
-        setNoteCategory(null);
-      }
-    } catch (error) {
-      setNoteCategory(null);
     }
   };
 
@@ -127,107 +96,69 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   };
 
-  const handleCategorize = async (noteId: string) => {
-    setCategorizingNoteId(noteId);
+  const handleOrganize = async () => {
+    setOrganizeLoading(true);
+    setOrganizeDialogOpen(true);
     try {
-      // First, classify the note
-      const classifyResponse = await aiApi.classify(noteId);
-      const classification = classifyResponse.data;
-
-      if (classification.classification === 'task') {
-        // Route to task conversion
-        setCategorizingNoteId(null);
-        await handleConvertToTask(noteId);
-      } else {
-        // Route to inspiration categorization
-        const response = await inspirationsApi.categorize(noteId);
-        const result: CategorizeResponse = response.data;
-
-        if (result.is_new_category) {
-          setCategoryDialog({
-            open: true,
-            category: result.category,
-            categoryId: result.category_id!,
-            noteId: noteId,
-            reasoning: result.reasoning || '',
-          });
-        } else {
-          showSnackbar(`Categorized as "${result.category}"`, 'success');
-        }
-        setCategorizingNoteId(null);
-      }
+      const response = await foldersApi.organizePreview();
+      setOrganizeSuggestions(response.data);
     } catch (error) {
-      showSnackbar('Failed to process note with AI', 'error');
-      setCategorizingNoteId(null);
-    }
-  };
-
-  const handleApproveCategory = async () => {
-    if (!categoryDialog) return;
-
-    try {
-      await inspirationsApi.approveCategory(categoryDialog.categoryId, categoryDialog.noteId);
-      showSnackbar(`Category "${categoryDialog.category}" approved`, 'success');
-      setCategoryDialog(null);
-    } catch (error) {
-      showSnackbar('Failed to approve category', 'error');
-    }
-  };
-
-  const handleRejectCategory = async () => {
-    if (!categoryDialog) return;
-
-    try {
-      await inspirationsApi.rejectCategory(categoryDialog.categoryId);
-      showSnackbar('Category rejected', 'info');
-      setCategoryDialog(null);
-    } catch (error) {
-      showSnackbar('Failed to reject category', 'error');
-    }
-  };
-
-  const handleConvertToTask = async (noteId: string) => {
-    setTranslatingNoteId(noteId);
-    setConvertDialogOpen(true);
-    try {
-      const response = await aiApi.translate(noteId);
-      setTranslateSuggestions(response.data);
-    } catch (error) {
-      showSnackbar('Failed to generate task suggestions', 'error');
-      setConvertDialogOpen(false);
+      showSnackbar('Failed to organize notes', 'error');
+      setOrganizeDialogOpen(false);
     } finally {
-      setTranslatingNoteId(null);
+      setOrganizeLoading(false);
     }
   };
 
-  const handleConfirmTask = async (task: {
-    title: string;
-    body: string;
-    date: string;
-    time?: string;
-    view_type: 'weekly' | 'monthly';
-  }) => {
-    if (!selectedNote) return;
-
+  const handleApplyOrganization = async () => {
+    if (!organizeSuggestions) return;
+    
     try {
-      // Create the planner item
-      const taskResponse = await plannerApi.create(task);
-      const createdTask = taskResponse.data;
-
-      // Create the link between note and task
-      await linksApi.create(selectedNote.id, createdTask.id);
-
-      // Mark note as analyzed (classified as task)
-      await notesApi.markAnalyzed(selectedNote.id);
-
-      showSnackbar('Task created and linked to note', 'success');
-      
-      // Reload notes and linked items
-      loadNotes();
-      loadLinkedItems(selectedNote.id);
+      await foldersApi.organizeApply(organizeSuggestions);
+      showSnackbar('Notes organized successfully', 'success');
+      setOrganizeDialogOpen(false);
+      setOrganizeSuggestions(null);
+      await loadNotes();
     } catch (error) {
-      showSnackbar('Failed to create task', 'error');
+      showSnackbar('Failed to apply organization', 'error');
     }
+  };
+
+  const handleDropNote = async (noteId: string, folderId: string | null) => {
+    try {
+      if (folderId === null) {
+        await foldersApi.updateForNote(noteId, []);
+      } else {
+        await foldersApi.updateForNote(noteId, [folderId]);
+      }
+      showSnackbar('Note moved to folder', 'success');
+      await loadNotes();
+    } catch (error) {
+      showSnackbar('Failed to move note', 'error');
+    }
+  };
+
+  const getFilteredNotes = (): Note[] => {
+    let filtered = notes;
+    
+    if (selectedFolderId === 'unorganized') {
+      // This would need a separate API call to get unorganized notes
+      // For now, show all notes
+      filtered = notes;
+    } else if (selectedFolderId) {
+      // This would need to filter by folder
+      // For now, show all notes
+      filtered = notes;
+    }
+    
+    if (searchQuery) {
+      filtered = filtered.filter(n => 
+        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        n.body.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
   };
 
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info') => {
@@ -235,27 +166,37 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: 'flex', height: '100%' }}>
+      <FolderSidebar
+        selectedFolderId={selectedFolderId}
+        onSelectFolder={setSelectedFolderId}
+        onFoldersChange={loadNotes}
+        onDropNote={handleDropNote}
+      />
+      
       <NotesList
-        notes={notes}
+        notes={getFilteredNotes()}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <NoteDetail
-        note={selectedNote}
-        onUpdate={handleUpdateNote}
-        onDelete={handleDeleteNote}
-        onCategorize={handleCategorize}
-        onConvertToTask={handleConvertToTask}
-        linkedItems={linkedItems}
-        onNavigateToItem={(item) => onNavigateToTask?.(item.id)}
-        inspirationCategory={noteCategory}
-        onNavigateToInspiration={(category) => onNavigateToInspiration?.(category)}
-        categorizingNoteId={categorizingNoteId}
-        translatingNoteId={translatingNoteId}
-      />
+      
+      {selectedNote && (
+        <NoteDetail
+          note={selectedNote}
+          onUpdate={handleUpdateNote}
+          onDelete={handleDeleteNote}
+          onCategorize={async () => {}}
+          onConvertToTask={async () => {}}
+          linkedItems={[]}
+          onNavigateToItem={(item: PlannerItem) => onNavigateToTask?.(item.id)}
+          inspirationCategory={null}
+          onNavigateToInspiration={(category: string) => onNavigateToInspiration?.(category)}
+          categorizingNoteId={null}
+          translatingNoteId={null}
+        />
+      )}
 
       <Fab
         color="primary"
@@ -265,36 +206,25 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         <AddIcon />
       </Fab>
 
-      <ConvertToTaskDialog
-        open={convertDialogOpen}
-        onClose={() => {
-          setConvertDialogOpen(false);
-          setTranslateSuggestions(null);
-        }}
-        onConfirm={handleConfirmTask}
-        suggestions={translateSuggestions}
-        loading={translatingNoteId !== null}
-      />
+      <Fab
+        color="secondary"
+        sx={{ position: 'fixed', bottom: 16, right: 88 }}
+        onClick={handleOrganize}
+      >
+        <AutoAwesomeIcon />
+      </Fab>
 
-      <Dialog open={categoryDialog?.open || false} onClose={handleRejectCategory}>
-        <DialogTitle>New Category Discovered</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" gutterBottom>
-            AI suggests a new category: <strong>{categoryDialog?.category}</strong>
-          </Typography>
-          {categoryDialog?.reasoning && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              {categoryDialog.reasoning}
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleRejectCategory}>Reject</Button>
-          <Button onClick={handleApproveCategory} variant="contained">
-            Approve
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        onClose={() => {
+          setOrganizeDialogOpen(false);
+          setOrganizeSuggestions(null);
+        }}
+        onApproved={handleApplyOrganization}
+        suggestions={organizeSuggestions}
+        loading={organizeLoading}
+        allNotes={notes}
+      />
 
       <Snackbar
         open={snackbar.open}

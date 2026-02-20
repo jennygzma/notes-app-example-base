@@ -15,12 +15,17 @@ class LocalStorage:
         self.inspirations_file = self.base_path / "inspirations.json"
         self.categories_file = self.base_path / "inspiration_categories.json"
         self.links_file = self.base_path / "links.json"
+        self.folders_file = self.base_path / "folders.json"
+        self.note_folders_file = self.base_path / "note_folders.json"
+        self.chat_sessions_file = self.base_path / "chat_sessions.json"
+        self.chat_messages_file = self.base_path / "chat_messages.json"
         
         self._init_files()
     
     def _init_files(self):
         for file in [self.notes_file, self.planner_items_file, self.inspirations_file, 
-                     self.categories_file, self.links_file]:
+                     self.categories_file, self.links_file, self.folders_file, self.note_folders_file,
+                     self.chat_sessions_file, self.chat_messages_file]:
             if not file.exists():
                 self._write_json(file, [])
     
@@ -216,6 +221,110 @@ class LocalStorage:
             return True
         return False
     
+    def create_folder(self, name: str, color: Optional[str] = None) -> Dict:
+        folders = self._read_json(self.folders_file)
+        folder = {
+            "id": self._generate_id(),
+            "name": name,
+            "color": color,
+            "created_at": self._now()
+        }
+        folders.append(folder)
+        self._write_json(self.folders_file, folders)
+        return folder
+    
+    def get_folders(self) -> List[Dict]:
+        return self._read_json(self.folders_file)
+    
+    def get_folder(self, folder_id: str) -> Optional[Dict]:
+        folders = self._read_json(self.folders_file)
+        return next((f for f in folders if f["id"] == folder_id), None)
+    
+    def update_folder(self, folder_id: str, name: Optional[str] = None, color: Optional[str] = None) -> Optional[Dict]:
+        folders = self._read_json(self.folders_file)
+        for folder in folders:
+            if folder["id"] == folder_id:
+                if name is not None:
+                    folder["name"] = name
+                if color is not None:
+                    folder["color"] = color
+                self._write_json(self.folders_file, folders)
+                return folder
+        return None
+    
+    def delete_folder(self, folder_id: str) -> bool:
+        folders = self._read_json(self.folders_file)
+        filtered = [f for f in folders if f["id"] != folder_id]
+        if len(filtered) < len(folders):
+            self._write_json(self.folders_file, filtered)
+            note_folders = self._read_json(self.note_folders_file)
+            note_folders = [nf for nf in note_folders if nf["folder_id"] != folder_id]
+            self._write_json(self.note_folders_file, note_folders)
+            return True
+        return False
+    
+    def add_note_to_folder(self, note_id: str, folder_id: str) -> Dict:
+        note_folders = self._read_json(self.note_folders_file)
+        
+        existing = next((nf for nf in note_folders if nf["note_id"] == note_id and nf["folder_id"] == folder_id), None)
+        if existing:
+            return existing
+        
+        note_folder = {
+            "id": self._generate_id(),
+            "note_id": note_id,
+            "folder_id": folder_id,
+            "created_at": self._now()
+        }
+        note_folders.append(note_folder)
+        self._write_json(self.note_folders_file, note_folders)
+        return note_folder
+    
+    def remove_note_from_folder(self, note_id: str, folder_id: str) -> bool:
+        note_folders = self._read_json(self.note_folders_file)
+        filtered = [nf for nf in note_folders if not (nf["note_id"] == note_id and nf["folder_id"] == folder_id)]
+        if len(filtered) < len(note_folders):
+            self._write_json(self.note_folders_file, filtered)
+            return True
+        return False
+    
+    def get_folders_for_note(self, note_id: str) -> List[Dict]:
+        note_folders = self._read_json(self.note_folders_file)
+        folder_ids = [nf["folder_id"] for nf in note_folders if nf["note_id"] == note_id]
+        
+        folders = self._read_json(self.folders_file)
+        return [f for f in folders if f["id"] in folder_ids]
+    
+    def get_notes_in_folder(self, folder_id: str) -> List[Dict]:
+        note_folders = self._read_json(self.note_folders_file)
+        note_ids = [nf["note_id"] for nf in note_folders if nf["folder_id"] == folder_id]
+        
+        notes = self._read_json(self.notes_file)
+        return [n for n in notes if n["id"] in note_ids]
+    
+    def get_unorganized_notes(self) -> List[Dict]:
+        note_folders = self._read_json(self.note_folders_file)
+        organized_note_ids = set(nf["note_id"] for nf in note_folders)
+        
+        notes = self._read_json(self.notes_file)
+        return [n for n in notes if n["id"] not in organized_note_ids]
+    
+    def update_note_folders(self, note_id: str, folder_ids: List[str]) -> bool:
+        current_folders = self.get_folders_for_note(note_id)
+        current_folder_ids = set(f["id"] for f in current_folders)
+        new_folder_ids = set(folder_ids)
+        
+        to_add = new_folder_ids - current_folder_ids
+        to_remove = current_folder_ids - new_folder_ids
+        
+        for folder_id in to_remove:
+            self.remove_note_from_folder(note_id, folder_id)
+        
+        for folder_id in to_add:
+            self.add_note_to_folder(note_id, folder_id)
+        
+        return True
+    
     def create_link(self, note_id: str, planner_item_id: str) -> Dict:
         links = self._read_json(self.links_file)
         
@@ -248,3 +357,62 @@ class LocalStorage:
             self._write_json(self.links_file, filtered)
             return True
         return False
+    
+    def create_chat_session(self, title: str = "New Chat") -> Dict:
+        sessions = self._read_json(self.chat_sessions_file)
+        session = {
+            "id": self._generate_id(),
+            "title": title,
+            "created_at": self._now(),
+            "updated_at": self._now()
+        }
+        sessions.append(session)
+        self._write_json(self.chat_sessions_file, sessions)
+        return session
+    
+    def get_chat_sessions(self) -> List[Dict]:
+        return self._read_json(self.chat_sessions_file)
+    
+    def get_chat_session(self, session_id: str) -> Optional[Dict]:
+        sessions = self._read_json(self.chat_sessions_file)
+        return next((s for s in sessions if s["id"] == session_id), None)
+    
+    def delete_chat_session(self, session_id: str) -> bool:
+        sessions = self._read_json(self.chat_sessions_file)
+        filtered = [s for s in sessions if s["id"] != session_id]
+        if len(filtered) < len(sessions):
+            self._write_json(self.chat_sessions_file, filtered)
+            messages = self._read_json(self.chat_messages_file)
+            messages = [m for m in messages if m["session_id"] != session_id]
+            self._write_json(self.chat_messages_file, messages)
+            return True
+        return False
+    
+    def create_chat_message(self, session_id: str, role: str, content: str, 
+                           thinking: Optional[Dict] = None, 
+                           referenced_note_ids: Optional[List[str]] = None) -> Dict:
+        messages = self._read_json(self.chat_messages_file)
+        message = {
+            "id": self._generate_id(),
+            "session_id": session_id,
+            "role": role,
+            "content": content,
+            "thinking": thinking,
+            "referenced_note_ids": referenced_note_ids or [],
+            "created_at": self._now()
+        }
+        messages.append(message)
+        self._write_json(self.chat_messages_file, messages)
+        
+        sessions = self._read_json(self.chat_sessions_file)
+        for session in sessions:
+            if session["id"] == session_id:
+                session["updated_at"] = self._now()
+                self._write_json(self.chat_sessions_file, sessions)
+                break
+        
+        return message
+    
+    def get_chat_messages(self, session_id: str) -> List[Dict]:
+        messages = self._read_json(self.chat_messages_file)
+        return [m for m in messages if m["session_id"] == session_id]

@@ -61,6 +61,31 @@ def patch_note(note_id):
         return jsonify({"error": "Note not found"}), 404
     return jsonify(note), 200
 
+@notes_bp.route('/<note_id>/folders/', methods=['GET'])
+def get_note_folders(note_id):
+    """Return folders for this note"""
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    folders = storage.get_folders_for_note(note_id)
+    return jsonify(folders), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['PUT'])
+def update_note_folders(note_id):
+    """Update note's folder assignments"""
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    data = request.json
+    folder_ids = data.get('folder_ids', [])
+    
+    storage.update_note_folders(note_id, folder_ids)
+    
+    updated_folders = storage.get_folders_for_note(note_id)
+    return jsonify(updated_folders), 200
+
 @notes_bp.route('/<note_id>/links/', methods=['GET'])
 def get_note_links(note_id):
     note = storage.get_note(note_id)
