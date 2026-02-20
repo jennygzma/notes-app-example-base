@@ -1,95 +1,128 @@
-import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { apiClient } from './apiClient';
 import {
   Note,
   CreateNoteRequest,
   UpdateNoteRequest,
   PlannerItem,
   CreatePlannerItemRequest,
+  UpdatePlannerItemRequest,
   InspirationCategory,
   CategorizeResponse,
   TranslateResponse,
+  ClassifyResponse,
   InspirationsGrouped,
-  Link
+  Link,
+  PlannerFilters,
 } from '../types';
+import { AxiosResponse } from 'axios';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// ============================================================================
+// NOTES API
+// ============================================================================
 
 export const notesApi = {
-  getAll: () => api.get<Note[]>('/api/notes/'),
+  getAll: (): Promise<AxiosResponse<Note[]>> => 
+    apiClient.getRaw<Note[]>('/api/notes/'),
   
-  create: (data: CreateNoteRequest) => api.post<Note>('/api/notes/', data),
+  create: (data: CreateNoteRequest): Promise<AxiosResponse<Note>> => 
+    apiClient.postRaw<CreateNoteRequest, Note>('/api/notes/', data),
   
-  getById: (id: string) => api.get<Note>(`/api/notes/${id}/`),
+  getById: (id: string): Promise<AxiosResponse<Note>> => 
+    apiClient.getRaw<Note>(`/api/notes/${id}/`),
   
-  update: (id: string, data: UpdateNoteRequest) => api.put<Note>(`/api/notes/${id}/`, data),
+  update: (id: string, data: UpdateNoteRequest): Promise<AxiosResponse<Note>> => 
+    apiClient.putRaw<UpdateNoteRequest, Note>(`/api/notes/${id}/`, data),
   
-  delete: (id: string) => api.delete(`/api/notes/${id}/`),
+  delete: (id: string): Promise<AxiosResponse<void>> => 
+    apiClient.deleteRaw(`/api/notes/${id}/`),
   
-  getLinks: (id: string) => api.get<PlannerItem[]>(`/api/notes/${id}/links/`),
+  getLinks: (id: string): Promise<AxiosResponse<PlannerItem[]>> => 
+    apiClient.getRaw<PlannerItem[]>(`/api/notes/${id}/links/`),
   
-  markAnalyzed: (id: string) => api.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
+  markAnalyzed: (id: string): Promise<AxiosResponse<Note>> => 
+    apiClient.patchRaw<{ is_analyzed: boolean }, Note>(`/api/notes/${id}/`, { is_analyzed: true }),
 };
+
+// ============================================================================
+// PLANNER API
+// ============================================================================
 
 export const plannerApi = {
-  getItems: (params?: {
-    date_start?: string;
-    date_end?: string;
-    view_type?: string;
-    status?: string;
-  }) => api.get<PlannerItem[]>('/api/planner/items/', { params }),
+  getItems: (params?: PlannerFilters): Promise<AxiosResponse<PlannerItem[]>> => 
+    apiClient.getRaw<PlannerItem[]>('/api/planner/items/', { params }),
   
-  create: (data: CreatePlannerItemRequest) => api.post<PlannerItem>('/api/planner/items/', data),
+  create: (data: CreatePlannerItemRequest): Promise<AxiosResponse<PlannerItem>> => 
+    apiClient.postRaw<CreatePlannerItemRequest, PlannerItem>('/api/planner/items/', data),
   
-  getById: (id: string) => api.get<PlannerItem>(`/api/planner/items/${id}/`),
+  getById: (id: string): Promise<AxiosResponse<PlannerItem>> => 
+    apiClient.getRaw<PlannerItem>(`/api/planner/items/${id}/`),
   
-  update: (id: string, data: Partial<CreatePlannerItemRequest>) => 
-    api.put<PlannerItem>(`/api/planner/items/${id}/`, data),
+  update: (id: string, data: UpdatePlannerItemRequest): Promise<AxiosResponse<PlannerItem>> => 
+    apiClient.putRaw<UpdatePlannerItemRequest, PlannerItem>(`/api/planner/items/${id}/`, data),
   
-  delete: (id: string) => api.delete(`/api/planner/items/${id}/`),
+  delete: (id: string): Promise<AxiosResponse<void>> => 
+    apiClient.deleteRaw(`/api/planner/items/${id}/`),
   
-  toggleComplete: (id: string) => api.patch<PlannerItem>(`/api/planner/items/${id}/complete/`),
+  toggleComplete: (id: string): Promise<AxiosResponse<PlannerItem>> => 
+    apiClient.patchRaw<undefined, PlannerItem>(`/api/planner/items/${id}/complete/`),
   
-  getLinks: (id: string) => api.get<Note[]>(`/api/planner/items/${id}/links/`),
+  getLinks: (id: string): Promise<AxiosResponse<Note[]>> => 
+    apiClient.getRaw<Note[]>(`/api/planner/items/${id}/links/`),
 };
+
+// ============================================================================
+// INSPIRATIONS API
+// ============================================================================
 
 export const inspirationsApi = {
-  getAll: () => api.get<InspirationsGrouped>('/api/inspirations/'),
+  getAll: (): Promise<AxiosResponse<InspirationsGrouped>> => 
+    apiClient.getRaw<InspirationsGrouped>('/api/inspirations/'),
   
-  getByNoteId: (noteId: string) => 
-    api.get<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>(`/api/inspirations/note/${noteId}/`),
+  getByNoteId: (noteId: string): Promise<AxiosResponse<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>> => 
+    apiClient.getRaw<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>(`/api/inspirations/note/${noteId}/`),
   
-  categorize: (noteId: string) => 
-    api.post<CategorizeResponse>('/api/inspirations/categorize/', { note_id: noteId }),
+  categorize: (noteId: string): Promise<AxiosResponse<CategorizeResponse>> => 
+    apiClient.postRaw<{ note_id: string }, CategorizeResponse>('/api/inspirations/categorize/', { note_id: noteId }),
   
-  getCategories: () => api.get<InspirationCategory[]>('/api/inspirations/categories/'),
+  getCategories: (): Promise<AxiosResponse<InspirationCategory[]>> => 
+    apiClient.getRaw<InspirationCategory[]>('/api/inspirations/categories/'),
   
-  getPendingCategories: () => api.get<InspirationCategory[]>('/api/inspirations/categories/pending/'),
+  getPendingCategories: (): Promise<AxiosResponse<InspirationCategory[]>> => 
+    apiClient.getRaw<InspirationCategory[]>('/api/inspirations/categories/pending/'),
   
-  approveCategory: (categoryId: string, noteId?: string) => 
-    api.post(`/api/inspirations/categories/${categoryId}/approve/`, { note_id: noteId }),
+  approveCategory: (categoryId: string, noteId?: string): Promise<AxiosResponse<any>> => 
+    apiClient.postRaw(`/api/inspirations/categories/${categoryId}/approve/`, { note_id: noteId }),
   
-  rejectCategory: (categoryId: string) => api.delete(`/api/inspirations/categories/${categoryId}/reject/`),
+  rejectCategory: (categoryId: string): Promise<AxiosResponse<void>> => 
+    apiClient.deleteRaw(`/api/inspirations/categories/${categoryId}/reject/`),
   
-  deleteInspiration: (inspirationId: string) => api.delete(`/api/inspirations/${inspirationId}/`),
+  deleteInspiration: (inspirationId: string): Promise<AxiosResponse<void>> => 
+    apiClient.deleteRaw(`/api/inspirations/${inspirationId}/`),
 };
+
+// ============================================================================
+// LINKS API
+// ============================================================================
 
 export const linksApi = {
-  create: (noteId: string, plannerItemId: string) => 
-    api.post<Link>('/api/links/', { note_id: noteId, planner_item_id: plannerItemId }),
+  create: (noteId: string, plannerItemId: string): Promise<AxiosResponse<Link>> => 
+    apiClient.postRaw<{ note_id: string; planner_item_id: string }, Link>('/api/links/', { 
+      note_id: noteId, 
+      planner_item_id: plannerItemId 
+    }),
   
-  delete: (id: string) => api.delete(`/api/links/${id}/`),
+  delete: (id: string): Promise<AxiosResponse<void>> => 
+    apiClient.deleteRaw(`/api/links/${id}/`),
 };
 
+// ============================================================================
+// AI API
+// ============================================================================
+
 export const aiApi = {
-  classify: (noteId: string) =>
-    api.post<{ classification: 'inspiration' | 'task'; confidence: number; reasoning: string }>('/api/ai/classify/', { note_id: noteId }),
+  classify: (noteId: string): Promise<AxiosResponse<ClassifyResponse>> =>
+    apiClient.postRaw<{ note_id: string }, ClassifyResponse>('/api/ai/classify/', { note_id: noteId }),
   
-  translate: (noteId: string) => 
-    api.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+  translate: (noteId: string): Promise<AxiosResponse<TranslateResponse>> => 
+    apiClient.postRaw<{ note_id: string }, TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
 };
