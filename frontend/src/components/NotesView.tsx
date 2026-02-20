@@ -10,13 +10,17 @@ import {
   DialogActions,
   Button,
   Typography,
+  Toolbar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
+import FolderSidebar from './FolderSidebar';
+import OrganizeDialog from './OrganizeDialog';
 import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../services/api';
+import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../services/api';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -34,6 +38,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [translatingNoteId, setTranslatingNoteId] = useState<string | null>(null);
   const [translateSuggestions, setTranslateSuggestions] = useState<TranslateResponse | null>(null);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -230,32 +236,77 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   };
 
+  const handleDropNote = async (noteId: string, folderId: string | null) => {
+    try {
+      const folderIds = folderId ? [folderId] : [];
+      await foldersApi.updateForNote(noteId, folderIds);
+      await loadNotes();
+      showSnackbar('Note moved', 'success');
+    } catch (error) {
+      showSnackbar('Failed to move note', 'error');
+    }
+  };
+
+  const handleOrganizeComplete = async () => {
+    await loadNotes();
+    showSnackbar('Notes organized successfully', 'success');
+  };
+
+  const filteredNotes = notes.filter((note) => {
+    if (selectedFolderId === null) {
+      return true;
+    }
+    if (selectedFolderId === 'unorganized') {
+      return !note.folder_ids || note.folder_ids.length === 0;
+    }
+    return note.folder_ids?.includes(selectedFolderId);
+  });
+
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info') => {
     setSnackbar({ open: true, message, severity });
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      <NotesList
-        notes={notes}
-        selectedNoteId={selectedNote?.id || null}
-        onSelectNote={setSelectedNote}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-      <NoteDetail
-        note={selectedNote}
-        onUpdate={handleUpdateNote}
-        onDelete={handleDeleteNote}
-        onCategorize={handleCategorize}
-        onConvertToTask={handleConvertToTask}
-        linkedItems={linkedItems}
-        onNavigateToItem={(item) => onNavigateToTask?.(item.id)}
-        inspirationCategory={noteCategory}
-        onNavigateToInspiration={(category) => onNavigateToInspiration?.(category)}
-        categorizingNoteId={categorizingNoteId}
-        translatingNoteId={translatingNoteId}
-      />
+    <Box sx={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+      <Toolbar sx={{ borderBottom: 1, borderColor: 'divider', minHeight: '48px !important' }}>
+        <Button
+          startIcon={<AutoAwesomeIcon />}
+          variant="outlined"
+          size="small"
+          onClick={() => setOrganizeDialogOpen(true)}
+        >
+          Organize with AI
+        </Button>
+      </Toolbar>
+
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <FolderSidebar
+          selectedFolderId={selectedFolderId}
+          onSelectFolder={setSelectedFolderId}
+          onFoldersChange={loadNotes}
+          onDropNote={handleDropNote}
+        />
+        <NotesList
+          notes={filteredNotes}
+          selectedNoteId={selectedNote?.id || null}
+          onSelectNote={setSelectedNote}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+        <NoteDetail
+          note={selectedNote}
+          onUpdate={handleUpdateNote}
+          onDelete={handleDeleteNote}
+          onCategorize={handleCategorize}
+          onConvertToTask={handleConvertToTask}
+          linkedItems={linkedItems}
+          onNavigateToItem={(item) => onNavigateToTask?.(item.id)}
+          inspirationCategory={noteCategory}
+          onNavigateToInspiration={(category) => onNavigateToInspiration?.(category)}
+          categorizingNoteId={categorizingNoteId}
+          translatingNoteId={translatingNoteId}
+        />
+      </Box>
 
       <Fab
         color="primary"
@@ -264,6 +315,13 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       >
         <AddIcon />
       </Fab>
+
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        notes={notes}
+        onClose={() => setOrganizeDialogOpen(false)}
+        onApproved={handleOrganizeComplete}
+      />
 
       <ConvertToTaskDialog
         open={convertDialogOpen}

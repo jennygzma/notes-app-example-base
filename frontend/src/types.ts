@@ -6,6 +6,7 @@ export interface Note {
   is_analyzed: boolean;
   created_at: string;
   updated_at: string;
+  folder_ids?: string[];
 }
 
 export interface PlannerItem {
@@ -83,4 +84,45 @@ export interface TranslateResponse {
 
 export interface InspirationsGrouped {
   [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  color?: string;
+  created_at: string;
+  note_count?: number;
+}
+
+export interface OrganizePreview {
+  suggested_folders: Array<{
+    name: string;
+    color?: string;
+  }>;
+  note_assignments: Array<{
+    note_id: string;
+    folder_names: string[];
+  }>;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  session_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  thinking?: {
+    step1_reasoning: string;
+    selected_folders: Array<{id: string; name: string}>;
+    step2_reasoning: string;
+    examined_notes: Array<{id: string; title: string}>;
+  };
+  referenced_note_ids?: string[];
+  created_at: string;
 }

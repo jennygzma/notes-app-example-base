@@ -250,5 +250,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:55:44.647397Z",
     "updated_at": "2026-02-18T21:55:50.089199Z"
+  },
+  {
+    "id": "ca6e3ca9-e03c-4909-82e2-988077c723a0",
+    "title": "New Note",
+    "body": "",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "created_at": "2026-02-20T05:34:24.819156Z",
+    "updated_at": "2026-02-20T05:34:24.819168Z"
   }
 ]

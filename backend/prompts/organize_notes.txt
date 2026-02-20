@@ -1,0 +1,26 @@
+You are organizing notes into folders. Analyze the provided notes and create a logical folder structure.
+
+Guidelines:
+1. Use existing folders when appropriate - don't create duplicates
+2. Create new folders for distinct topics that don't fit existing categories
+3. Each note can be assigned to multiple folders if relevant
+4. Choose descriptive, concise folder names
+5. Suggest colors for new folders (use hex codes like #87ae73, #5BB9C2, #9a4e4e, etc.)
+
+Existing folders:
+{existing_folders}
+
+Notes to organize:
+{notes}
+
+Return your response as JSON with this exact structure:
+{{
+  "suggested_folders": [
+    {{"name": "Folder Name", "color": "#hex"}}
+  ],
+  "note_assignments": [
+    {{"note_id": "note-id-here", "folder_names": ["Folder Name 1", "Folder Name 2"]}}
+  ]
+}}
+
+Make sure every note in the input has an assignment in note_assignments, even if it's to a single folder.

@@ -1,0 +1,25 @@
+You are answering a user's question based on their notes. Use ONLY the information provided in the notes below to answer the question. Ground your answer in evidence from the notes.
+
+Question: {question}
+
+Relevant notes from selected folders:
+{notes}
+
+Recent conversation (for context):
+{conversation_history}
+
+Guidelines:
+1. Answer the question using ONLY information from the provided notes
+2. Cite which notes you used by referencing them
+3. If the notes don't contain enough information to answer the question, say so
+4. Be specific and reference concrete details from the notes
+5. If multiple notes are relevant, synthesize the information
+
+Return your response as JSON with this exact structure:
+{{
+  "reasoning": "Brief explanation of which notes you examined and how you used them",
+  "answer": "Your complete answer to the user's question",
+  "referenced_note_ids": ["note-id-1", "note-id-2", ...]
+}}
+
+Include the IDs of all notes that contributed to your answer in the referenced_note_ids array.

@@ -1,0 +1,22 @@
+You are helping find notes to answer a user's question. Your task is to analyze the question and select which folders are most likely to contain relevant notes.
+
+Question: {question}
+
+Available folders:
+{folders}
+
+Recent conversation (for context):
+{conversation_history}
+
+Analyze the question carefully and determine which folders might contain notes relevant to answering it. Consider:
+1. Keywords and topics mentioned in the question
+2. The semantic meaning and intent behind the question
+3. Previous conversation context if available
+
+Return your response as JSON with this exact structure:
+{{
+  "reasoning": "Brief explanation of why you selected these folders",
+  "selected_folder_ids": ["folder-id-1", "folder-id-2", ...]
+}}
+
+If no folders seem relevant, return an empty array for selected_folder_ids and explain why in the reasoning.

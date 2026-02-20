@@ -10,7 +10,11 @@ import {
   CategorizeResponse,
   TranslateResponse,
   InspirationsGrouped,
-  Link
+  Link,
+  Folder,
+  OrganizePreview,
+  ChatSession,
+  ChatMessage
 } from '../types';
 
 const api = axios.create({
@@ -92,4 +96,40 @@ export const aiApi = {
   
   translate: (noteId: string) => 
     api.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+};
+
+export const foldersApi = {
+  getAll: () => api.get<Folder[]>('/api/folders/'),
+  
+  create: (name: string, color?: string) => 
+    api.post<Folder>('/api/folders/', { name, color }),
+  
+  delete: (id: string) => api.delete(`/api/folders/${id}/`),
+  
+  getForNote: (noteId: string) => 
+    api.get<Folder[]>(`/api/notes/${noteId}/folders/`),
+  
+  updateForNote: (noteId: string, folderIds: string[]) => 
+    api.put<Folder[]>(`/api/notes/${noteId}/folders/`, { folder_ids: folderIds }),
+  
+  organizePreview: () => 
+    api.post<OrganizePreview>('/api/folders/organize/preview/'),
+  
+  organizeApply: (preview: OrganizePreview) => 
+    api.post<{ success: boolean }>('/api/folders/organize/apply/', preview),
+};
+
+export const chatApi = {
+  getSessions: () => api.get<ChatSession[]>('/api/chat/sessions/'),
+  
+  createSession: (title?: string) => 
+    api.post<ChatSession>('/api/chat/sessions/', { title }),
+  
+  deleteSession: (id: string) => api.delete(`/api/chat/sessions/${id}/`),
+  
+  getMessages: (sessionId: string) => 
+    api.get<ChatMessage[]>(`/api/chat/sessions/${sessionId}/messages/`),
+  
+  query: (sessionId: string, question: string) => 
+    api.post<ChatMessage>('/api/chat/query/', { session_id: sessionId, question }),
 };

@@ -3,6 +3,7 @@ import { Box, Tabs, Tab, AppBar } from '@mui/material';
 import NotesView from './components/NotesView';
 import InspirationsView from './components/InspirationsView';
 import PlannerView from './components/PlannerView';
+import ChatWidget from './components/ChatWidget';
 
 function App() {
   const [currentTab, setCurrentTab] = useState(0);
@@ -60,6 +61,8 @@ function App() {
           />
         )}
       </Box>
+
+      <ChatWidget onNavigateToNote={handleNavigateToNote} />
     </Box>
   );
 }

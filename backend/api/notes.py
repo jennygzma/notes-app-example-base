@@ -7,6 +7,11 @@ storage = LocalStorage()
 @notes_bp.route('/', methods=['GET'])
 def get_notes():
     notes = storage.get_notes()
+    
+    for note in notes:
+        folder_ids = [f['id'] for f in storage.get_folders_for_note(note['id'])]
+        note['folder_ids'] = folder_ids
+    
     return jsonify(notes), 200
 
 @notes_bp.route('/', methods=['POST'])
@@ -75,3 +80,26 @@ def get_note_links(note_id):
             planner_items.append(item)
     
     return jsonify(planner_items), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['GET'])
+def get_note_folders(note_id):
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    folders = storage.get_folders_for_note(note_id)
+    return jsonify(folders), 200
+
+@notes_bp.route('/<note_id>/folders/', methods=['PUT'])
+def update_note_folders(note_id):
+    note = storage.get_note(note_id)
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+    
+    data = request.json
+    folder_ids = data.get('folder_ids', [])
+    
+    storage.update_note_folders(note_id, folder_ids)
+    
+    folders = storage.get_folders_for_note(note_id)
+    return jsonify(folders), 200
