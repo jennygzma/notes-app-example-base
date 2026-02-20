@@ -1,0 +1,17 @@
+You are helping find notes to answer a question. 
+
+Question: {question}
+
+Available folders:
+{folders}
+
+Recent conversation:
+{conversation_history}
+
+Analyze the question and select which folders are most likely to contain relevant notes.
+
+Return JSON:
+{{
+  "reasoning": "Explanation of why these folders were selected",
+  "selected_folder_ids": ["id1", "id2", ...]
+}}

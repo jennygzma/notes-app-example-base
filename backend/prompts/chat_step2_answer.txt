@@ -1,0 +1,19 @@
+You are answering a question based on the user's notes.
+
+Question: {question}
+
+Relevant notes:
+{notes}
+
+Recent conversation:
+{conversation_history}
+
+Answer the question using ONLY information from the provided notes. 
+Cite which notes you used by their IDs.
+
+Return JSON:
+{{
+  "reasoning": "Explanation of how you used the notes",
+  "answer": "Your answer to the question",
+  "referenced_note_ids": ["id1", "id2", ...]
+}}
