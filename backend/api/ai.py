@@ -8,7 +8,6 @@ gpt = GPTClient()
 
 @ai_bp.route('/classify/', methods=['POST'])
 def classify_note():
-    """Classify note as inspiration or task using GPT-5"""
     data = request.json
     note_id = data.get('note_id')
     
@@ -20,8 +19,8 @@ def classify_note():
         return jsonify({"error": "Note not found"}), 404
     
     result = gpt.classify_note(
-        title=note['title'],
-        body=note['body']
+        title=note.title,
+        body=note.body
     )
     
     return jsonify(result), 200
@@ -39,8 +38,8 @@ def translate_note():
         return jsonify({"error": "Note not found"}), 404
     
     result = gpt.translate_to_planner(
-        title=note['title'],
-        body=note['body']
+        title=note.title,
+        body=note.body
     )
     
     return jsonify(result), 200

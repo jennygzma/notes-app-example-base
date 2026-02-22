@@ -76,6 +76,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         date_end: end,
         view_type: viewType
       });
+      if (!response.data) {
+        setTasks([]);
+        return;
+      }
       const tasksData = response.data;
       setTasks(tasksData);
       
@@ -84,7 +88,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
       for (const task of tasksData) {
         try {
           const notesResponse = await plannerApi.getLinks(task.id);
-          linksMap[task.id] = notesResponse.data;
+          linksMap[task.id] = notesResponse.data || [];
         } catch {
           linksMap[task.id] = [];
         }

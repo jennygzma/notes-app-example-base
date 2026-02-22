@@ -84,3 +84,47 @@ export interface TranslateResponse {
 export interface InspirationsGrouped {
   [category: string]: Array<Note & { inspiration_id: string; ai_confidence: number }>;
 }
+
+export type DateISO = string;
+
+export interface ErrorResponse {
+  error: string;
+  details?: Array<{
+    type: string;
+    loc: Array<string | number>;
+    msg: string;
+    input: any;
+  }>;
+}
+
+export interface ApiResponse<T> {
+  data?: T;
+  error?: ErrorResponse;
+  status: number;
+}
+
+export type ApiState<T> = 
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: ErrorResponse };
+
+export interface UpdatePlannerItemRequest {
+  title?: string;
+  body?: string;
+  date?: string;
+  time?: string;
+  view_type?: 'weekly' | 'monthly';
+  status?: 'pending' | 'completed';
+}
+
+export interface CreateLinkRequest {
+  note_id: string;
+  planner_item_id: string;
+}
+
+export interface ClassifyResponse {
+  is_inspiration: boolean;
+  confidence: number;
+  reasoning?: string;
+}

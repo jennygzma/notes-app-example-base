@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.storage import LocalStorage
 from models.gpt_client import GPTClient
+from pydantic import ValidationError
 
 inspirations_bp = Blueprint('inspirations', __name__, url_prefix='/api/inspirations')
 storage = LocalStorage()
@@ -13,24 +14,22 @@ def get_inspirations():
     
     result = {}
     for insp in inspirations:
-        note = next((n for n in notes if n['id'] == insp['note_id']), None)
+        note = next((n for n in notes if n.id == insp.note_id), None)
         if note:
-            category = insp['category']
+            category = insp.category
             if category not in result:
                 result[category] = []
-            result[category].append({
-                **note,
-                'inspiration_id': insp['id'],
-                'ai_confidence': insp['ai_confidence']
-            })
+            note_dict = note.model_dump()
+            note_dict['inspiration_id'] = insp.id
+            note_dict['ai_confidence'] = insp.ai_confidence
+            result[category].append(note_dict)
     
     return jsonify(result), 200
 
 @inspirations_bp.route('/note/<note_id>/', methods=['GET'])
 def get_inspirations_by_note(note_id):
-    inspirations = storage.get_inspirations()
-    note_inspirations = [insp for insp in inspirations if insp['note_id'] == note_id]
-    return jsonify(note_inspirations), 200
+    inspirations = storage.get_inspirations_by_note(note_id)
+    return jsonify([insp.model_dump() for insp in inspirations]), 200
 
 @inspirations_bp.route('/categorize/', methods=['POST'])
 def categorize_note():
@@ -45,11 +44,11 @@ def categorize_note():
         return jsonify({"error": "Note not found"}), 404
     
     active_categories = storage.get_categories(status="active")
-    category_names = [c['name'] for c in active_categories]
+    category_names = [c.name for c in active_categories]
     
     result = gpt.categorize_note(
-        title=note['title'],
-        body=note['body'],
+        title=note.title,
+        body=note.body,
         existing_categories=category_names
     )
     
@@ -66,7 +65,7 @@ def categorize_note():
             "category": category_name,
             "confidence": result['confidence'],
             "is_new_category": True,
-            "category_id": category['id'],
+            "category_id": category.id,
             "reasoning": result.get('reasoning'),
             "status": "pending_approval"
         }), 200
@@ -76,14 +75,13 @@ def categorize_note():
             category=category_name,
             ai_confidence=result['confidence']
         )
-        # Mark note as inspiration and analyzed
         storage.update_note(note_id, is_inspiration=True, is_analyzed=True)
         
         return jsonify({
             "category": category_name,
             "confidence": result['confidence'],
             "is_new_category": False,
-            "inspiration_id": inspiration['id'],
+            "inspiration_id": inspiration.id,
             "reasoning": result.get('reasoning'),
             "status": "created"
         }), 201
@@ -91,12 +89,12 @@ def categorize_note():
 @inspirations_bp.route('/categories/', methods=['GET'])
 def get_categories():
     categories = storage.get_categories(status="active")
-    return jsonify(categories), 200
+    return jsonify([c.model_dump() for c in categories]), 200
 
 @inspirations_bp.route('/categories/pending/', methods=['GET'])
 def get_pending_categories():
     categories = storage.get_categories(status="pending_approval")
-    return jsonify(categories), 200
+    return jsonify([c.model_dump() for c in categories]), 200
 
 @inspirations_bp.route('/categories/<category_id>/approve/', methods=['POST'])
 def approve_category(category_id):
@@ -112,15 +110,15 @@ def approve_category(category_id):
         if note:
             inspiration = storage.create_inspiration(
                 note_id=note_id,
-                category=category['name'],
+                category=category.name,
                 ai_confidence=0.95
             )
             return jsonify({
-                "category": category,
-                "inspiration": inspiration
+                "category": category.model_dump(),
+                "inspiration": inspiration.model_dump()
             }), 201
     
-    return jsonify(category), 200
+    return jsonify(category.model_dump()), 200
 
 @inspirations_bp.route('/categories/<category_id>/reject/', methods=['DELETE'])
 def reject_category(category_id):

@@ -65,7 +65,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const loadNotes = async () => {
     try {
       const response = await notesApi.getAll();
-      setNotes(response.data);
+      if (response.data) {
+        setNotes(response.data);
+      }
     } catch (error) {
       showSnackbar('Failed to load notes', 'error');
     }
@@ -74,7 +76,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const loadLinkedItems = async (noteId: string) => {
     try {
       const response = await notesApi.getLinks(noteId);
-      setLinkedItems(response.data);
+      if (response.data) {
+        setLinkedItems(response.data);
+      }
     } catch (error) {
       setLinkedItems([]);
     }
@@ -96,10 +100,12 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const handleCreateNote = async () => {
     try {
       const response = await notesApi.create({ title: 'New Note', body: '' });
-      const newNote = response.data;
-      setNotes([newNote, ...notes]);
-      setSelectedNote(newNote);
-      showSnackbar('Note created', 'success');
+      if (response.data) {
+        const newNote = response.data;
+        setNotes([newNote, ...notes]);
+        setSelectedNote(newNote);
+        showSnackbar('Note created', 'success');
+      }
     } catch (error) {
       showSnackbar('Failed to create note', 'error');
     }
@@ -108,9 +114,11 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const handleUpdateNote = async (id: string, title: string, body: string) => {
     try {
       const response = await notesApi.update(id, { title, body });
-      setNotes(notes.map(n => n.id === id ? response.data : n));
-      setSelectedNote(response.data);
-      showSnackbar('Note saved', 'success');
+      if (response.data) {
+        setNotes(notes.map(n => n.id === id ? response.data! : n));
+        setSelectedNote(response.data);
+        showSnackbar('Note saved', 'success');
+      }
     } catch (error) {
       showSnackbar('Failed to save note', 'error');
     }
@@ -132,15 +140,21 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     try {
       // First, classify the note
       const classifyResponse = await aiApi.classify(noteId);
+      if (!classifyResponse.data) {
+        throw new Error('No classification data');
+      }
       const classification = classifyResponse.data;
 
-      if (classification.classification === 'task') {
+      if (!classification.is_inspiration) {
         // Route to task conversion
         setCategorizingNoteId(null);
         await handleConvertToTask(noteId);
       } else {
         // Route to inspiration categorization
         const response = await inspirationsApi.categorize(noteId);
+        if (!response.data) {
+          throw new Error('No categorization data');
+        }
         const result: CategorizeResponse = response.data;
 
         if (result.is_new_category) {
@@ -191,7 +205,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     setConvertDialogOpen(true);
     try {
       const response = await aiApi.translate(noteId);
-      setTranslateSuggestions(response.data);
+      if (response.data) {
+        setTranslateSuggestions(response.data);
+      }
     } catch (error) {
       showSnackbar('Failed to generate task suggestions', 'error');
       setConvertDialogOpen(false);
@@ -212,6 +228,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     try {
       // Create the planner item
       const taskResponse = await plannerApi.create(task);
+      if (!taskResponse.data) {
+        throw new Error('Failed to create task');
+      }
       const createdTask = taskResponse.data;
 
       // Create the link between note and task

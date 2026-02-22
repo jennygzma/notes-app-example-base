@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 import uuid
+from schemas import Note, PlannerItem, Inspiration, Category, Link
 
 class LocalStorage:
     def __init__(self, base_path: str = "generated"):
@@ -38,9 +39,9 @@ class LocalStorage:
     def _now(self) -> str:
         return datetime.utcnow().isoformat() + 'Z'
     
-    def create_note(self, title: str, body: str) -> Dict:
+    def create_note(self, title: str, body: str) -> Note:
         notes = self._read_json(self.notes_file)
-        note = {
+        note_data = {
             "id": self._generate_id(),
             "title": title,
             "body": body,
@@ -49,31 +50,35 @@ class LocalStorage:
             "created_at": self._now(),
             "updated_at": self._now()
         }
-        notes.append(note)
+        note = Note(**note_data)
+        notes.append(note_data)
         self._write_json(self.notes_file, notes)
         return note
     
-    def get_notes(self) -> List[Dict]:
-        return self._read_json(self.notes_file)
+    def get_notes(self) -> List[Note]:
+        notes_data = self._read_json(self.notes_file)
+        return [Note(**n) for n in notes_data]
     
-    def get_note(self, note_id: str) -> Optional[Dict]:
+    def get_note(self, note_id: str) -> Optional[Note]:
         notes = self._read_json(self.notes_file)
-        return next((n for n in notes if n["id"] == note_id), None)
+        note_data = next((n for n in notes if n["id"] == note_id), None)
+        return Note(**note_data) if note_data else None
     
     def update_note(self, note_id: str, title: Optional[str] = None, body: Optional[str] = None, 
-                    is_inspiration: Optional[bool] = None, is_analyzed: Optional[bool] = None) -> Optional[Dict]:
+                    is_inspiration: Optional[bool] = None, is_analyzed: Optional[bool] = None) -> Optional[Note]:
         notes = self._read_json(self.notes_file)
-        for note in notes:
-            if note["id"] == note_id:
+        for note_data in notes:
+            if note_data["id"] == note_id:
                 if title is not None:
-                    note["title"] = title
+                    note_data["title"] = title
                 if body is not None:
-                    note["body"] = body
+                    note_data["body"] = body
                 if is_inspiration is not None:
-                    note["is_inspiration"] = is_inspiration
+                    note_data["is_inspiration"] = is_inspiration
                 if is_analyzed is not None:
-                    note["is_analyzed"] = is_analyzed
-                note["updated_at"] = self._now()
+                    note_data["is_analyzed"] = is_analyzed
+                note_data["updated_at"] = self._now()
+                note = Note(**note_data)
                 self._write_json(self.notes_file, notes)
                 return note
         return None
@@ -86,9 +91,9 @@ class LocalStorage:
             return True
         return False
     
-    def create_planner_item(self, title: str, body: str, date: str, time: Optional[str], view_type: str) -> Dict:
+    def create_planner_item(self, title: str, body: str, date: str, time: Optional[str], view_type: str) -> PlannerItem:
         items = self._read_json(self.planner_items_file)
-        item = {
+        item_data = {
             "id": self._generate_id(),
             "title": title,
             "body": body,
@@ -99,12 +104,13 @@ class LocalStorage:
             "created_at": self._now(),
             "updated_at": self._now()
         }
-        items.append(item)
+        item = PlannerItem(**item_data)
+        items.append(item_data)
         self._write_json(self.planner_items_file, items)
         return item
     
     def get_planner_items(self, date_start: Optional[str] = None, date_end: Optional[str] = None, 
-                         view_type: Optional[str] = None, status: Optional[str] = None) -> List[Dict]:
+                         view_type: Optional[str] = None, status: Optional[str] = None) -> List[PlannerItem]:
         items = self._read_json(self.planner_items_file)
         
         if date_start:
@@ -116,30 +122,33 @@ class LocalStorage:
         if status:
             items = [i for i in items if i["status"] == status]
         
-        return items
+        return [PlannerItem(**i) for i in items]
     
-    def get_planner_item(self, item_id: str) -> Optional[Dict]:
+    def get_planner_item(self, item_id: str) -> Optional[PlannerItem]:
         items = self._read_json(self.planner_items_file)
-        return next((i for i in items if i["id"] == item_id), None)
+        item_data = next((i for i in items if i["id"] == item_id), None)
+        return PlannerItem(**item_data) if item_data else None
     
-    def update_planner_item(self, item_id: str, **kwargs) -> Optional[Dict]:
+    def update_planner_item(self, item_id: str, **kwargs) -> Optional[PlannerItem]:
         items = self._read_json(self.planner_items_file)
-        for item in items:
-            if item["id"] == item_id:
+        for item_data in items:
+            if item_data["id"] == item_id:
                 for key, value in kwargs.items():
-                    if value is not None and key in item:
-                        item[key] = value
-                item["updated_at"] = self._now()
+                    if value is not None and key in item_data:
+                        item_data[key] = value
+                item_data["updated_at"] = self._now()
+                item = PlannerItem(**item_data)
                 self._write_json(self.planner_items_file, items)
                 return item
         return None
     
-    def toggle_planner_item_status(self, item_id: str) -> Optional[Dict]:
+    def toggle_planner_item_status(self, item_id: str) -> Optional[PlannerItem]:
         items = self._read_json(self.planner_items_file)
-        for item in items:
-            if item["id"] == item_id:
-                item["status"] = "completed" if item["status"] == "pending" else "pending"
-                item["updated_at"] = self._now()
+        for item_data in items:
+            if item_data["id"] == item_id:
+                item_data["status"] = "completed" if item_data["status"] == "pending" else "pending"
+                item_data["updated_at"] = self._now()
+                item = PlannerItem(**item_data)
                 self._write_json(self.planner_items_file, items)
                 return item
         return None
@@ -152,25 +161,28 @@ class LocalStorage:
             return True
         return False
     
-    def create_inspiration(self, note_id: str, category: str, ai_confidence: float) -> Dict:
+    def create_inspiration(self, note_id: str, category: str, ai_confidence: float) -> Inspiration:
         inspirations = self._read_json(self.inspirations_file)
-        inspiration = {
+        inspiration_data = {
             "id": self._generate_id(),
             "note_id": note_id,
             "category": category,
             "ai_confidence": ai_confidence,
             "created_at": self._now()
         }
-        inspirations.append(inspiration)
+        inspiration = Inspiration(**inspiration_data)
+        inspirations.append(inspiration_data)
         self._write_json(self.inspirations_file, inspirations)
         return inspiration
     
-    def get_inspirations(self) -> List[Dict]:
-        return self._read_json(self.inspirations_file)
+    def get_inspirations(self) -> List[Inspiration]:
+        inspirations_data = self._read_json(self.inspirations_file)
+        return [Inspiration(**i) for i in inspirations_data]
     
-    def get_inspirations_by_note(self, note_id: str) -> List[Dict]:
-        inspirations = self._read_json(self.inspirations_file)
-        return [i for i in inspirations if i["note_id"] == note_id]
+    def get_inspirations_by_note(self, note_id: str) -> List[Inspiration]:
+        inspirations_data = self._read_json(self.inspirations_file)
+        filtered = [i for i in inspirations_data if i["note_id"] == note_id]
+        return [Inspiration(**i) for i in filtered]
     
     def delete_inspiration(self, inspiration_id: str) -> bool:
         inspirations = self._read_json(self.inspirations_file)
@@ -180,30 +192,33 @@ class LocalStorage:
             return True
         return False
     
-    def create_category(self, name: str, status: str = "active", discovered_by: str = "user") -> Dict:
+    def create_category(self, name: str, status: str = "active", discovered_by: str = "user") -> Category:
         categories = self._read_json(self.categories_file)
-        category = {
+        category_data = {
             "id": self._generate_id(),
             "name": name,
             "status": status,
             "discovered_by": discovered_by,
             "created_at": self._now()
         }
-        categories.append(category)
+        category = Category(**category_data)
+        categories.append(category_data)
         self._write_json(self.categories_file, categories)
         return category
     
-    def get_categories(self, status: Optional[str] = None) -> List[Dict]:
-        categories = self._read_json(self.categories_file)
+    def get_categories(self, status: Optional[str] = None) -> List[Category]:
+        categories_data = self._read_json(self.categories_file)
         if status:
-            return [c for c in categories if c["status"] == status]
-        return categories
+            filtered = [c for c in categories_data if c["status"] == status]
+            return [Category(**c) for c in filtered]
+        return [Category(**c) for c in categories_data]
     
-    def update_category_status(self, category_id: str, status: str) -> Optional[Dict]:
+    def update_category_status(self, category_id: str, status: str) -> Optional[Category]:
         categories = self._read_json(self.categories_file)
-        for category in categories:
-            if category["id"] == category_id:
-                category["status"] = status
+        for category_data in categories:
+            if category_data["id"] == category_id:
+                category_data["status"] = status
+                category = Category(**category_data)
                 self._write_json(self.categories_file, categories)
                 return category
         return None
@@ -216,30 +231,33 @@ class LocalStorage:
             return True
         return False
     
-    def create_link(self, note_id: str, planner_item_id: str) -> Dict:
+    def create_link(self, note_id: str, planner_item_id: str) -> Link:
         links = self._read_json(self.links_file)
         
         existing = next((l for l in links if l["note_id"] == note_id and l["planner_item_id"] == planner_item_id), None)
         if existing:
-            return existing
+            return Link(**existing)
         
-        link = {
+        link_data = {
             "id": self._generate_id(),
             "note_id": note_id,
             "planner_item_id": planner_item_id,
             "created_at": self._now()
         }
-        links.append(link)
+        link = Link(**link_data)
+        links.append(link_data)
         self._write_json(self.links_file, links)
         return link
     
-    def get_links_by_note(self, note_id: str) -> List[Dict]:
-        links = self._read_json(self.links_file)
-        return [l for l in links if l["note_id"] == note_id]
+    def get_links_by_note(self, note_id: str) -> List[Link]:
+        links_data = self._read_json(self.links_file)
+        filtered = [l for l in links_data if l["note_id"] == note_id]
+        return [Link(**l) for l in filtered]
     
-    def get_links_by_planner_item(self, planner_item_id: str) -> List[Dict]:
-        links = self._read_json(self.links_file)
-        return [l for l in links if l["planner_item_id"] == planner_item_id]
+    def get_links_by_planner_item(self, planner_item_id: str) -> List[Link]:
+        links_data = self._read_json(self.links_file)
+        filtered = [l for l in links_data if l["planner_item_id"] == planner_item_id]
+        return [Link(**l) for l in filtered]
     
     def delete_link(self, link_id: str) -> bool:
         links = self._read_json(self.links_file)

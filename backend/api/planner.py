@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
 from models.storage import LocalStorage
+from schemas import CreatePlannerItemRequest, UpdatePlannerItemRequest
+from pydantic import ValidationError
 
-planner_bp = Blueprint('planner', __name__, url_prefix='/api/planner')
+planner_bp = Blueprint('planner', __name__)
 storage = LocalStorage()
 
 @planner_bp.route('/items/', methods=['GET'])
@@ -17,40 +19,49 @@ def get_planner_items():
         view_type=view_type,
         status=status
     )
-    return jsonify(items), 200
+    return jsonify([item.model_dump() for item in items]), 200
 
 @planner_bp.route('/items/', methods=['POST'])
 def create_planner_item():
-    data = request.json
-    
-    required = ['title', 'body', 'date', 'view_type']
-    if not all(data.get(field) for field in required):
-        return jsonify({"error": f"Required fields: {', '.join(required)}"}), 400
-    
-    item = storage.create_planner_item(
-        title=data['title'],
-        body=data['body'],
-        date=data['date'],
-        time=data.get('time'),
-        view_type=data['view_type']
-    )
-    return jsonify(item), 201
+    try:
+        req = CreatePlannerItemRequest.model_validate(request.json)
+        item = storage.create_planner_item(
+            title=req.title,
+            body=req.body,
+            date=req.date,
+            time=req.time,
+            view_type=req.view_type
+        )
+        return jsonify(item.model_dump()), 201
+    except ValidationError as e:
+        return jsonify({"error": "Validation failed", "details": e.errors()}), 400
 
 @planner_bp.route('/items/<item_id>/', methods=['GET'])
 def get_planner_item(item_id):
     item = storage.get_planner_item(item_id)
     if not item:
         return jsonify({"error": "Planner item not found"}), 404
-    return jsonify(item), 200
+    return jsonify(item.model_dump()), 200
 
 @planner_bp.route('/items/<item_id>/', methods=['PUT'])
 def update_planner_item(item_id):
-    data = request.json
-    item = storage.update_planner_item(item_id, **data)
-    
-    if not item:
-        return jsonify({"error": "Planner item not found"}), 404
-    return jsonify(item), 200
+    try:
+        req = UpdatePlannerItemRequest.model_validate(request.json)
+        item = storage.update_planner_item(
+            item_id,
+            title=req.title,
+            body=req.body,
+            date=req.date,
+            time=req.time,
+            view_type=req.view_type,
+            status=req.status
+        )
+        
+        if not item:
+            return jsonify({"error": "Planner item not found"}), 404
+        return jsonify(item.model_dump()), 200
+    except ValidationError as e:
+        return jsonify({"error": "Validation failed", "details": e.errors()}), 400
 
 @planner_bp.route('/items/<item_id>/', methods=['DELETE'])
 def delete_planner_item(item_id):
@@ -64,7 +75,7 @@ def toggle_completion(item_id):
     item = storage.toggle_planner_item_status(item_id)
     if not item:
         return jsonify({"error": "Planner item not found"}), 404
-    return jsonify(item), 200
+    return jsonify(item.model_dump()), 200
 
 @planner_bp.route('/items/<item_id>/links/', methods=['GET'])
 def get_planner_item_links(item_id):
@@ -75,8 +86,8 @@ def get_planner_item_links(item_id):
     links = storage.get_links_by_planner_item(item_id)
     notes = []
     for link in links:
-        note = storage.get_note(link['note_id'])
+        note = storage.get_note(link.note_id)
         if note:
-            notes.append(note)
+            notes.append(note.model_dump())
     
     return jsonify(notes), 200
