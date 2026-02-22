@@ -1,0 +1,50 @@
+[
+  {
+    "id": "33c18e77-1d9b-4815-9190-edae7c5ff587",
+    "name": "Agent Systems & Dev",
+    "description": "Work notes on agent systems (ZORO/Cline), evaluation features, testbeds, development setup, and automation.",
+    "color": "#808080",
+    "created_at": "2026-02-22T20:55:21.517731Z",
+    "updated_at": "2026-02-22T20:55:21.517754Z"
+  },
+  {
+    "id": "a864a023-461f-475a-a584-b4538c583eae",
+    "name": "Career & Communications",
+    "description": "Professional communications, offers, mentors, and decision notes.",
+    "color": "#808080",
+    "created_at": "2026-02-22T20:55:21.520348Z",
+    "updated_at": "2026-02-22T20:55:21.520354Z"
+  },
+  {
+    "id": "6316e08a-c97e-4334-acf3-4dcc75246a61",
+    "name": "Contacts & Events",
+    "description": "People lists, birthdays, and related reference details.",
+    "color": "#808080",
+    "created_at": "2026-02-22T20:55:21.521327Z",
+    "updated_at": "2026-02-22T20:55:21.521330Z"
+  },
+  {
+    "id": "cec72f7c-3e0c-493f-a884-9baa545cde6e",
+    "name": "Food & Groceries",
+    "description": "Grocery lists, meal ideas, and places to eat.",
+    "color": "#808080",
+    "created_at": "2026-02-22T20:55:21.522315Z",
+    "updated_at": "2026-02-22T20:55:21.522318Z"
+  },
+  {
+    "id": "7ae78a29-f4ca-4780-8007-0365a4238211",
+    "name": "Travel & Outings",
+    "description": "Trip plans, destination lists, and local adventures.",
+    "color": "#808080",
+    "created_at": "2026-02-22T20:55:21.523115Z",
+    "updated_at": "2026-02-22T20:55:21.523118Z"
+  },
+  {
+    "id": "cc159640-78a7-4596-bef8-dbfbd126f5d3",
+    "name": "Personal Journaling",
+    "description": "Yearly recaps, journal types, reflections, and general personal notes.",
+    "color": "#808080",
+    "created_at": "2026-02-22T20:55:21.523956Z",
+    "updated_at": "2026-02-22T20:55:21.523958Z"
+  }
+]
