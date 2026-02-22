@@ -5,13 +5,13 @@ import {
   Typography,
   Checkbox,
   IconButton,
-  Chip,
   Stack,
   Box,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { PlannerItem, Note } from '../types';
+import { PlannerItem, Note } from '../../types';
+import Tag from '../../components/design-system/Tag';
+import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 
 interface TaskItemProps {
   task: PlannerItem;
@@ -69,33 +69,29 @@ const TaskItem: React.FC<TaskItemProps> = ({
             
             <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
               {task.time && (
-                <Chip label={task.time} size="small" />
+                <Tag label={task.time} />
               )}
-              <Chip label={task.view_type} size="small" color="primary" variant="outlined" />
+              <Tag label={task.view_type} color="primary" variant="outlined" />
               
               {linkedNotes.map((note) => (
-                <Chip
+                <Tag
                   key={note.id}
                   label={note.title}
-                  size="small"
                   onClick={() => onNoteClick?.(note.id)}
-                  sx={{ cursor: 'pointer' }}
                 />
               ))}
             </Stack>
           </Box>
           
-          <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton size="small" onClick={() => onEdit(task)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton 
-              size="small" 
-              onClick={() => onDelete(task.id)}
-              color="error"
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
+            
+            <InlineConfirmButton 
+              onConfirm={() => onDelete(task.id)}
+              confirmText=""
+            />
           </Box>
         </Box>
       </CardContent>

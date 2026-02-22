@@ -1,7 +1,7 @@
-from models.storage import LocalStorage
+from repositories.inspiration_repo import InspirationRepository
 
 def seed_initial_categories():
-    storage = LocalStorage()
+    repo = InspirationRepository()
     
     initial_categories = [
         "song covers",
@@ -11,12 +11,12 @@ def seed_initial_categories():
         "travel places"
     ]
     
-    existing_categories = storage.get_categories()
+    existing_categories = repo.get_categories()
     existing_names = [c['name'] for c in existing_categories]
     
     for category_name in initial_categories:
         if category_name not in existing_names:
-            storage.create_category(
+            repo.create_category(
                 name=category_name,
                 status="active",
                 discovered_by="user"

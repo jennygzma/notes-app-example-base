@@ -8,17 +8,15 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Chip,
   CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import { Note, InspirationsGrouped } from '../types';
-import { inspirationsApi } from '../services/api';
+import { Note, InspirationsGrouped } from '../../types';
+import { inspirationsApi } from '../../services/api';
+import Tag from '../../components/design-system/Tag';
+import Dialog from '../../components/shared/Dialog';
 
 interface InspirationsViewProps {
   onNoteClick: (noteId: string) => void;
@@ -125,9 +123,8 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
                       </Typography>
                     </Box>
                     
-                    <Chip 
+                    <Tag 
                       label={`${items.length} ${items.length === 1 ? 'item' : 'items'}`} 
-                      size="small" 
                       color="primary"
                       variant="outlined"
                       sx={{ mb: 2 }}
@@ -168,58 +165,56 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
       <Dialog 
         open={selectedCategory !== null} 
         onClose={() => setSelectedCategory(null)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LightbulbIcon color="primary" />
-            <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
-              {selectedCategory}
-            </Typography>
+        title={
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LightbulbIcon color="primary" />
+              <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
+                {selectedCategory}
+              </Typography>
+            </Box>
+            <IconButton onClick={() => setSelectedCategory(null)}>
+              <CloseIcon />
+            </IconButton>
           </Box>
-          <IconButton onClick={() => setSelectedCategory(null)}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers sx={{ p: 0 }}>
-          <List>
-            {selectedItems.map((note) => (
-              <ListItemButton
-                key={note.id}
-                onClick={() => {
-                  onNoteClick(note.id);
-                  setSelectedCategory(null);
-                }}
-                sx={{
-                  borderBottom: 1,
-                  borderColor: 'divider',
-                }}
-              >
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle1" fontWeight={600}>
-                      {note.title}
-                    </Typography>
-                  }
-                  secondary={
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {getPreview(note.body)}
-                    </Typography>
-                  }
-                />
-              </ListItemButton>
-            ))}
-          </List>
-        </DialogContent>
+        }
+      >
+        <List>
+          {selectedItems.map((note) => (
+            <ListItemButton
+              key={note.id}
+              onClick={() => {
+                onNoteClick(note.id);
+                setSelectedCategory(null);
+              }}
+              sx={{
+                borderBottom: 1,
+                borderColor: 'divider',
+              }}
+            >
+              <ListItemText
+                primary={
+                  <Typography variant="subtitle1" fontWeight={600}>
+                    {note.title}
+                  </Typography>
+                }
+                secondary={
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {getPreview(note.body)}
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          ))}
+        </List>
       </Dialog>
     </>
   );

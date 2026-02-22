@@ -3,7 +3,6 @@ import {
   Note,
   CreateNoteRequest,
   UpdateNoteRequest,
-  PatchNoteRequest,
   PlannerItem,
   CreatePlannerItemRequest,
   UpdatePlannerItemRequest,
@@ -13,13 +12,13 @@ import {
   ClassifyResponse,
   InspirationsGrouped,
   Link,
-  Inspiration,
-  ApproveCategoryResponse,
+  PlannerFilters,
 } from '../types';
 
-/**
- * Notes API
- */
+// ============================================================================
+// NOTES API
+// ============================================================================
+
 export const notesApi = {
   getAll: (): Promise<Note[]> => 
     apiClient.get<Note[]>('/api/notes/'),
@@ -33,9 +32,6 @@ export const notesApi = {
   update: (id: string, data: UpdateNoteRequest): Promise<Note> => 
     apiClient.put<Note>(`/api/notes/${id}/`, data),
   
-  patch: (id: string, data: PatchNoteRequest): Promise<Note> => 
-    apiClient.patch<Note>(`/api/notes/${id}/`, data),
-  
   delete: (id: string): Promise<void> => 
     apiClient.delete(`/api/notes/${id}/`),
   
@@ -46,17 +42,13 @@ export const notesApi = {
     apiClient.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
 };
 
-/**
- * Planner API
- */
+// ============================================================================
+// PLANNER API
+// ============================================================================
+
 export const plannerApi = {
-  getItems: (params?: {
-    date_start?: string;
-    date_end?: string;
-    view_type?: string;
-    status?: string;
-  }): Promise<PlannerItem[]> => 
-    apiClient.get<PlannerItem[]>('/api/planner/items/', params),
+  getItems: (params?: PlannerFilters): Promise<PlannerItem[]> => 
+    apiClient.get<PlannerItem[]>('/api/planner/items/', { params }),
   
   create: (data: CreatePlannerItemRequest): Promise<PlannerItem> => 
     apiClient.post<PlannerItem>('/api/planner/items/', data),
@@ -77,15 +69,16 @@ export const plannerApi = {
     apiClient.get<Note[]>(`/api/planner/items/${id}/links/`),
 };
 
-/**
- * Inspirations API
- */
+// ============================================================================
+// INSPIRATIONS API
+// ============================================================================
+
 export const inspirationsApi = {
   getAll: (): Promise<InspirationsGrouped> => 
     apiClient.get<InspirationsGrouped>('/api/inspirations/'),
   
-  getByNoteId: (noteId: string): Promise<Inspiration[]> => 
-    apiClient.get<Inspiration[]>(`/api/inspirations/note/${noteId}/`),
+  getByNoteId: (noteId: string): Promise<Array<{ category: string; ai_confidence: number; inspiration_id: string }>> => 
+    apiClient.get<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>(`/api/inspirations/note/${noteId}/`),
   
   categorize: (noteId: string): Promise<CategorizeResponse> => 
     apiClient.post<CategorizeResponse>('/api/inspirations/categorize/', { note_id: noteId }),
@@ -96,11 +89,8 @@ export const inspirationsApi = {
   getPendingCategories: (): Promise<InspirationCategory[]> => 
     apiClient.get<InspirationCategory[]>('/api/inspirations/categories/pending/'),
   
-  approveCategory: (categoryId: string, noteId?: string): Promise<ApproveCategoryResponse> => 
-    apiClient.post<ApproveCategoryResponse>(
-      `/api/inspirations/categories/${categoryId}/approve/`, 
-      { note_id: noteId }
-    ),
+  approveCategory: (categoryId: string, noteId?: string): Promise<any> => 
+    apiClient.post(`/api/inspirations/categories/${categoryId}/approve/`, { note_id: noteId }),
   
   rejectCategory: (categoryId: string): Promise<void> => 
     apiClient.delete(`/api/inspirations/categories/${categoryId}/reject/`),
@@ -109,9 +99,10 @@ export const inspirationsApi = {
     apiClient.delete(`/api/inspirations/${inspirationId}/`),
 };
 
-/**
- * Links API
- */
+// ============================================================================
+// LINKS API
+// ============================================================================
+
 export const linksApi = {
   create: (noteId: string, plannerItemId: string): Promise<Link> => 
     apiClient.post<Link>('/api/links/', { 
@@ -123,9 +114,10 @@ export const linksApi = {
     apiClient.delete(`/api/links/${id}/`),
 };
 
-/**
- * AI API
- */
+// ============================================================================
+// AI API
+// ============================================================================
+
 export const aiApi = {
   classify: (noteId: string): Promise<ClassifyResponse> =>
     apiClient.post<ClassifyResponse>('/api/ai/classify/', { note_id: noteId }),

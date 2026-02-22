@@ -5,13 +5,13 @@ import {
   ListItemText,
   Typography,
   Box,
-  TextField,
   InputAdornment,
-  Chip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import { Note } from '../types';
+import { Note } from '../../types';
+import TextField from '../../components/design-system/TextField';
+import Tag from '../../components/design-system/Tag';
 
 interface NotesListProps {
   notes: Note[];
@@ -49,7 +49,6 @@ const NotesList: React.FC<NotesListProps> = ({
     }}>
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <TextField
-          fullWidth
           size="small"
           placeholder="Search notes"
           value={searchQuery}
@@ -104,18 +103,16 @@ const NotesList: React.FC<NotesListProps> = ({
                       {note.title}
                     </Typography>
                     {note.is_inspiration && (
-                      <Chip 
+                      <Tag 
                         icon={<LightbulbIcon />}
                         label="Inspiration"
-                        size="small"
                         color="primary"
                         sx={{ height: 20, fontSize: '0.7rem' }}
                       />
                     )}
                     {note.is_analyzed && !note.is_inspiration && (
-                      <Chip 
+                      <Tag 
                         label="Task"
-                        size="small"
                         color="success"
                         sx={{ height: 20, fontSize: '0.7rem' }}
                       />

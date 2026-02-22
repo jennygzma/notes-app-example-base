@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
-from models.storage import LocalStorage
-from models.gpt_client import GPTClient
+from services.inspiration_service import InspirationService
 from schemas import (
     CategorizeNoteRequest,
     ApproveCategoryRequest,
@@ -13,12 +12,10 @@ from schemas import (
 )
 
 inspirations_bp = Blueprint('inspirations', __name__, url_prefix='/api/inspirations')
-storage = LocalStorage()
-gpt = GPTClient()
+inspiration_service = InspirationService()
 
 
 def handle_validation_error(e: ValidationError) -> tuple:
-    """Helper to format Pydantic validation errors"""
     errors = '; '.join([f"{err['loc'][0]}: {err['msg']}" for err in e.errors()])
     return jsonify(ErrorResponse(error="Validation error", details=errors).model_dump()), 400
 
@@ -26,29 +23,14 @@ def handle_validation_error(e: ValidationError) -> tuple:
 @inspirations_bp.route('/', methods=['GET'])
 def get_inspirations():
     """Get all inspirations grouped by category"""
-    inspirations = storage.get_inspirations()
-    notes = storage.get_notes()
-    
-    result = {}
-    for insp in inspirations:
-        note = next((n for n in notes if n['id'] == insp['note_id']), None)
-        if note:
-            category = insp['category']
-            if category not in result:
-                result[category] = []
-            result[category].append({
-                **note,
-                'inspiration_id': insp['id'],
-                'ai_confidence': insp['ai_confidence']
-            })
-    
+    result = inspiration_service.get_all_grouped()
     return jsonify(result), 200
 
 
 @inspirations_bp.route('/note/<note_id>/', methods=['GET'])
 def get_inspirations_by_note(note_id: str):
     """Get inspirations for a specific note"""
-    inspirations = storage.get_inspirations_by_note(note_id)
+    inspirations = inspiration_service.get_by_note_id(note_id)
     return jsonify(inspirations), 200
 
 
@@ -60,68 +42,25 @@ def categorize_note():
     except ValidationError as e:
         return handle_validation_error(e)
     
-    note = storage.get_note(data.note_id)
-    if not note:
+    result = inspiration_service.categorize_note(data.note_id)
+    if not result:
         return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
     
-    active_categories = storage.get_categories(status="active")
-    category_names = [c['name'] for c in active_categories]
-    
-    result = gpt.categorize_note(
-        title=note['title'],
-        body=note['body'],
-        existing_categories=category_names
-    )
-    
-    is_new = result['is_new_category']
-    category_name = result['category']
-    
-    if is_new:
-        category = storage.create_category(
-            name=category_name,
-            status="pending_approval",
-            discovered_by="ai"
-        )
-        response = CategorizeResponse(
-            category=category_name,
-            confidence=result['confidence'],
-            is_new_category=True,
-            category_id=category['id'],
-            reasoning=result.get('reasoning'),
-            status="pending_approval"
-        )
-        return jsonify(response.model_dump()), 200
-    else:
-        inspiration = storage.create_inspiration(
-            note_id=data.note_id,
-            category=category_name,
-            ai_confidence=result['confidence']
-        )
-        # Mark note as inspiration and analyzed
-        storage.update_note(data.note_id, is_inspiration=True, is_analyzed=True)
-        
-        response = CategorizeResponse(
-            category=category_name,
-            confidence=result['confidence'],
-            is_new_category=False,
-            inspiration_id=inspiration['id'],
-            reasoning=result.get('reasoning'),
-            status="created"
-        )
-        return jsonify(response.model_dump()), 201
+    status_code = 200 if result.is_new_category else 201
+    return jsonify(result.model_dump()), status_code
 
 
 @inspirations_bp.route('/categories/', methods=['GET'])
 def get_categories():
     """Get all active categories"""
-    categories = storage.get_categories(status="active")
+    categories = inspiration_service.get_categories(status="active")
     return jsonify(categories), 200
 
 
 @inspirations_bp.route('/categories/pending/', methods=['GET'])
 def get_pending_categories():
     """Get all pending approval categories"""
-    categories = storage.get_categories(status="pending_approval")
+    categories = inspiration_service.get_categories(status="pending_approval")
     return jsonify(categories), 200
 
 
@@ -133,25 +72,18 @@ def approve_category(category_id: str):
     except ValidationError as e:
         return handle_validation_error(e)
     
-    category = storage.update_category_status(category_id, "active")
+    category, inspiration = inspiration_service.approve_category(category_id, data.note_id)
+    
     if not category:
         return jsonify(ErrorResponse(error="Category not found").model_dump()), 404
     
-    if data.note_id:
-        note = storage.get_note(data.note_id)
-        if note:
-            inspiration = storage.create_inspiration(
-                note_id=data.note_id,
-                category=category['name'],
-                ai_confidence=0.95
-            )
-            storage.update_note(data.note_id, is_inspiration=True, is_analyzed=True)
-            
-            response = ApproveCategoryResponse(
-                category=CategoryResponse.model_validate(category),
-                inspiration=InspirationResponse.model_validate(inspiration)
-            )
-            return jsonify(response.model_dump()), 201
+    # Construct response
+    if inspiration:
+        response = ApproveCategoryResponse(
+            category=CategoryResponse.model_validate(category),
+            inspiration=InspirationResponse.model_validate(inspiration)
+        )
+        return jsonify(response.model_dump()), 201
     
     response = ApproveCategoryResponse(
         category=CategoryResponse.model_validate(category),
@@ -163,7 +95,7 @@ def approve_category(category_id: str):
 @inspirations_bp.route('/categories/<category_id>/reject/', methods=['DELETE'])
 def reject_category(category_id: str):
     """Reject and delete a pending category"""
-    success = storage.delete_category(category_id)
+    success = inspiration_service.reject_category(category_id)
     if not success:
         return jsonify(ErrorResponse(error="Category not found").model_dump()), 404
     return '', 204
@@ -172,7 +104,7 @@ def reject_category(category_id: str):
 @inspirations_bp.route('/<inspiration_id>/', methods=['DELETE'])
 def delete_inspiration(inspiration_id: str):
     """Delete an inspiration"""
-    success = storage.delete_inspiration(inspiration_id)
+    success = inspiration_service.delete_inspiration(inspiration_id)
     if not success:
         return jsonify(ErrorResponse(error="Inspiration not found").model_dump()), 404
     return '', 204
