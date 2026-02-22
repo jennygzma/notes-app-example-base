@@ -1,5 +1,8 @@
 import { apiClient } from './apiClient';
 import {
+  Folder,
+  CreateFolderRequest,
+  UpdateFolderRequest,
   Note,
   CreateNoteRequest,
   UpdateNoteRequest,
@@ -14,6 +17,27 @@ import {
   Link,
   PlannerFilters,
 } from '../types';
+
+// ============================================================================
+// FOLDERS API
+// ============================================================================
+
+export const foldersApi = {
+  getAll: (): Promise<{ folders: Folder[]; unorganized_count: number }> => 
+    apiClient.get<{ folders: Folder[]; unorganized_count: number }>('/api/folders/'),
+  
+  create: (data: CreateFolderRequest): Promise<Folder> => 
+    apiClient.post<Folder>('/api/folders/', data),
+  
+  getById: (id: string): Promise<Folder> => 
+    apiClient.get<Folder>(`/api/folders/${id}/`),
+  
+  update: (id: string, data: UpdateFolderRequest): Promise<Folder> => 
+    apiClient.put<Folder>(`/api/folders/${id}/`, data),
+  
+  delete: (id: string): Promise<void> => 
+    apiClient.delete(`/api/folders/${id}/`),
+};
 
 // ============================================================================
 // NOTES API
@@ -40,6 +64,18 @@ export const notesApi = {
   
   markAnalyzed: (id: string): Promise<Note> => 
     apiClient.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
+  
+  bulkMove: (noteIds: string[], folderId: string | null): Promise<{ updated_count: number }> => 
+    apiClient.post<{ updated_count: number }>('/api/notes/bulk-move/', { 
+      note_ids: noteIds, 
+      folder_id: folderId 
+    }),
+  
+  organizePreview: (): Promise<any> => 
+    apiClient.post<any>('/api/notes/organize/preview/', {}),
+  
+  applyOrganization: (plan: any): Promise<any> => 
+    apiClient.post<any>('/api/notes/organize/apply/', plan),
 };
 
 // ============================================================================
@@ -124,4 +160,13 @@ export const aiApi = {
   
   translate: (noteId: string): Promise<TranslateResponse> => 
     apiClient.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+};
+
+// ============================================================================
+// CHAT API
+// ============================================================================
+
+export const chatApi = {
+  send: (message: string): Promise<any> => 
+    apiClient.post<any>('/api/chat/', { message }),
 };

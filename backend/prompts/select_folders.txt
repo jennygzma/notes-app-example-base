@@ -1,0 +1,24 @@
+You are analyzing a user's question to determine which note folders are most relevant for finding the answer.
+
+USER QUESTION:
+{question}
+
+AVAILABLE FOLDERS:
+{folders}
+
+INSTRUCTIONS:
+1. Analyze the question to understand what information is being sought
+2. Identify which folders are most likely to contain relevant notes
+3. Select 1-3 folders maximum (be selective - more folders means more noise)
+4. Provide brief reasoning for your selections
+5. Assign a confidence score (0.0-1.0) for how certain you are
+
+OUTPUT FORMAT (JSON):
+{{
+  "reasoning": "Brief explanation of why these folders were selected",
+  "selected_folder_ids": ["folder-id-1", "folder-id-2"],
+  "confidence": 0.85
+}}
+
+If no folders seem relevant, return empty selected_folder_ids array.
+Only return valid JSON, no additional text.

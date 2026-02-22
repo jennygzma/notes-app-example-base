@@ -1,9 +1,20 @@
 // ==================== Base Models ====================
 
+export interface Folder {
+  id: string;
+  name: string;
+  description?: string;
+  color?: string;
+  created_at: string;
+  updated_at: string;
+  note_count?: number;
+}
+
 export interface Note {
   id: string;
   title: string;
   body: string;
+  folder_id?: string | null;
   is_inspiration: boolean;
   is_analyzed: boolean;
   created_at: string;
@@ -47,9 +58,22 @@ export interface Link {
 
 // ==================== Request Types ====================
 
+export interface CreateFolderRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateFolderRequest {
+  name?: string;
+  description?: string;
+  color?: string;
+}
+
 export interface CreateNoteRequest {
   title: string;
   body?: string;
+  folder_id?: string | null;
 }
 
 export interface UpdateNoteRequest {
@@ -105,6 +129,67 @@ export interface PlannerFilters {
   date_end?: string;
   view_type?: string;
   status?: string;
+}
+
+export interface ProposedFolder {
+  name: string;
+  description?: string;
+  color?: string;
+  note_ids: string[];
+}
+
+export interface ExistingFolderAssignment {
+  folder_id: string;
+  note_ids: string[];
+}
+
+export interface OrganizePreviewResponse {
+  total_notes: number;
+  batches_processed: number;
+  proposed_folders: ProposedFolder[];
+  existing_folder_assignments: ExistingFolderAssignment[];
+  message?: string;
+}
+
+export interface OrganizePlan {
+  proposed_folders: ProposedFolder[];
+  existing_folder_assignments: ExistingFolderAssignment[];
+}
+
+export interface ApplyOrganizationResponse {
+  folders_created: number;
+  notes_organized: number;
+  created_folders: Folder[];
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  reasoning?: ChatReasoning;
+  citations?: ChatCitation[];
+}
+
+export interface ChatReasoning {
+  folder_selection: string;
+  selected_folder_ids: string[];
+  folders_searched: Array<{ id: string; name: string }>;
+  notes_searched: number;
+}
+
+export interface ChatCitation {
+  note_id: string;
+  note_title: string;
+  excerpt: string;
+}
+
+export interface ChatResponse {
+  answer: string;
+  cited_note_ids: string[];
+  confidence: number;
+  has_sufficient_info: boolean;
+  reasoning: ChatReasoning;
 }
 
 // ==================== Response Types ====================

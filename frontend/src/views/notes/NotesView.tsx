@@ -7,11 +7,13 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import FolderSidebar from './FolderSidebar';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../../services/api';
+import OrganizeDialog from './OrganizeDialog';
+import { Folder, Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
+import { notesApi, foldersApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../../services/api';
 import Dialog from '../../components/shared/Dialog';
 import Button from '../../components/design-system/Button';
 
@@ -22,6 +24,9 @@ interface NotesViewProps {
 }
 
 const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigateToTask, onNavigateToInspiration }) => {
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [unorganizedCount, setUnorganizedCount] = useState(0);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,6 +36,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [translatingNoteId, setTranslatingNoteId] = useState<string | null>(null);
   const [translateSuggestions, setTranslateSuggestions] = useState<TranslateResponse | null>(null);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizeLoading, setOrganizeLoading] = useState(false);
+  const [organizePreview, setOrganizePreview] = useState<any>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -45,6 +53,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   } | null>(null);
 
   useEffect(() => {
+    loadFolders();
     loadNotes();
   }, []);
 
@@ -67,6 +76,16 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       }
     }
   }, [selectedNote]);
+
+  const loadFolders = async () => {
+    try {
+      const response = await foldersApi.getAll();
+      setFolders(response.folders);
+      setUnorganizedCount(response.unorganized_count);
+    } catch (error) {
+      showSnackbar('Failed to load folders', 'error');
+    }
+  };
 
   const loadNotes = async () => {
     try {
@@ -250,14 +269,92 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   };
 
+  const handleCreateFolder = async (name: string, description?: string, color?: string) => {
+    try {
+      await foldersApi.create({ name, description, color });
+      await loadFolders();
+      showSnackbar('Folder created', 'success');
+    } catch (error) {
+      showSnackbar('Failed to create folder', 'error');
+    }
+  };
+
+  const handleUpdateFolder = async (id: string, name: string, description?: string, color?: string) => {
+    try {
+      await foldersApi.update(id, { name, description, color });
+      await loadFolders();
+      showSnackbar('Folder updated', 'success');
+    } catch (error) {
+      showSnackbar('Failed to update folder', 'error');
+    }
+  };
+
+  const handleDeleteFolder = async (id: string) => {
+    try {
+      await foldersApi.delete(id);
+      if (selectedFolderId === id) {
+        setSelectedFolderId(null);
+      }
+      await loadFolders();
+      await loadNotes();
+      showSnackbar('Folder deleted', 'success');
+    } catch (error) {
+      showSnackbar('Failed to delete folder', 'error');
+    }
+  };
+
+  const handleAutoOrganize = async () => {
+    setOrganizeDialogOpen(true);
+    setOrganizeLoading(true);
+    try {
+      const preview = await notesApi.organizePreview();
+      setOrganizePreview(preview);
+    } catch (error) {
+      showSnackbar('Failed to generate organization preview', 'error');
+      setOrganizeDialogOpen(false);
+    } finally {
+      setOrganizeLoading(false);
+    }
+  };
+
+  const handleApplyOrganization = async (plan: any) => {
+    try {
+      await notesApi.applyOrganization(plan);
+      await loadFolders();
+      await loadNotes();
+      setOrganizeDialogOpen(false);
+      setOrganizePreview(null);
+      showSnackbar('Notes organized successfully!', 'success');
+    } catch (error) {
+      showSnackbar('Failed to apply organization', 'error');
+    }
+  };
+
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info') => {
     setSnackbar({ open: true, message, severity });
   };
 
+  const filteredNotes = notes.filter(note => {
+    if (selectedFolderId !== null) {
+      return note.folder_id === selectedFolderId;
+    }
+    return note.folder_id === null || note.folder_id === undefined;
+  });
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
+      <FolderSidebar
+        folders={folders}
+        unorganizedCount={unorganizedCount}
+        selectedFolderId={selectedFolderId}
+        onSelectFolder={setSelectedFolderId}
+        onCreateFolder={handleCreateFolder}
+        onUpdateFolder={handleUpdateFolder}
+        onDeleteFolder={handleDeleteFolder}
+        onAutoOrganize={handleAutoOrganize}
+      />
       <NotesList
-        notes={notes}
+        notes={filteredNotes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
@@ -294,6 +391,19 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         onConfirm={handleConfirmTask}
         suggestions={translateSuggestions}
         loading={translatingNoteId !== null}
+      />
+
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        loading={organizeLoading}
+        preview={organizePreview}
+        notes={notes}
+        existingFolders={folders}
+        onClose={() => {
+          setOrganizeDialogOpen(false);
+          setOrganizePreview(null);
+        }}
+        onApply={handleApplyOrganization}
       />
 
       <Dialog
