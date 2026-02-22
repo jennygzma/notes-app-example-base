@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import uuid
 
+
 class LocalStorage:
     def __init__(self, base_path: str = "generated"):
         self.base_path = Path(base_path)
@@ -18,7 +19,7 @@ class LocalStorage:
         
         self._init_files()
     
-    def _init_files(self):
+    def _init_files(self) -> None:
         for file in [self.notes_file, self.planner_items_file, self.inspirations_file, 
                      self.categories_file, self.links_file]:
             if not file.exists():
@@ -28,7 +29,7 @@ class LocalStorage:
         with open(file_path, 'r') as f:
             return json.load(f)
     
-    def _write_json(self, file_path: Path, data: List[Dict]):
+    def _write_json(self, file_path: Path, data: List[Dict]) -> None:
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=2)
     
@@ -37,6 +38,8 @@ class LocalStorage:
     
     def _now(self) -> str:
         return datetime.utcnow().isoformat() + 'Z'
+    
+    # ==================== Notes ====================
     
     def create_note(self, title: str, body: str) -> Dict:
         notes = self._read_json(self.notes_file)
@@ -60,8 +63,14 @@ class LocalStorage:
         notes = self._read_json(self.notes_file)
         return next((n for n in notes if n["id"] == note_id), None)
     
-    def update_note(self, note_id: str, title: Optional[str] = None, body: Optional[str] = None, 
-                    is_inspiration: Optional[bool] = None, is_analyzed: Optional[bool] = None) -> Optional[Dict]:
+    def update_note(
+        self, 
+        note_id: str, 
+        title: Optional[str] = None, 
+        body: Optional[str] = None, 
+        is_inspiration: Optional[bool] = None, 
+        is_analyzed: Optional[bool] = None
+    ) -> Optional[Dict]:
         notes = self._read_json(self.notes_file)
         for note in notes:
             if note["id"] == note_id:
@@ -86,7 +95,16 @@ class LocalStorage:
             return True
         return False
     
-    def create_planner_item(self, title: str, body: str, date: str, time: Optional[str], view_type: str) -> Dict:
+    # ==================== Planner Items ====================
+    
+    def create_planner_item(
+        self, 
+        title: str, 
+        body: str, 
+        date: str, 
+        time: Optional[str], 
+        view_type: str
+    ) -> Dict:
         items = self._read_json(self.planner_items_file)
         item = {
             "id": self._generate_id(),
@@ -103,8 +121,13 @@ class LocalStorage:
         self._write_json(self.planner_items_file, items)
         return item
     
-    def get_planner_items(self, date_start: Optional[str] = None, date_end: Optional[str] = None, 
-                         view_type: Optional[str] = None, status: Optional[str] = None) -> List[Dict]:
+    def get_planner_items(
+        self, 
+        date_start: Optional[str] = None, 
+        date_end: Optional[str] = None, 
+        view_type: Optional[str] = None, 
+        status: Optional[str] = None
+    ) -> List[Dict]:
         items = self._read_json(self.planner_items_file)
         
         if date_start:
@@ -152,6 +175,8 @@ class LocalStorage:
             return True
         return False
     
+    # ==================== Inspirations ====================
+    
     def create_inspiration(self, note_id: str, category: str, ai_confidence: float) -> Dict:
         inspirations = self._read_json(self.inspirations_file)
         inspiration = {
@@ -179,6 +204,8 @@ class LocalStorage:
             self._write_json(self.inspirations_file, filtered)
             return True
         return False
+    
+    # ==================== Categories ====================
     
     def create_category(self, name: str, status: str = "active", discovered_by: str = "user") -> Dict:
         categories = self._read_json(self.categories_file)
@@ -216,10 +243,16 @@ class LocalStorage:
             return True
         return False
     
+    # ==================== Links ====================
+    
     def create_link(self, note_id: str, planner_item_id: str) -> Dict:
         links = self._read_json(self.links_file)
         
-        existing = next((l for l in links if l["note_id"] == note_id and l["planner_item_id"] == planner_item_id), None)
+        # Check if link already exists
+        existing = next(
+            (l for l in links if l["note_id"] == note_id and l["planner_item_id"] == planner_item_id), 
+            None
+        )
         if existing:
             return existing
         

@@ -64,8 +64,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const loadNotes = async () => {
     try {
-      const response = await notesApi.getAll();
-      setNotes(response.data);
+      const notes = await notesApi.getAll();
+      setNotes(notes);
     } catch (error) {
       showSnackbar('Failed to load notes', 'error');
     }
@@ -73,8 +73,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const loadLinkedItems = async (noteId: string) => {
     try {
-      const response = await notesApi.getLinks(noteId);
-      setLinkedItems(response.data);
+      const linkedItems = await notesApi.getLinks(noteId);
+      setLinkedItems(linkedItems);
     } catch (error) {
       setLinkedItems([]);
     }
@@ -82,9 +82,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const loadNoteCategory = async (noteId: string) => {
     try {
-      const response = await inspirationsApi.getByNoteId(noteId);
-      if (response.data && response.data.length > 0) {
-        setNoteCategory(response.data[0].category);
+      const inspirations = await inspirationsApi.getByNoteId(noteId);
+      if (inspirations && inspirations.length > 0) {
+        setNoteCategory(inspirations[0].category);
       } else {
         setNoteCategory(null);
       }
@@ -95,8 +95,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const handleCreateNote = async () => {
     try {
-      const response = await notesApi.create({ title: 'New Note', body: '' });
-      const newNote = response.data;
+      const newNote = await notesApi.create({ title: 'New Note', body: '' });
       setNotes([newNote, ...notes]);
       setSelectedNote(newNote);
       showSnackbar('Note created', 'success');
@@ -107,9 +106,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const handleUpdateNote = async (id: string, title: string, body: string) => {
     try {
-      const response = await notesApi.update(id, { title, body });
-      setNotes(notes.map(n => n.id === id ? response.data : n));
-      setSelectedNote(response.data);
+      const updatedNote = await notesApi.update(id, { title, body });
+      setNotes(notes.map(n => n.id === id ? updatedNote : n));
+      setSelectedNote(updatedNote);
       showSnackbar('Note saved', 'success');
     } catch (error) {
       showSnackbar('Failed to save note', 'error');
@@ -131,8 +130,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     setCategorizingNoteId(noteId);
     try {
       // First, classify the note
-      const classifyResponse = await aiApi.classify(noteId);
-      const classification = classifyResponse.data;
+      const classification = await aiApi.classify(noteId);
 
       if (classification.classification === 'task') {
         // Route to task conversion
@@ -140,8 +138,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         await handleConvertToTask(noteId);
       } else {
         // Route to inspiration categorization
-        const response = await inspirationsApi.categorize(noteId);
-        const result: CategorizeResponse = response.data;
+        const result = await inspirationsApi.categorize(noteId);
 
         if (result.is_new_category) {
           setCategoryDialog({
@@ -190,8 +187,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     setTranslatingNoteId(noteId);
     setConvertDialogOpen(true);
     try {
-      const response = await aiApi.translate(noteId);
-      setTranslateSuggestions(response.data);
+      const suggestions = await aiApi.translate(noteId);
+      setTranslateSuggestions(suggestions);
     } catch (error) {
       showSnackbar('Failed to generate task suggestions', 'error');
       setConvertDialogOpen(false);
@@ -211,8 +208,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
     try {
       // Create the planner item
-      const taskResponse = await plannerApi.create(task);
-      const createdTask = taskResponse.data;
+      const createdTask = await plannerApi.create(task);
 
       // Create the link between note and task
       await linksApi.create(selectedNote.id, createdTask.id);
