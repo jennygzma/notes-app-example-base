@@ -1,0 +1,98 @@
+[
+  {
+    "id": "5391d1f5-3d21-47fc-b9ae-c1770c50464b",
+    "name": "test",
+    "description": "hi",
+    "color": "#ffcccc",
+    "created_at": "2026-02-22T22:44:05.527133Z",
+    "updated_at": "2026-02-22T22:44:29.659100Z"
+  },
+  {
+    "id": "c083ab7e-a5b5-475e-b29f-603780f40862",
+    "name": "Evaluation Projects (Pivot & Apps)",
+    "description": "Feature ideas, app evaluation notes, and testbed tasks",
+    "color": "#ff5757",
+    "created_at": "2026-02-22T22:50:33.857976Z",
+    "updated_at": "2026-02-22T23:00:59.760524Z"
+  },
+  {
+    "id": "1f478383-5ffe-401c-8507-2cce19cf51df",
+    "name": "ZORO System & Testing",
+    "description": "ZORO system design, testing notes, and extension dev setup",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.862334Z",
+    "updated_at": "2026-02-22T22:50:33.862339Z"
+  },
+  {
+    "id": "05b0f2b8-2c61-47e0-a7af-74a7318065f6",
+    "name": "Cloud & AWS Bedrock Setup",
+    "description": "AWS profiles, keys, and Bedrock setup commands",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.865196Z",
+    "updated_at": "2026-02-22T22:50:33.865200Z"
+  },
+  {
+    "id": "26b9caa9-7282-47cd-b14e-416b522400d0",
+    "name": "Research Paper Ideas",
+    "description": "Paper titles, outlines, and research writing snippets",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.867200Z",
+    "updated_at": "2026-02-22T22:50:33.867208Z"
+  },
+  {
+    "id": "ec577e18-83e4-4ba7-9939-cfcc73a16fa3",
+    "name": "Microsoft Offer & Communications",
+    "description": "Microsoft PROSE info, offer emails, and decision notes",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.868714Z",
+    "updated_at": "2026-02-22T22:50:33.868721Z"
+  },
+  {
+    "id": "5404fba8-67bc-4c07-ab5c-6882c671cdb6",
+    "name": "Contacts & Birthdays",
+    "description": "People lists, birthdays, and contacts",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.872440Z",
+    "updated_at": "2026-02-22T22:50:33.872443Z"
+  },
+  {
+    "id": "6bc64d11-1c50-4253-9b84-35d7c12887ac",
+    "name": "Codes & Access",
+    "description": "Access codes and related references",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.874067Z",
+    "updated_at": "2026-02-22T22:50:33.874069Z"
+  },
+  {
+    "id": "5aad1670-58df-42a2-ba49-ba4b6d9a1fe5",
+    "name": "Groceries & Meal Prep",
+    "description": "Grocery lists and event meal planning",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.875104Z",
+    "updated_at": "2026-02-22T22:50:33.875106Z"
+  },
+  {
+    "id": "34d30517-cc53-4497-92f1-84ad4b96b961",
+    "name": "Travel Planning & Packing",
+    "description": "Destinations and packing checklists",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:50:33.877930Z",
+    "updated_at": "2026-02-22T22:50:33.877933Z"
+  },
+  {
+    "id": "04ab5932-1185-4de8-8ea4-323aa9034688",
+    "name": "Journals & Yearly Reviews",
+    "description": "Personal reflections, annual recaps, and life planning notes",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:54:19.530295Z",
+    "updated_at": "2026-02-22T22:54:19.530330Z"
+  },
+  {
+    "id": "90389bfe-b343-49aa-bba2-31be897a4fa4",
+    "name": "Inbox & Scratchpad",
+    "description": "Temporary, untitled, or placeholder notes to sort later",
+    "color": "#808080",
+    "created_at": "2026-02-22T22:54:19.533291Z",
+    "updated_at": "2026-02-22T22:54:19.533297Z"
+  }
+]

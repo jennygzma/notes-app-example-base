@@ -15,6 +15,17 @@ class Note(BaseModel):
     body: str
     is_inspiration: bool
     is_analyzed: bool
+    folder_id: Optional[str] = None
+    created_at: str
+    updated_at: str
+
+
+class Folder(BaseModel):
+    """Folder data model"""
+    id: str
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = "#808080"
     created_at: str
     updated_at: str
 
@@ -121,6 +132,20 @@ class CreateLinkRequest(BaseModel):
 class ApproveCategoryRequest(BaseModel):
     """Request schema for approving a category"""
     note_id: Optional[str] = None
+
+
+class CreateFolderRequest(BaseModel):
+    """Request schema for creating a folder"""
+    name: str = Field(min_length=1, max_length=200)
+    description: Optional[str] = None
+    color: Optional[str] = Field(None, pattern=r'^#[0-9A-Fa-f]{6}$')
+
+
+class UpdateFolderRequest(BaseModel):
+    """Request schema for updating a folder"""
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = None
+    color: Optional[str] = Field(None, pattern=r'^#[0-9A-Fa-f]{6}$')
 
 
 # ==================== Response Schemas ====================

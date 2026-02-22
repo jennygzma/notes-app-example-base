@@ -1,0 +1,43 @@
+[
+  {
+    "id": "9eaf2beb-2b1c-453b-b7be-0c0385a9637b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hi",
+        "timestamp": "2026-02-22T14:44:39.362707",
+        "metadata": {}
+      },
+      {
+        "role": "assistant",
+        "content": "Hi! I don\u2019t see a specific question. From your notes, you have Chinese New Year leftovers: pork belly and leek, pork trotters, cucumber salad, seaweed soup, and rice wine ... [Note: d652b995-00c8-4fda-8786-66b464bc35ad]. What would you like to do with these?",
+        "timestamp": "2026-02-22T14:44:56.804379",
+        "metadata": {
+          "reasoning": {
+            "folders_considered": [
+              {
+                "id": "5391d1f5-3d21-47fc-b9ae-c1770c50464b",
+                "name": "test"
+              }
+            ],
+            "folders_selected": [
+              {
+                "id": "5391d1f5-3d21-47fc-b9ae-c1770c50464b",
+                "name": "test"
+              }
+            ],
+            "folder_selection_reasoning": "This is the only available folder, and its description ('hi') matches the user's message.",
+            "notes_searched": 1,
+            "notes_cited": 1,
+            "confidence": "high"
+          },
+          "citations": [
+            "d652b995-00c8-4fda-8786-66b464bc35ad"
+          ]
+        }
+      }
+    ],
+    "created_at": "2026-02-22T14:44:39.361297",
+    "updated_at": "2026-02-22T14:44:56.804398"
+  }
+]

@@ -6,9 +6,13 @@ import {
   Typography,
   Box,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import { Note } from '../../types';
 import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
@@ -20,6 +24,101 @@ interface NotesListProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
+
+interface DraggableNoteItemProps {
+  note: Note;
+  isSelected: boolean;
+  onSelect: (note: Note) => void;
+  getPreview: (body: string) => string;
+}
+
+const DraggableNoteItem: React.FC<DraggableNoteItemProps> = ({ note, isSelected, onSelect, getPreview }) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: note.id,
+    data: { note },
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+    cursor: isDragging ? 'grabbing' : 'default',
+  };
+
+  return (
+    <ListItemButton
+      ref={setNodeRef}
+      style={style}
+      selected={isSelected}
+      onClick={() => onSelect(note)}
+      sx={{
+        borderBottom: 1,
+        borderColor: 'divider',
+        '&.Mui-selected': {
+          backgroundColor: 'action.selected',
+          '&:hover': {
+            backgroundColor: 'action.selected',
+          },
+        },
+      }}
+    >
+      <IconButton
+        size="small"
+        {...attributes}
+        {...listeners}
+        sx={{ mr: 1, cursor: 'grab', '&:active': { cursor: 'grabbing' } }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <DragIndicatorIcon fontSize="small" />
+      </IconButton>
+      <ListItemText
+        primary={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1,
+              }}
+            >
+              {note.title}
+            </Typography>
+            {note.is_inspiration && (
+              <Tag 
+                icon={<LightbulbIcon />}
+                label="Inspiration"
+                color="primary"
+                sx={{ height: 20, fontSize: '0.7rem' }}
+              />
+            )}
+            {note.is_analyzed && !note.is_inspiration && (
+              <Tag 
+                label="Task"
+                color="success"
+                sx={{ height: 20, fontSize: '0.7rem' }}
+              />
+            )}
+          </Box>
+        }
+        secondary={
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {getPreview(note.body)}
+          </Typography>
+        }
+      />
+    </ListItemButton>
+  );
+};
 
 const NotesList: React.FC<NotesListProps> = ({
   notes,
@@ -72,68 +171,13 @@ const NotesList: React.FC<NotesListProps> = ({
           </Box>
         ) : (
           filteredNotes.map((note) => (
-            <ListItemButton
+            <DraggableNoteItem
               key={note.id}
-              selected={selectedNoteId === note.id}
-              onClick={() => onSelectNote(note)}
-              sx={{
-                borderBottom: 1,
-                borderColor: 'divider',
-                '&.Mui-selected': {
-                  backgroundColor: 'action.selected',
-                  '&:hover': {
-                    backgroundColor: 'action.selected',
-                  },
-                },
-              }}
-            >
-              <ListItemText
-                primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontWeight: 600,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        flex: 1,
-                      }}
-                    >
-                      {note.title}
-                    </Typography>
-                    {note.is_inspiration && (
-                      <Tag 
-                        icon={<LightbulbIcon />}
-                        label="Inspiration"
-                        color="primary"
-                        sx={{ height: 20, fontSize: '0.7rem' }}
-                      />
-                    )}
-                    {note.is_analyzed && !note.is_inspiration && (
-                      <Tag 
-                        label="Task"
-                        color="success"
-                        sx={{ height: 20, fontSize: '0.7rem' }}
-                      />
-                    )}
-                  </Box>
-                }
-                secondary={
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {getPreview(note.body)}
-                  </Typography>
-                }
-              />
-            </ListItemButton>
+              note={note}
+              isSelected={selectedNoteId === note.id}
+              onSelect={onSelectNote}
+              getPreview={getPreview}
+            />
           ))
         )}
       </List>

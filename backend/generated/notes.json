@@ -6,8 +6,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-17T01:54:20.363232Z",
-    "updated_at": "2026-02-22T20:55:21.522595Z",
-    "folder_id": "cec72f7c-3e0c-493f-a884-9baa545cde6e"
+    "updated_at": "2026-02-22T22:44:17.513013Z",
+    "folder_id": "5391d1f5-3d21-47fc-b9ae-c1770c50464b"
   },
   {
     "id": "8b3a771b-8704-43ac-8e9e-1f3adfc00411",
@@ -16,8 +16,8 @@
     "is_inspiration": true,
     "is_analyzed": true,
     "created_at": "2026-02-17T01:55:02.247480Z",
-    "updated_at": "2026-02-22T20:55:21.523418Z",
-    "folder_id": "7ae78a29-f4ca-4780-8007-0365a4238211"
+    "updated_at": "2026-02-22T22:51:55.766880Z",
+    "folder_id": "90e65dcc-0574-4059-b396-4154a685186c"
   },
   {
     "id": "aee0a8b0-1988-4aae-a958-1af07d9c5cef",
@@ -26,8 +26,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:39:28.279543Z",
-    "updated_at": "2026-02-22T20:55:21.519294Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "updated_at": "2026-02-22T22:50:33.859318Z",
+    "folder_id": "c083ab7e-a5b5-475e-b29f-603780f40862"
   },
   {
     "id": "76b8ab75-d10f-410c-b002-ca726ad146c8",
@@ -36,8 +36,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:47:37.709344Z",
-    "updated_at": "2026-02-22T20:55:21.519307Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "updated_at": "2026-02-22T22:50:33.860725Z",
+    "folder_id": "c083ab7e-a5b5-475e-b29f-603780f40862"
   },
   {
     "id": "e2661817-471a-49b6-a11c-226ad5f91d09",
@@ -46,8 +46,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:48:05.148310Z",
-    "updated_at": "2026-02-22T20:55:21.519310Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "updated_at": "2026-02-22T22:50:33.862885Z",
+    "folder_id": "1f478383-5ffe-401c-8507-2cce19cf51df"
   },
   {
     "id": "fe4f7646-2ca8-490f-a8eb-955503fe13dc",
@@ -56,8 +56,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:48:22.771955Z",
-    "updated_at": "2026-02-22T20:55:21.521707Z",
-    "folder_id": "6316e08a-c97e-4334-acf3-4dcc75246a61"
+    "updated_at": "2026-02-22T22:50:33.872843Z",
+    "folder_id": "5404fba8-67bc-4c07-ab5c-6882c671cdb6"
   },
   {
     "id": "a8ce2c54-851f-4452-b954-d7145adbc06b",
@@ -66,8 +66,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:48:47.189299Z",
-    "updated_at": "2026-02-22T20:55:21.520701Z",
-    "folder_id": "a864a023-461f-475a-a584-b4538c583eae"
+    "updated_at": "2026-02-22T22:50:33.869203Z",
+    "folder_id": "ec577e18-83e4-4ba7-9939-cfcc73a16fa3"
   },
   {
     "id": "1886c1bc-af18-444f-977b-0dc20ad67ccf",
@@ -76,8 +76,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:49:06.729519Z",
-    "updated_at": "2026-02-22T20:55:21.522599Z",
-    "folder_id": "cec72f7c-3e0c-493f-a884-9baa545cde6e"
+    "updated_at": "2026-02-22T22:50:33.875430Z",
+    "folder_id": "5aad1670-58df-42a2-ba49-ba4b6d9a1fe5"
   },
   {
     "id": "7d896d8d-73f3-4826-ae99-fe556c965dc5",
@@ -86,8 +86,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:49:42.903264Z",
-    "updated_at": "2026-02-22T20:55:21.519313Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "updated_at": "2026-02-22T22:50:33.863741Z",
+    "folder_id": "1f478383-5ffe-401c-8507-2cce19cf51df"
   },
   {
     "id": "1da0e39a-aeb8-447d-bad9-f27e45ba63de",
@@ -96,18 +96,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:49:59.378728Z",
-    "updated_at": "2026-02-22T20:55:21.519315Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
-  },
-  {
-    "id": "daea0c28-7933-4e8f-a988-4fc0b08f1c1e",
-    "title": "Nikos office code ",
-    "body": "230831",
-    "is_inspiration": false,
-    "is_analyzed": false,
-    "created_at": "2026-02-18T21:50:16.056396Z",
-    "updated_at": "2026-02-22T20:55:21.521712Z",
-    "folder_id": "6316e08a-c97e-4334-acf3-4dcc75246a61"
+    "updated_at": "2026-02-22T22:50:33.864533Z",
+    "folder_id": "1f478383-5ffe-401c-8507-2cce19cf51df"
   },
   {
     "id": "99c8e5a4-cd6c-49d3-84a1-74b44ea50795",
@@ -116,8 +106,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:26.270444Z",
-    "updated_at": "2026-02-22T20:59:34.527528Z",
-    "folder_id": "8a91ea72-0057-4168-b2c1-d24e535f95d6"
+    "updated_at": "2026-02-22T22:50:33.879083Z",
+    "folder_id": "34d30517-cc53-4497-92f1-84ad4b96b961"
   },
   {
     "id": "269b9a66-d0c2-4e1a-82d5-bf81f0f00a73",
@@ -126,8 +116,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:37.516143Z",
-    "updated_at": "2026-02-22T20:55:21.521714Z",
-    "folder_id": "6316e08a-c97e-4334-acf3-4dcc75246a61"
+    "updated_at": "2026-02-22T22:50:33.873537Z",
+    "folder_id": "5404fba8-67bc-4c07-ab5c-6882c671cdb6"
   },
   {
     "id": "26546a0e-2742-4dd7-a8b3-a875a208859b",
@@ -136,8 +126,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:52.660384Z",
-    "updated_at": "2026-02-22T20:55:21.519317Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "updated_at": "2026-02-22T22:50:33.865903Z",
+    "folder_id": "05b0f2b8-2c61-47e0-a7af-74a7318065f6"
   },
   {
     "id": "39d3b56a-6270-4b9b-b05a-906bb938a8e8",
@@ -146,8 +136,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:51:31.119864Z",
-    "updated_at": "2026-02-22T20:55:21.519319Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "updated_at": "2026-02-22T22:50:33.861496Z",
+    "folder_id": "c083ab7e-a5b5-475e-b29f-603780f40862"
   },
   {
     "id": "cbdad4db-78b1-402b-ad69-038866c95c16",
@@ -156,8 +146,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:51:58.465460Z",
-    "updated_at": "2026-02-22T20:55:21.520706Z",
-    "folder_id": "a864a023-461f-475a-a584-b4538c583eae"
+    "updated_at": "2026-02-22T22:50:33.870367Z",
+    "folder_id": "ec577e18-83e4-4ba7-9939-cfcc73a16fa3"
   },
   {
     "id": "3b372ccb-6ffb-48cf-8ae7-0a7abedcdbff",
@@ -166,8 +156,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:52:19.861225Z",
-    "updated_at": "2026-02-22T20:55:21.520708Z",
-    "folder_id": "a864a023-461f-475a-a584-b4538c583eae"
+    "updated_at": "2026-02-22T22:50:33.871155Z",
+    "folder_id": "ec577e18-83e4-4ba7-9939-cfcc73a16fa3"
   },
   {
     "id": "d3eefcea-eeb3-4c8e-8a7e-3063d219a55f",
@@ -186,8 +176,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:53:08.728035Z",
-    "updated_at": "2026-02-22T20:55:21.520710Z",
-    "folder_id": "a864a023-461f-475a-a584-b4538c583eae"
+    "updated_at": "2026-02-22T22:50:33.871836Z",
+    "folder_id": "ec577e18-83e4-4ba7-9939-cfcc73a16fa3"
   },
   {
     "id": "5823df8b-b372-4623-84bc-f4c33319a5b1",
@@ -196,8 +186,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:53:28.901687Z",
-    "updated_at": "2026-02-22T20:55:21.522601Z",
-    "folder_id": "cec72f7c-3e0c-493f-a884-9baa545cde6e"
+    "updated_at": "2026-02-22T22:51:55.767312Z",
+    "folder_id": "90e65dcc-0574-4059-b396-4154a685186c"
   },
   {
     "id": "8e4b6955-cfda-4212-8faa-ee583faa4a74",
@@ -206,8 +196,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:53:52.932905Z",
-    "updated_at": "2026-02-22T20:55:21.523423Z",
-    "folder_id": "7ae78a29-f4ca-4780-8007-0365a4238211"
+    "updated_at": "2026-02-22T22:51:42.184957Z",
+    "folder_id": "b9337b1a-0497-41ee-a7da-4ec1a4f68e38"
   },
   {
     "id": "f1467d29-8b4c-4c35-9300-93c8a29abacd",
@@ -216,8 +206,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:54:32.215744Z",
-    "updated_at": "2026-02-22T20:55:21.524245Z",
-    "folder_id": "cc159640-78a7-4596-bef8-dbfbd126f5d3"
+    "updated_at": "2026-02-22T22:54:19.532016Z",
+    "folder_id": "04ab5932-1185-4de8-8ea4-323aa9034688"
   },
   {
     "id": "ced14556-e45f-44e6-a01f-06a9b53f3772",
@@ -226,8 +216,8 @@
     "is_inspiration": true,
     "is_analyzed": true,
     "created_at": "2026-02-18T21:54:51.903841Z",
-    "updated_at": "2026-02-22T20:59:34.529670Z",
-    "folder_id": "8a91ea72-0057-4168-b2c1-d24e535f95d6"
+    "updated_at": "2026-02-22T22:52:07.699501Z",
+    "folder_id": "cc5c3427-7acd-448f-b047-d36492e5df65"
   },
   {
     "id": "7769ad55-bcd1-4cae-a1e1-3c420d9466ec",
@@ -236,8 +226,8 @@
     "is_inspiration": true,
     "is_analyzed": true,
     "created_at": "2026-02-18T21:55:20.052496Z",
-    "updated_at": "2026-02-22T20:55:21.523424Z",
-    "folder_id": "7ae78a29-f4ca-4780-8007-0365a4238211"
+    "updated_at": "2026-02-22T22:50:33.878386Z",
+    "folder_id": "34d30517-cc53-4497-92f1-84ad4b96b961"
   },
   {
     "id": "b3268c16-7326-4163-84cb-3386a359997e",
@@ -246,8 +236,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:55:32.123236Z",
-    "updated_at": "2026-02-22T20:59:34.530967Z",
-    "folder_id": "8a91ea72-0057-4168-b2c1-d24e535f95d6"
+    "updated_at": "2026-02-22T22:50:33.879673Z",
+    "folder_id": "34d30517-cc53-4497-92f1-84ad4b96b961"
   },
   {
     "id": "46f93e29-57cc-43a5-bebb-eebf21266c58",
@@ -256,7 +246,27 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:55:44.647397Z",
-    "updated_at": "2026-02-22T20:55:21.524249Z",
-    "folder_id": "cc159640-78a7-4596-bef8-dbfbd126f5d3"
+    "updated_at": "2026-02-22T22:51:42.186713Z",
+    "folder_id": "b9337b1a-0497-41ee-a7da-4ec1a4f68e38"
+  },
+  {
+    "id": "6f26382a-8332-464f-9953-53bd5f5349a5",
+    "title": "Paper",
+    "body": "Paper\nGENERATIVE DISCO ? ? \n\nTitle\nEnforcing Developer Rules with XX \nEnsuring ?  Agents.MD with Rule Enforcement \nEnforcing Agent.MD Rules with ___ \n\nEnforcing Developer Rules for Vibe-Coding Complex Tasks ?\n\n\n\n\n1 Introduction\nMotivation\n- LLMs have fundamentally transformed how people code. \n- Developers today embrace vibe-coding, a practice where users iteratively prompt, review, and adapt AI-generated code. \n- Typically developers will have the agent create a super detailed plan and let it code, then come back to it later and test and review the code. \n- A widespread practice in vibe-coding is providing context files like AGENTS.md (or CLAUDE.md, or .md files in /.rules folders) to guide agent behavior. They have different names -- we will cal all of such files AGENTS.md files for simplification (as it is the industry standard as well). Such context files are included in over 60,000 open source repositories at the time of writing (as reported by Agents.md). \n- They typically contain repository-level and user-level rules to help coding agents behavior align more to the user\u2019s satisfaction. For example, there can be code style rules (\u201cimports at the top of the file\u201d), UI-UX rules (\u201cUse my design system and color scheme instead of that provided by MUI\u201d), data-level rules (\u201cALWAYS create firebase composite index\u201d), testing rules (\u201c\u201d).\n- These rules exist to help the code more efficiently and so the user doesn\u2019t have to babysit or supervise the coding agent. \n\nExisting solutions attempt to fix these agentic behavior flaws by giving the agents rules, memory, and context [6, 7].  They make shallow clarifying questions even when the system prompts them to think. When faced with complex bugs, they will locally patch symptoms instead of engineering real solutions. These solutions diagnose the right problems, but don\u2019t enforce the behaviors needed to actually solve them.\nProblem\n- While developers praise the concept of AGENTS.md, in practice, they still fall apart because the rules, memory, and context aren\u2019t enforced in action.\n-  For longer vibe-coding sessions where users are making significant changes to complex code-bases of over 10k lines, coding agents are notorious for skipping steps even when they created detailed plans for long tasks. \n- This problem extends to AGENTS.md files.as the session goes on, coding agents can completely disregard the files, hallucinate, and forget that they exist in the first place. Thus, they ignore coding conventions even when the conventions are documented. \n- Second, because oftentimes the coding agent themselves update the AGENT.md files, the context can become bloated or even contradicting. The agent can get confused when generating code. [INSERT EXAMPLE]\n- Finally, if the final product is bad, there is no way to verify the agent has followed the AGENTS.md in the middle of the coding session because usually you just let them code and then you don\u2019t know whats happened and then the developer tests it. \n- Different structures have been explored with storing AGENTS.md files, such as putting multiple context files in different folders, which can improve the performance, but the problem still exists Adding more context or aggressive prompting has marginal benefits as well. \n- The fundamental problem is that it is notguaranteed that the agent will follow the AGENTS.md, the context the agent and user have accumulated and learned often go to waste.\n\nApproach\n* Systems must actively enforce that coding agents follow the rules in their AGENTS.md files.\n* We present Zoro, a rule enforcement system that pairs with coding agents (Claude code, CodeX, Cline, etc.) that ensures rules in AGENTS.md file are retrieved, applied, and validated at each step of the plan. \n* Zoro is meant for long vibe-coding session with a complex or hairy task on complicated codebase. It is not meant for exploration. \n* Zoro ensures that each plan created by a coding agent is enriched by rules and planned down to the rule level. \n* For every step of the plan, each step and each rule must be validated \u2014 aka, Then for every step of the plan, each step must validated \u2014 aka, all important rules must be EFORCED by an agent checking to see if it exists in the codebase otherwise you can\u2019t move on to the next step, and also the STEP itself must be validated otherwise you can\u2019t move on.\n* This prevents the LLM from actively forgetting things, skipping steps, skipping rules, and being overeager.\n* Users can see what step is completed, what code snippets are attributed to each step and each rule, and follow along the process and gain trust \n\nEvaluation \nTo understand zoro\u2019s effectiveness, we conducted a XYZ\n\nContributiosn \n* Enforcement \n* System\n* Technical Evaluation \n* User Evaluation \n\n2 Related Work\nCoding agents \n\nPolicies\n\n\n\n \n\n3 Zoro Design and Motivation \n\nIn the first stage of our research we looked at how people vibe-code today and how they use rules files.\nThere is a rate of people who use it, some use it exentisvely others don\u2019t \nWe talked to 3 programmers that vibe-code daily (one start up, one industry, one PhD), and sat them down. and all participants had prior experience in large codebases and commonly code I large codebases with rules files and etc. XY worke dMETRICS\n\nSat down with 3 of them that use rules file\nTalked with 10 programmers \n\nSat with 3 of them for  1-2 hours while they vibe-coded to understand their processes and whatnot \n\nThe lead author sat down with each person and asked them some question about vibe-coding a their epxeirnce with rules files. Then watched them complete a task on their codebase vibe-coding .Participants were asked to think outloud. Afterwards we asked on their thoughts and how they typically approach XYZ\n\nWe analyzed the sessions following a thematic approach where one did XY\n\nWe observed that people\u2019s workflows tend to match this: \n1. Planning \n2. Pass\n3. Inspection ?? \n4. Repeat (depending on bugs)\n\nUsers plan with AI for undetermined amoutn of time. They are generally pretty detailed and the user likes them. Although it\u2019s hard to know what context the plan in sfactoring in from the AGENTS.md wise.\n\nThen the AI gets a pass. During the first pass, this is where the things kind of go wrong\n\nDuring the process o the first pass, usually the AI is moving too fast and the user has no clue what is going on\n\nAfter its done, its unclear what the LLM has built so the user has to Kinda sift through\n\nOnly by manually testing stufff can the user figure out whats wrong but its hard to debug bc they didnt code it in the fist place \n\nu give the AI one pass at doing things and then u fix the errors after and oftentimes it gets stuck in a loop and yeah\n\nOftentimes they figure out that the LLM has either lied and not completed the full plan (like its done step 1-4 but not up until step 8) and certain rules were not followed.\nAnd hen the user kinda enters this loop with AI where they fight with it \n\nThe rules file becomes bloated and the user themselves is confused what rule to follow or not \n\nOur study showed the following challenges:\n\n1. Skipping steps\n2. Conforming to what the Agent wants because it isn\u2019t following the structure \n3. No real clue what the agent is doing\n4. Bloated context files \n\nThis causes the users to conform to them \n\nBased on our formative study, we derived several motivations for our enforcement system\n\nD1 :have plan know the rules itself before it begins\n\nD1. Enforce the plan and rules \n\nD2. Allow users visuzalition Transparency\n\nD3. Rule Management \n\n4 System - User Scenario and Interface Walkthrough\n- Based on these motivations, we designed Zoro, and visualization system that also actively enforces the plan and rules given a vibe-coding session.\n- It can be used in tandem with any vibe-coding tools, such as claude code, codex, cline, cursor etc.\n- Zoro is meant for coding sessions on very large and hairy codebases where code quality and style matter.\n- It also supports difficult, multi-step tasks, such as full-stack features, migrations, refactors. \n    - For simpler tasks, existing tools are honestly pretty good at handling it. It is for these harder tasks where LLMs can fail\n- A primary innovation of Zoro it\u2019s is interface of visualizing the process of the coding agent as it codes.\n- \n- The input is a task\n- The output is a full plan breakdown of the task, showing if each step of the plan was completed, and if each rule was actually followed or not. \n\nTo illustrate the user experience of Zoro we present the example of a user, Santos. Santos is a startup founder who vibecodes a lot. His new  project is called NoteSense, a notes sense making application where he wants people to be able to write their notes from work, grocery lists, places they want to visit, random thoughts they have, on the fly. NoteSense should be able to categorize them automatically, potentially create reminders for the person so that they know, link it to their calendar, the person should be able to query an assistant who will link them to there ight ideas or even search the web. He even wants to be able to talk to the AI like an asisstnat( AKA Text to speech). \n\nSince he hopes that this app kicks off the ground and ultimately expands, he cares deeply about maintaining code quality, the UX styling, all the little things. Because hopefully it will expand later.\n In his context files, he writes things like\n- Keep imports at top of file\n- No docstrings \n- Use existing color schemes\n- Use custom MUI components \n- Use port XYZ\n- Don\u2019t open terminal XYZ \n- Never hardcode API key \n- Never call LLM directly use service-level LLM wrapper functions \nAnd at first, the LLM will follow it but as the task goes on it will forget!!\n\nAt this point his repo is already pretty big and has existing architecture and flows, such as a /backend /frontend separation, integrations with certain LLMs and models like elevenLabs, etc.\n\nNormally he will start a vibe coding session and just types in a long promo of what he wants and lets the LLM just begin coding and modifying files. He wishes he could see what the LM is doing but there is really no way at this pooint. Then he comes back and test it out and begin fixing the bugs that it has made. Sometimes it is fast, other times it takes forever and he doesn\u2019 know why it fucked up or whatever. \n\nHe decides to use Zoro to implement his new features he wants to add so that he can keep track of what the LLM is doing. \n\nHe brainstorms for a bit with claude about what to do \nClaude browses the web and offers him some APIs \nComes up with a comprehensive plan with 8 steps and each step has subseps.\n\nPlan Visualization \nAfter he is happy with the plan, he moves to Zoro\u2019s interface and clicks Extract Plan. Zoro immediately extracts the nested plan and displays it on the interface. All the steps and substpes in the plan are labled as pending \n\nRule Enrichment\nSantos clicks Retrieve Rules to enrich the plan with rules. Basically, the Rule Enrichment Agent will come and repopulate the plan with relevant rules and plan it down to the rule. For example if theres a rule that is testing it will have a step in the plan that is like \u201cTEST THIS OR ROPE USER IN TO TEST IT\u201d \n\u201cPlanning down to the Rule Level\u201d\n\nEnforcement Via Verification \nStrict vs not strict\nIf agents were to enforce every single rule it would take forever\nAlso some rules are more important to see people than others\nBasically if certain rules are selected they MUST be enforced\nOtherwise they are meh enforced and the user can check to see if it was enforced or not but otherwise yah its fine \nNow, Santos can begin building. Step one is build backend.\nStep 8 is build UI and bsacily in the UI t has retrived the right UI rules and is applying it and it says its been verified and he can se the literal code example as well which is great! \n\nStatus Monitoring \nAs Claude Code codes, he wants to make sure that Calque Code is not Hallucinating. Int he right most panel there is a SuperVisor Agent.\n\nThe superVisor agents suggests that maybe Claude hallucinated about tcompleting this step. Santos immediately stops claude and tells it to gob ack to that step and fix it. Claude does so and continues.\n\nRule Learning\nAfter the fix, Santos wants to store this rule into his context file without interrupting Claude Coding. He sees the Rule Learning section in the Monitoring panel and the rule pops up and he saves it. In the context file he can see it. \n\nRules DB\nSantos can structure the context into one off rules so that they can select it again \n-> do I need to justify this ?like why it isn\u2019t all in markdown? Its so it can be more structured and in JSON form so that idrk u can select rules as strictly enforced or not \n\nAnd then basically you can merge categories, fid rules that are conflating and then their confidence scores will degcreaes and then teeth. \n\nImplementation Details\nSystem is implemented in Flask and Python in the bakcend and also is \n\nIt provides Claude/Cline/XYZ with an instruction fee that details how to integrate zoro into their workflow \n\nAlso uses GPT 5/2 for monitoring, plan extraction, and XYZ bc it is powerful model \n\nFrontend is in typescript and React \n\nAnd integration plan basically \nAnd the plan that they must follow \nIf they go off track the supervisor agent can ping the user and then the user can basically redirect cline back on track\nCLI commands \nFor rules needing sSTRICT ENFORCMENET\nFor every step \nAgents use these commands\nZoro verify-rule\nZoro verify-step\nZoro update-step status \n\nAnd basically u cannot update a step as complete unless the strictly enforced rules are already complete and there is step verificaotn. IT will show an error message and the coding agent usually recovers and understands that it needs to reread zoro integration and do it right again, so it kinda creates a feedback loop \n\nAgent Monitorin ? \nAgent Montiroing like rules has access to the Chat and usually the chat itself will details what the agent file has written to etc. \n\nStructuring for Commands\nRules are structured a way where the context file is kinda parsed by an LLM into individual rules that retain their original context, has ac confidence score (if it was from the chat) this was proven to work very well in GUM \nWe have to structure them because we have other know which rules are going to be strictly enforced or not. That doesnt exist I a context file so to retain context we try to keep the context surrounding it etc. \n\n\n\n5 Technical Evaluation \n\n6 User Eval\n\n7 Discussion \n\n8 Limitations and Future Work\n- It can dynamically adapt \n- \n\n9 Conclusion",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "folder_id": "26b9caa9-7282-47cd-b14e-416b522400d0",
+    "created_at": "2026-02-22T22:48:16.194559Z",
+    "updated_at": "2026-02-22T22:50:33.867757Z"
+  },
+  {
+    "id": "39c90de2-9b8d-4fb1-bdc6-3353112b98e0",
+    "title": "New Note",
+    "body": "",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "folder_id": "90389bfe-b343-49aa-bba2-31be897a4fa4",
+    "created_at": "2026-02-22T22:48:39.177867Z",
+    "updated_at": "2026-02-22T22:54:19.533932Z"
   }
 ]

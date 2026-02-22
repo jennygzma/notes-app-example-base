@@ -7,9 +7,12 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
+import FolderSidebar from './FolderSidebar';
+import OrganizeDialog from './OrganizeDialog';
 import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
 import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../../services/api';
 import Dialog from '../../components/shared/Dialog';
@@ -24,6 +27,7 @@ interface NotesViewProps {
 const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigateToTask, onNavigateToInspiration }) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [linkedItems, setLinkedItems] = useState<PlannerItem[]>([]);
   const [noteCategory, setNoteCategory] = useState<string | null>(null);
@@ -43,6 +47,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     noteId: string;
     reasoning: string;
   } | null>(null);
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizeSuggestions, setOrganizeSuggestions] = useState<any>(null);
+  const [organizingNotes, setOrganizingNotes] = useState(false);
 
   useEffect(() => {
     loadNotes();
@@ -250,14 +257,71 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   };
 
+  const handleAutoOrganize = async () => {
+    setOrganizingNotes(true);
+    setOrganizeDialogOpen(true);
+    try {
+      const suggestions = await notesApi.organizePreview();
+      setOrganizeSuggestions(suggestions);
+    } catch (error) {
+      showSnackbar('Failed to generate organization suggestions', 'error');
+      setOrganizeDialogOpen(false);
+    } finally {
+      setOrganizingNotes(false);
+    }
+  };
+
+  const handleApplyOrganization = async (plan: any) => {
+    try {
+      await notesApi.organizeApply(plan);
+      showSnackbar('Notes organized successfully!', 'success');
+      setOrganizeDialogOpen(false);
+      setOrganizeSuggestions(null);
+      loadNotes();
+    } catch (error) {
+      showSnackbar('Failed to apply organization', 'error');
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over) return;
+    
+    const noteId = active.id as string;
+    const targetFolderId = over.data.current?.folderId as string | null;
+    
+    try {
+      await notesApi.bulkMove([noteId], targetFolderId);
+      showSnackbar('Note moved successfully', 'success');
+      loadNotes();
+    } catch (error) {
+      showSnackbar('Failed to move note', 'error');
+    }
+  };
+
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info') => {
     setSnackbar({ open: true, message, severity });
   };
 
+  const filteredNotes = notes.filter(note => {
+    if (selectedFolderId === null) {
+      return note.folder_id === null || note.folder_id === undefined;
+    }
+    return note.folder_id === selectedFolderId;
+  });
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      <NotesList
+    <DndContext onDragEnd={handleDragEnd}>
+      <Box sx={{ display: 'flex', height: '100vh' }}>
+      <FolderSidebar
         notes={notes}
+        selectedFolderId={selectedFolderId}
+        onSelectFolder={setSelectedFolderId}
+        onAutoOrganize={handleAutoOrganize}
+      />
+      <NotesList
+        notes={filteredNotes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
@@ -319,6 +383,18 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         )}
       </Dialog>
 
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        onClose={() => {
+          setOrganizeDialogOpen(false);
+          setOrganizeSuggestions(null);
+        }}
+        onApply={handleApplyOrganization}
+        suggestions={organizeSuggestions}
+        notes={notes}
+        loading={organizingNotes}
+      />
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -328,7 +404,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+      </Box>
+    </DndContext>
   );
 };
 
