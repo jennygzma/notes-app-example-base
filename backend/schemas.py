@@ -1,6 +1,3 @@
-"""
-Pydantic schemas for request validation and response serialization.
-"""
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Literal
 from datetime import datetime
@@ -8,11 +5,22 @@ from datetime import datetime
 
 # ==================== Base Models ====================
 
+class Folder(BaseModel):
+    """Folder data model"""
+    id: str
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = "#808080"
+    created_at: str
+    updated_at: str
+
+
 class Note(BaseModel):
     """Note data model"""
     id: str
     title: str
     body: str
+    folder_id: Optional[str] = None
     is_inspiration: bool
     is_analyzed: bool
     created_at: str
@@ -60,22 +68,45 @@ class Link(BaseModel):
 
 # ==================== Request Schemas ====================
 
+class CreateFolderRequest(BaseModel):
+    """Request schema for creating a folder"""
+    name: str = Field(min_length=1, max_length=100)
+    description: Optional[str] = None
+    color: Optional[str] = "#808080"
+
+
+class UpdateFolderRequest(BaseModel):
+    """Request schema for updating a folder"""
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    description: Optional[str] = None
+    color: Optional[str] = None
+
+
 class CreateNoteRequest(BaseModel):
     """Request schema for creating a note"""
     title: str = Field(min_length=1, max_length=500)
     body: str = Field(default="")
+    folder_id: Optional[str] = None
 
 
 class UpdateNoteRequest(BaseModel):
     """Request schema for updating a note"""
     title: Optional[str] = Field(None, min_length=1, max_length=500)
     body: Optional[str] = None
+    folder_id: Optional[str] = None
 
 
 class PatchNoteRequest(BaseModel):
     """Request schema for patching note fields"""
     is_analyzed: Optional[bool] = None
     is_inspiration: Optional[bool] = None
+    folder_id: Optional[str] = None
+
+
+class BulkMoveNotesRequest(BaseModel):
+    """Request schema for bulk moving notes to a folder"""
+    note_ids: List[str]
+    folder_id: Optional[str] = None
 
 
 class CreatePlannerItemRequest(BaseModel):
@@ -124,6 +155,16 @@ class ApproveCategoryRequest(BaseModel):
 
 
 # ==================== Response Schemas ====================
+
+class FolderResponse(Folder):
+    """Response schema for folder"""
+    pass
+
+
+class FolderListResponse(BaseModel):
+    """Response schema for list of folders"""
+    folders: List[Folder]
+
 
 class NoteResponse(Note):
     """Response schema for note"""

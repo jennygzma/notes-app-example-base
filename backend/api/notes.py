@@ -7,6 +7,7 @@ from schemas import (
     CreateNoteRequest,
     UpdateNoteRequest,
     PatchNoteRequest,
+    BulkMoveNotesRequest,
     NoteResponse,
     ErrorResponse
 )
@@ -37,9 +38,21 @@ def create_note():
     
     note = note_service.create_note(
         title=data.title,
-        body=data.body
+        body=data.body,
+        folder_id=data.folder_id
     )
     return jsonify(NoteResponse.model_validate(note).model_dump()), 201
+
+
+@notes_bp.route('/bulk-move/', methods=['POST'])
+def bulk_move_notes():
+    try:
+        data = BulkMoveNotesRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+    
+    updated_count = note_service.bulk_move_notes(data.note_ids, data.folder_id)
+    return jsonify({"updated_count": updated_count}), 200
 
 
 @notes_bp.route('/<note_id>/', methods=['GET'])
@@ -60,7 +73,8 @@ def update_note(note_id: str):
     note = note_service.update_note(
         note_id=note_id,
         title=data.title,
-        body=data.body
+        body=data.body,
+        folder_id=data.folder_id
     )
     
     if not note:
@@ -87,7 +101,8 @@ def patch_note(note_id: str):
     note = note_service.update_note(
         note_id=note_id,
         is_analyzed=data.is_analyzed,
-        is_inspiration=data.is_inspiration
+        is_inspiration=data.is_inspiration,
+        folder_id=data.folder_id
     )
     
     if not note:
@@ -109,3 +124,25 @@ def get_note_links(note_id: str):
             planner_items.append(item)
     
     return jsonify(planner_items), 200
+
+
+@notes_bp.route('/organize/preview/', methods=['POST'])
+def organize_notes_preview():
+    try:
+        result = note_service.organize_notes_preview()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify(ErrorResponse(error="Failed to organize notes", details=str(e)).model_dump()), 500
+
+
+@notes_bp.route('/organize/apply/', methods=['POST'])
+def apply_organization():
+    try:
+        plan = request.json
+        if not plan:
+            return jsonify(ErrorResponse(error="No organization plan provided").model_dump()), 400
+        
+        result = note_service.apply_organization(plan)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify(ErrorResponse(error="Failed to apply organization", details=str(e)).model_dump()), 500
