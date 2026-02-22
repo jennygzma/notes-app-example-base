@@ -100,6 +100,13 @@ export interface ApproveCategoryRequest {
   note_id?: string;
 }
 
+export interface PlannerFilters {
+  date_start?: string;
+  date_end?: string;
+  view_type?: string;
+  status?: string;
+}
+
 // ==================== Response Types ====================
 
 export interface ErrorResponse {

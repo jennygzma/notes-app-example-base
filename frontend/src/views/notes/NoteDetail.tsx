@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  TextField,
-  IconButton,
-  Button,
   CircularProgress,
-  Chip,
   Typography,
   Stack,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { Note, PlannerItem } from '../types';
+import { Note, PlannerItem } from '../../types';
+import Button from '../../components/design-system/Button';
+import TextField from '../../components/design-system/TextField';
+import Tag from '../../components/design-system/Tag';
+import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -69,12 +68,6 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
     }
   };
 
-  const handleDelete = async () => {
-    if (note && window.confirm('Delete this note?')) {
-      await onDelete(note.id);
-    }
-  };
-
   const handleCategorize = async () => {
     if (note) {
       await onCategorize(note.id);
@@ -128,7 +121,7 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
           onClick={handleCategorize}
           disabled={isCategorizing || isTranslating}
         >
-          AI
+          Link to Inspirations Dashboard
         </Button>
         {hasChanges && (
           <Button
@@ -140,9 +133,9 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
           </Button>
         )}
         <Box sx={{ flex: 1 }} />
-        <IconButton size="small" onClick={handleDelete} color="error">
-          <DeleteIcon />
-        </IconButton>
+        <InlineConfirmButton
+          onConfirm={() => onDelete(note.id)}
+        />
       </Box>
 
       {(linkedItems.length > 0 || inspirationCategory) && (
@@ -154,12 +147,10 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: inspirationCategory ? 2 : 0 }}>
                 {linkedItems.map((item) => (
-                  <Chip
+                  <Tag
                     key={item.id}
                     label={item.title}
-                    size="small"
                     onClick={() => onNavigateToItem(item)}
-                    sx={{ cursor: 'pointer' }}
                   />
                 ))}
               </Stack>
@@ -170,12 +161,11 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
               <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
                 Category:
               </Typography>
-              <Chip
+              <Tag
                 label={inspirationCategory}
-                size="small"
                 color="primary"
                 onClick={() => onNavigateToInspiration?.(inspirationCategory)}
-                sx={{ cursor: 'pointer', textTransform: 'capitalize' }}
+                sx={{ textTransform: 'capitalize' }}
               />
             </>
           )}
@@ -184,7 +174,6 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
 
       <Box sx={{ p: 2, flex: 1, overflow: 'auto' }}>
         <TextField
-          fullWidth
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Title"
@@ -198,7 +187,6 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
           }}
         />
         <TextField
-          fullWidth
           multiline
           value={body}
           onChange={(e) => handleBodyChange(e.target.value)}

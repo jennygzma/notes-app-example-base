@@ -4,19 +4,16 @@ import {
   Fab,
   Snackbar,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../services/api';
+import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
+import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../../services/api';
+import Dialog from '../../components/shared/Dialog';
+import Button from '../../components/design-system/Button';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -50,6 +47,15 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   useEffect(() => {
     loadNotes();
   }, []);
+
+  useEffect(() => {
+    if (initialSelectedNoteId && notes.length > 0) {
+      const noteToSelect = notes.find(n => n.id === initialSelectedNoteId);
+      if (noteToSelect) {
+        setSelectedNote(noteToSelect);
+      }
+    }
+  }, [initialSelectedNoteId, notes]);
 
   useEffect(() => {
     if (selectedNote) {
@@ -150,6 +156,14 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           });
         } else {
           showSnackbar(`Categorized as "${result.category}"`, 'success');
+          // Update local state to reflect change immediately
+          setNoteCategory(result.category);
+          setNotes(prev => prev.map(n => 
+            n.id === noteId ? { ...n, is_inspiration: true } : n
+          ));
+          if (selectedNote?.id === noteId) {
+            setSelectedNote(prev => prev ? { ...prev, is_inspiration: true } : null);
+          }
         }
         setCategorizingNoteId(null);
       }
@@ -165,6 +179,16 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     try {
       await inspirationsApi.approveCategory(categoryDialog.categoryId, categoryDialog.noteId);
       showSnackbar(`Category "${categoryDialog.category}" approved`, 'success');
+      
+      // Update local state
+      setNoteCategory(categoryDialog.category);
+      setNotes(prev => prev.map(n => 
+        n.id === categoryDialog.noteId ? { ...n, is_inspiration: true } : n
+      ));
+      if (selectedNote?.id === categoryDialog.noteId) {
+        setSelectedNote(prev => prev ? { ...prev, is_inspiration: true } : null);
+      }
+      
       setCategoryDialog(null);
     } catch (error) {
       showSnackbar('Failed to approve category', 'error');
@@ -272,24 +296,27 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         loading={translatingNoteId !== null}
       />
 
-      <Dialog open={categoryDialog?.open || false} onClose={handleRejectCategory}>
-        <DialogTitle>New Category Discovered</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" gutterBottom>
-            AI suggests a new category: <strong>{categoryDialog?.category}</strong>
+      <Dialog
+        open={categoryDialog?.open || false}
+        onClose={handleRejectCategory}
+        title="New Category Discovered"
+        actions={
+          <>
+            <Button onClick={handleRejectCategory}>Reject</Button>
+            <Button onClick={handleApproveCategory} variant="contained">
+              Approve
+            </Button>
+          </>
+        }
+      >
+        <Typography variant="body1" gutterBottom>
+          AI suggests a new category: <strong>{categoryDialog?.category}</strong>
+        </Typography>
+        {categoryDialog?.reasoning && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            {categoryDialog.reasoning}
           </Typography>
-          {categoryDialog?.reasoning && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              {categoryDialog.reasoning}
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleRejectCategory}>Reject</Button>
-          <Button onClick={handleApproveCategory} variant="contained">
-            Approve
-          </Button>
-        </DialogActions>
+        )}
       </Dialog>
 
       <Snackbar

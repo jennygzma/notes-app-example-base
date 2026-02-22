@@ -8,17 +8,17 @@ import {
   Fab,
   Snackbar,
   Alert,
-  Button,
   Divider,
 } from '@mui/material';
+import Button from '../../components/design-system/Button';
 import AddIcon from '@mui/icons-material/Add';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
 import CreateTaskDialog from './CreateTaskDialog';
 import TaskItem from './TaskItem';
-import { PlannerItem, CreatePlannerItemRequest, Note } from '../types';
-import { plannerApi } from '../services/api';
+import { PlannerItem, CreatePlannerItemRequest, Note } from '../../types';
+import { plannerApi } from '../../services/api';
 
 type ViewType = 'weekly' | 'monthly';
 
@@ -120,14 +120,12 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   };
 
   const handleDeleteTask = async (id: string) => {
-    if (window.confirm('Delete this task?')) {
-      try {
-        await plannerApi.delete(id);
-        showSnackbar('Task deleted', 'success');
-        loadTasks();
-      } catch (error) {
-        showSnackbar('Failed to delete task', 'error');
-      }
+    try {
+      await plannerApi.delete(id);
+      showSnackbar('Task deleted', 'success');
+      loadTasks();
+    } catch (error) {
+      showSnackbar('Failed to delete task', 'error');
     }
   };
 

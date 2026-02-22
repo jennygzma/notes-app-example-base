@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
-from models.storage import LocalStorage
+from services.link_service import LinkService
+from services.note_service import NoteService
+from services.planner_service import PlannerService
 from schemas import (
     CreateLinkRequest,
     LinkResponse,
@@ -8,7 +10,9 @@ from schemas import (
 )
 
 links_bp = Blueprint('links', __name__, url_prefix='/api/links')
-storage = LocalStorage()
+link_service = LinkService()
+note_service = NoteService()
+planner_service = PlannerService()
 
 
 def handle_validation_error(e: ValidationError) -> tuple:
@@ -26,23 +30,23 @@ def create_link():
         return handle_validation_error(e)
     
     # Validate note exists
-    note = storage.get_note(data.note_id)
+    note = note_service.get_note(data.note_id)
     if not note:
         return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
     
     # Validate planner item exists
-    item = storage.get_planner_item(data.planner_item_id)
+    item = planner_service.get_item(data.planner_item_id)
     if not item:
         return jsonify(ErrorResponse(error="Planner item not found").model_dump()), 404
     
-    link = storage.create_link(data.note_id, data.planner_item_id)
+    link = link_service.create_link(data.note_id, data.planner_item_id)
     return jsonify(LinkResponse.model_validate(link).model_dump()), 201
 
 
 @links_bp.route('/<link_id>/', methods=['DELETE'])
 def delete_link(link_id: str):
     """Delete a link"""
-    success = storage.delete_link(link_id)
+    success = link_service.delete_link(link_id)
     if not success:
         return jsonify(ErrorResponse(error="Link not found").model_dump()), 404
     return '', 204
