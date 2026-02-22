@@ -6,7 +6,7 @@ class NoteRepository(BaseRepository):
     def __init__(self, base_path: str = "generated"):
         super().__init__(Path(base_path) / "notes.json")
 
-    def create(self, title: str, body: str) -> Dict:
+    def create(self, title: str, body: str, folder_id: Optional[str] = None) -> Dict:
         notes = self._read_json()
         note = {
             "id": self._generate_id(),
@@ -14,6 +14,7 @@ class NoteRepository(BaseRepository):
             "body": body,
             "is_inspiration": False,
             "is_analyzed": False,
+            "folder_id": folder_id,
             "created_at": self._now(),
             "updated_at": self._now()
         }
@@ -34,7 +35,8 @@ class NoteRepository(BaseRepository):
         title: Optional[str] = None, 
         body: Optional[str] = None, 
         is_inspiration: Optional[bool] = None, 
-        is_analyzed: Optional[bool] = None
+        is_analyzed: Optional[bool] = None,
+        folder_id: Optional[str] = None
     ) -> Optional[Dict]:
         notes = self._read_json()
         for note in notes:
@@ -47,10 +49,21 @@ class NoteRepository(BaseRepository):
                     note["is_inspiration"] = is_inspiration
                 if is_analyzed is not None:
                     note["is_analyzed"] = is_analyzed
+                if folder_id is not None:
+                    note["folder_id"] = folder_id
                 note["updated_at"] = self._now()
                 self._write_json(notes)
                 return note
         return None
+    
+    def get_by_folder(self, folder_id: Optional[str]) -> List[Dict]:
+        notes = self._read_json()
+        if folder_id is None:
+            return [n for n in notes if n.get("folder_id") is None]
+        return [n for n in notes if n.get("folder_id") == folder_id]
+    
+    def get_unorganized(self) -> List[Dict]:
+        return self.get_by_folder(None)
     
     def delete(self, note_id: str) -> bool:
         notes = self._read_json()

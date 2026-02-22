@@ -13,6 +13,7 @@ import {
   InspirationsGrouped,
   Link,
   PlannerFilters,
+  Folder,
 } from '../types';
 
 // ============================================================================
@@ -40,6 +41,15 @@ export const notesApi = {
   
   markAnalyzed: (id: string): Promise<Note> => 
     apiClient.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
+  
+  organizePreview: (): Promise<any> => 
+    apiClient.post<any>('/api/notes/organize/preview/', {}),
+  
+  organizeApply: (plan: any): Promise<any> => 
+    apiClient.post<any>('/api/notes/organize/apply/', plan),
+  
+  bulkMove: (noteIds: string[], folderId: string | null): Promise<any> =>
+    apiClient.post<any>('/api/notes/bulk-move/', { note_ids: noteIds, folder_id: folderId }),
 };
 
 // ============================================================================
@@ -112,6 +122,45 @@ export const linksApi = {
   
   delete: (id: string): Promise<void> => 
     apiClient.delete(`/api/links/${id}/`),
+};
+
+// ============================================================================
+// FOLDERS API
+// ============================================================================
+
+export const foldersApi = {
+  getAll: (): Promise<Folder[]> => 
+    apiClient.get<Folder[]>('/api/folders/'),
+  
+  create: (data: { name: string; description?: string; color?: string }): Promise<Folder> => 
+    apiClient.post<Folder>('/api/folders/', data),
+  
+  getById: (id: string): Promise<Folder> => 
+    apiClient.get<Folder>(`/api/folders/${id}/`),
+  
+  update: (id: string, data: { name?: string; description?: string; color?: string }): Promise<Folder> => 
+    apiClient.put<Folder>(`/api/folders/${id}/`, data),
+  
+  delete: (id: string): Promise<void> => 
+    apiClient.delete(`/api/folders/${id}/`),
+};
+
+// ============================================================================
+// CHAT API
+// ============================================================================
+
+export const chatApi = {
+  sendMessage: (message: string, conversationId?: string): Promise<any> =>
+    apiClient.post<any>('/api/chat/', { message, conversation_id: conversationId }),
+  
+  getConversations: (): Promise<any[]> =>
+    apiClient.get<any[]>('/api/chat/conversations/'),
+  
+  getConversation: (id: string): Promise<any> =>
+    apiClient.get<any>(`/api/chat/conversations/${id}/`),
+  
+  deleteConversation: (id: string): Promise<void> =>
+    apiClient.delete(`/api/chat/conversations/${id}/`),
 };
 
 // ============================================================================
