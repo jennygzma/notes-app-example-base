@@ -42,8 +42,8 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
 
   const loadInspirations = async () => {
     try {
-      const response = await inspirationsApi.getAll();
-      setInspirations(response.data);
+      const inspirations = await inspirationsApi.getAll();
+      setInspirations(inspirations);
     } catch (error) {
       console.error('Failed to load inspirations:', error);
     } finally {
