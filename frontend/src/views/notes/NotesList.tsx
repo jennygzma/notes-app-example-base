@@ -9,9 +9,11 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Note } from '../../types';
 import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
+import { useDraggable } from '@dnd-kit/core';
 
 interface NotesListProps {
   notes: Note[];

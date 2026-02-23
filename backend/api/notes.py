@@ -109,3 +109,37 @@ def get_note_links(note_id: str):
             planner_items.append(item)
     
     return jsonify(planner_items), 200
+
+
+@notes_bp.route('/organize/preview/', methods=['POST'])
+def organize_notes_preview():
+    result = note_service.organize_notes_preview()
+    return jsonify(result), 200
+
+
+@notes_bp.route('/organize/apply/', methods=['POST'])
+def apply_organization():
+    plan = request.json
+    if not plan:
+        return jsonify(ErrorResponse(error="No plan provided").model_dump()), 400
+    
+    result = note_service.apply_organization(plan)
+    return jsonify(result), 200
+
+
+@notes_bp.route('/bulk-move/', methods=['POST'])
+def bulk_move_notes():
+    data = request.json
+    if not data or 'note_ids' not in data:
+        return jsonify(ErrorResponse(error="note_ids required").model_dump()), 400
+    
+    note_ids = data['note_ids']
+    folder_id = data.get('folder_id')
+    
+    updated_count = 0
+    for note_id in note_ids:
+        note = note_service.update_note(note_id, folder_id=folder_id)
+        if note:
+            updated_count += 1
+    
+    return jsonify({"updated": updated_count}), 200

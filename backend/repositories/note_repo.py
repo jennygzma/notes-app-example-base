@@ -14,6 +14,7 @@ class NoteRepository(BaseRepository):
             "body": body,
             "is_inspiration": False,
             "is_analyzed": False,
+            "folder_id": None,
             "created_at": self._now(),
             "updated_at": self._now()
         }
@@ -34,7 +35,8 @@ class NoteRepository(BaseRepository):
         title: Optional[str] = None, 
         body: Optional[str] = None, 
         is_inspiration: Optional[bool] = None, 
-        is_analyzed: Optional[bool] = None
+        is_analyzed: Optional[bool] = None,
+        folder_id: Optional[str] = None
     ) -> Optional[Dict]:
         notes = self._read_json()
         for note in notes:
@@ -47,6 +49,8 @@ class NoteRepository(BaseRepository):
                     note["is_inspiration"] = is_inspiration
                 if is_analyzed is not None:
                     note["is_analyzed"] = is_analyzed
+                if folder_id is not None:
+                    note["folder_id"] = folder_id
                 note["updated_at"] = self._now()
                 self._write_json(notes)
                 return note

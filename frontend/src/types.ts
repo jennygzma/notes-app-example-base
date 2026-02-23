@@ -6,6 +6,16 @@ export interface Note {
   body: string;
   is_inspiration: boolean;
   is_analyzed: boolean;
+  folder_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
   created_at: string;
   updated_at: string;
 }
@@ -98,6 +108,18 @@ export interface CreateLinkRequest {
 
 export interface ApproveCategoryRequest {
   note_id?: string;
+}
+
+export interface CreateFolderRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateFolderRequest {
+  name?: string;
+  description?: string;
+  color?: string;
 }
 
 export interface PlannerFilters {
