@@ -5,6 +5,7 @@ import {
   Snackbar,
   Alert,
   Typography,
+  Paper,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
@@ -39,6 +40,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
   const [organizeSuggestions, setOrganizeSuggestions] = useState<any>(null);
   const [organizingNotes, setOrganizingNotes] = useState(false);
+  const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -301,100 +303,154 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   const filteredNotes = notes.filter(note => note.folder_id === selectedFolderId);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const activeId = String(event.active.id);
+    if (activeId.startsWith('note:')) {
+      const noteId = activeId.replace('note:', '');
+      const note = notes.find((n) => n.id === noteId) || null;
+      setActiveNote(note);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const activeId = String(event.active.id);
+    const overId = event.over ? String(event.over.id) : null;
+    setActiveNote(null);
+
+    if (!overId || !activeId.startsWith('note:') || !overId.startsWith('folder:')) {
+      return;
+    }
+
+    const noteId = activeId.replace('note:', '');
+    const targetFolderId = overId === 'folder:unorganized' ? null : overId.replace('folder:', '');
+    const note = notes.find((n) => n.id === noteId);
+    if (!note || note.folder_id === targetFolderId) {
+      return;
+    }
+
+    try {
+      await notesApi.bulkMove([noteId], targetFolderId);
+      setNotes((prev) =>
+        prev.map((n) => (n.id === noteId ? { ...n, folder_id: targetFolderId } : n))
+      );
+      if (selectedNote?.id === noteId) {
+        setSelectedNote({ ...note, folder_id: targetFolderId });
+      }
+    } catch (error) {
+      showSnackbar('Failed to move note', 'error');
+    }
+  };
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      <FolderSidebar
-        notes={notes}
-        selectedFolderId={selectedFolderId}
-        onFolderSelect={setSelectedFolderId}
-        onOrganize={handleOrganizeNotes}
-      />
-      <NotesList
-        notes={filteredNotes}
-        selectedNoteId={selectedNote?.id || null}
-        onSelectNote={setSelectedNote}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-      <NoteDetail
-        note={selectedNote}
-        onUpdate={handleUpdateNote}
-        onDelete={handleDeleteNote}
-        onCategorize={handleCategorize}
-        onConvertToTask={handleConvertToTask}
-        linkedItems={linkedItems}
-        onNavigateToItem={(item) => onNavigateToTask?.(item.id)}
-        inspirationCategory={noteCategory}
-        onNavigateToInspiration={(category) => onNavigateToInspiration?.(category)}
-        categorizingNoteId={categorizingNoteId}
-        translatingNoteId={translatingNoteId}
-      />
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveNote(null)}
+    >
+      <Box sx={{ display: 'flex', height: '100vh' }}>
+        <FolderSidebar
+          notes={notes}
+          selectedFolderId={selectedFolderId}
+          onFolderSelect={setSelectedFolderId}
+          onOrganize={handleOrganizeNotes}
+        />
+        <NotesList
+          notes={filteredNotes}
+          selectedNoteId={selectedNote?.id || null}
+          onSelectNote={setSelectedNote}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+        <NoteDetail
+          note={selectedNote}
+          onUpdate={handleUpdateNote}
+          onDelete={handleDeleteNote}
+          onCategorize={handleCategorize}
+          onConvertToTask={handleConvertToTask}
+          linkedItems={linkedItems}
+          onNavigateToItem={(item) => onNavigateToTask?.(item.id)}
+          inspirationCategory={noteCategory}
+          onNavigateToInspiration={(category) => onNavigateToInspiration?.(category)}
+          categorizingNoteId={categorizingNoteId}
+          translatingNoteId={translatingNoteId}
+        />
 
-      <Fab
-        color="primary"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
-        onClick={handleCreateNote}
-      >
-        <AddIcon />
-      </Fab>
+        <Fab
+          color="primary"
+          sx={{ position: 'fixed', bottom: 16, right: 16 }}
+          onClick={handleCreateNote}
+        >
+          <AddIcon />
+        </Fab>
 
-      <ConvertToTaskDialog
-        open={convertDialogOpen}
-        onClose={() => {
-          setConvertDialogOpen(false);
-          setTranslateSuggestions(null);
-        }}
-        onConfirm={handleConfirmTask}
-        suggestions={translateSuggestions}
-        loading={translatingNoteId !== null}
-      />
+        <ConvertToTaskDialog
+          open={convertDialogOpen}
+          onClose={() => {
+            setConvertDialogOpen(false);
+            setTranslateSuggestions(null);
+          }}
+          onConfirm={handleConfirmTask}
+          suggestions={translateSuggestions}
+          loading={translatingNoteId !== null}
+        />
 
-      <Dialog
-        open={categoryDialog?.open || false}
-        onClose={handleRejectCategory}
-        title="New Category Discovered"
-        actions={
-          <>
-            <Button onClick={handleRejectCategory}>Reject</Button>
-            <Button onClick={handleApproveCategory} variant="contained">
-              Approve
-            </Button>
-          </>
-        }
-      >
-        <Typography variant="body1" gutterBottom>
-          AI suggests a new category: <strong>{categoryDialog?.category}</strong>
-        </Typography>
-        {categoryDialog?.reasoning && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            {categoryDialog.reasoning}
+        <Dialog
+          open={categoryDialog?.open || false}
+          onClose={handleRejectCategory}
+          title="New Category Discovered"
+          actions={
+            <>
+              <Button onClick={handleRejectCategory}>Reject</Button>
+              <Button onClick={handleApproveCategory} variant="contained">
+                Approve
+              </Button>
+            </>
+          }
+        >
+          <Typography variant="body1" gutterBottom>
+            AI suggests a new category: <strong>{categoryDialog?.category}</strong>
           </Typography>
-        )}
-      </Dialog>
+          {categoryDialog?.reasoning && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              {categoryDialog.reasoning}
+            </Typography>
+          )}
+        </Dialog>
 
-      <OrganizeDialog
-        open={organizeDialogOpen}
-        onClose={() => {
-          setOrganizeDialogOpen(false);
-          setOrganizeSuggestions(null);
-        }}
-        onApply={handleApplyOrganization}
-        suggestions={organizeSuggestions}
-        loading={organizingNotes}
-        notes={notes}
-        folders={folders}
-      />
+        <OrganizeDialog
+          open={organizeDialogOpen}
+          onClose={() => {
+            setOrganizeDialogOpen(false);
+            setOrganizeSuggestions(null);
+          }}
+          onApply={handleApplyOrganization}
+          suggestions={organizeSuggestions}
+          loading={organizingNotes}
+          notes={notes}
+          folders={folders}
+        />
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
+          <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+
+      <DragOverlay>
+        {activeNote ? (
+          <Paper sx={{ p: 1.5, minWidth: 220 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {activeNote.title}
+            </Typography>
+          </Paper>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 };
 

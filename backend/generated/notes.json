@@ -106,8 +106,8 @@
     "is_inspiration": false,
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:16.056396Z",
-    "updated_at": "2026-02-22T20:55:21.521712Z",
-    "folder_id": null
+    "updated_at": "2026-02-23T04:41:25.515619Z",
+    "folder_id": "6f05c2ed-40a2-4af9-b194-7baf5ccea171"
   },
   {
     "id": "99c8e5a4-cd6c-49d3-84a1-74b44ea50795",
@@ -258,15 +258,5 @@
     "created_at": "2026-02-18T21:55:44.647397Z",
     "updated_at": "2026-02-23T02:26:06.213171Z",
     "folder_id": "4f976f42-f4a6-4ffc-88b1-e3faef671729"
-  },
-  {
-    "id": "4f237034-f310-4fb6-b03b-c9604aca5229",
-    "title": "New Note",
-    "body": "",
-    "is_inspiration": false,
-    "is_analyzed": false,
-    "folder_id": null,
-    "created_at": "2026-02-23T02:17:35.285312Z",
-    "updated_at": "2026-02-23T02:17:35.285340Z"
   }
 ]
