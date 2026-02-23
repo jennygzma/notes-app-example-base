@@ -39,5 +39,46 @@
     ],
     "created_at": "2026-02-23T02:21:22.833888Z",
     "updated_at": "2026-02-23T02:22:05.418066Z"
+  },
+  {
+    "id": "47dc9e2d-26f0-4b6c-9dde-19fbd9925bc1",
+    "messages": [
+      {
+        "role": "user",
+        "content": "where should i go in boston",
+        "timestamp": "2026-02-23T04:24:24.388682Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Your notes don\u2019t list specific places in Boston itself, but they do suggest a few nearby Massachusetts day-trip ideas and the kinds of food/experiences you enjoy. If you\u2019re in Boston and open to short trips, consider Salem and Rockport, since they\u2019re on your list (per \"Massachusetts\"). In the city, based on your interests in hotpot, Korean spots, and brunch (per \"spring adventrues\" and \"china dfoods to try\"), you might enjoy seeking out hotpot, Korean food, and a good brunch with friends. If you share more about what you\u2019re in the mood for (museums, neighborhoods, nature, food), I can narrow this down further.",
+        "timestamp": "2026-02-23T04:24:24.389660Z",
+        "metadata": {
+          "citations": [
+            {
+              "note_id": "7769ad55-bcd1-4cae-a1e1-3c420d9466ec",
+              "note_title": "Massachusetts",
+              "excerpt": "Rockport, Massachusetts\n...\nSalem",
+              "relevance": "Lists nearby Massachusetts destinations you could visit from Boston, such as Salem and Rockport."
+            },
+            {
+              "note_id": "8b3a771b-8704-43ac-8e9e-1f3adfc00411",
+              "note_title": "spring adventrues",
+              "excerpt": "hotpot\nktown w faris and parmida?\nbrunch with sebastian and brenda",
+              "relevance": "Shows your interest in hotpot, Korean food experiences, and brunch, which can guide what to look for in Boston."
+            },
+            {
+              "note_id": "5823df8b-b372-4623-84bc-f4c33319a5b1",
+              "note_title": "china dfoods to try ",
+              "excerpt": "coconut chicken hotpot\uff1a\u6da6\u56ed\u56db\u5b63\nbeef hot pot \uff08meatballs\uff09\uff1a\u516b\u5408\u91cc\nhunan cuisine\uff1a\u5c0f\u8fa3\u6912\u65b0\u95fb\u8def\u5e97",
+              "relevance": "Confirms your interest in specific Chinese food styles like hotpot and Hunan cuisine, suggesting you might enjoy seeking similar options in Boston."
+            }
+          ],
+          "confidence": 0.55,
+          "notes_searched": 3
+        }
+      }
+    ],
+    "created_at": "2026-02-23T04:23:44.120850Z",
+    "updated_at": "2026-02-23T04:24:24.389670Z"
   }
 ]
