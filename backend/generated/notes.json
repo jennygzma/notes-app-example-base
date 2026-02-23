@@ -7,7 +7,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-17T01:54:20.363232Z",
     "updated_at": "2026-02-23T02:20:58.245997Z",
-    "folder_id": "95be1915-808d-4d61-a4ff-19217d59ffb5"
+    "folder_id": "95be1915-808d-4d61-a4ff-19217d59ffb5",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-17T01:54:20.363232Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "8b3a771b-8704-43ac-8e9e-1f3adfc00411",
@@ -17,7 +24,14 @@
     "is_analyzed": true,
     "created_at": "2026-02-17T01:55:02.247480Z",
     "updated_at": "2026-02-23T02:20:58.250020Z",
-    "folder_id": "0f4a6f9e-1ffa-498d-8b36-a001d6299c97"
+    "folder_id": "0f4a6f9e-1ffa-498d-8b36-a001d6299c97",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-17T01:55:02.247480Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "aee0a8b0-1988-4aae-a958-1af07d9c5cef",
@@ -27,7 +41,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:39:28.279543Z",
     "updated_at": "2026-02-23T02:20:58.250893Z",
-    "folder_id": "1bae3994-4689-45ec-bfcd-54a975687566"
+    "folder_id": "1bae3994-4689-45ec-bfcd-54a975687566",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:39:28.279543Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "76b8ab75-d10f-410c-b002-ca726ad146c8",
@@ -37,7 +58,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:47:37.709344Z",
     "updated_at": "2026-02-23T02:20:58.251695Z",
-    "folder_id": "1bae3994-4689-45ec-bfcd-54a975687566"
+    "folder_id": "1bae3994-4689-45ec-bfcd-54a975687566",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:47:37.709344Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "e2661817-471a-49b6-a11c-226ad5f91d09",
@@ -47,7 +75,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:48:05.148310Z",
     "updated_at": "2026-02-23T02:20:58.253338Z",
-    "folder_id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e"
+    "folder_id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:48:05.148310Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "fe4f7646-2ca8-490f-a8eb-955503fe13dc",
@@ -57,7 +92,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:48:22.771955Z",
     "updated_at": "2026-02-23T02:20:58.265661Z",
-    "folder_id": "6f05c2ed-40a2-4af9-b194-7baf5ccea171"
+    "folder_id": "6f05c2ed-40a2-4af9-b194-7baf5ccea171",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:48:22.771955Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "a8ce2c54-851f-4452-b954-d7145adbc06b",
@@ -67,7 +109,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:48:47.189299Z",
     "updated_at": "2026-02-23T02:20:58.255274Z",
-    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302"
+    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:48:47.189299Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "1886c1bc-af18-444f-977b-0dc20ad67ccf",
@@ -77,7 +126,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:49:06.729519Z",
     "updated_at": "2026-02-23T02:20:58.248188Z",
-    "folder_id": "95be1915-808d-4d61-a4ff-19217d59ffb5"
+    "folder_id": "95be1915-808d-4d61-a4ff-19217d59ffb5",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:49:06.729519Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "7d896d8d-73f3-4826-ae99-fe556c965dc5",
@@ -87,7 +143,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:49:42.903264Z",
     "updated_at": "2026-02-23T02:20:58.253847Z",
-    "folder_id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e"
+    "folder_id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:49:42.903264Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "1da0e39a-aeb8-447d-bad9-f27e45ba63de",
@@ -97,7 +160,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:49:59.378728Z",
     "updated_at": "2026-02-23T02:20:58.254644Z",
-    "folder_id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e"
+    "folder_id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:49:59.378728Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "daea0c28-7933-4e8f-a988-4fc0b08f1c1e",
@@ -107,7 +177,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:16.056396Z",
     "updated_at": "2026-02-23T04:41:25.515619Z",
-    "folder_id": "6f05c2ed-40a2-4af9-b194-7baf5ccea171"
+    "folder_id": "6f05c2ed-40a2-4af9-b194-7baf5ccea171",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:50:16.056396Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "99c8e5a4-cd6c-49d3-84a1-74b44ea50795",
@@ -117,7 +194,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:26.270444Z",
     "updated_at": "2026-02-23T02:20:58.258509Z",
-    "folder_id": "afb75960-7df9-4958-b850-ee4581ce4e3b"
+    "folder_id": "afb75960-7df9-4958-b850-ee4581ce4e3b",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:50:26.270444Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "269b9a66-d0c2-4e1a-82d5-bf81f0f00a73",
@@ -127,7 +211,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:37.516143Z",
     "updated_at": "2026-02-23T02:20:58.260028Z",
-    "folder_id": "d6458639-d8fa-4e24-bc9d-44b2cc1da26a"
+    "folder_id": "d6458639-d8fa-4e24-bc9d-44b2cc1da26a",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:50:37.516143Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "26546a0e-2742-4dd7-a8b3-a875a208859b",
@@ -137,7 +228,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:50:52.660384Z",
     "updated_at": "2026-02-22T20:55:21.519317Z",
-    "folder_id": null
+    "folder_id": null,
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:50:52.660384Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "39d3b56a-6270-4b9b-b05a-906bb938a8e8",
@@ -147,7 +245,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:51:31.119864Z",
     "updated_at": "2026-02-23T02:20:58.252243Z",
-    "folder_id": "1bae3994-4689-45ec-bfcd-54a975687566"
+    "folder_id": "1bae3994-4689-45ec-bfcd-54a975687566",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:51:31.119864Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "cbdad4db-78b1-402b-ad69-038866c95c16",
@@ -157,7 +262,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:51:58.465460Z",
     "updated_at": "2026-02-23T02:20:58.255980Z",
-    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302"
+    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:51:58.465460Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "3b372ccb-6ffb-48cf-8ae7-0a7abedcdbff",
@@ -167,7 +279,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:52:19.861225Z",
     "updated_at": "2026-02-23T02:20:58.256975Z",
-    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302"
+    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:52:19.861225Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "d3eefcea-eeb3-4c8e-8a7e-3063d219a55f",
@@ -177,7 +296,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:52:56.104496Z",
     "updated_at": "2026-02-22T21:56:36.068694Z",
-    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587"
+    "folder_id": "33c18e77-1d9b-4815-9190-edae7c5ff587",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:52:56.104496Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "5090712c-f927-4a5e-af1f-861cba9a537e",
@@ -187,7 +313,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:53:08.728035Z",
     "updated_at": "2026-02-23T02:20:58.257563Z",
-    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302"
+    "folder_id": "7d67b2da-49ce-445b-88d0-69876d669302",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:53:08.728035Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "5823df8b-b372-4623-84bc-f4c33319a5b1",
@@ -197,7 +330,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:53:28.901687Z",
     "updated_at": "2026-02-23T02:20:58.261554Z",
-    "folder_id": "d0989092-7bc4-486d-8cb4-d7200ed0d22c"
+    "folder_id": "d0989092-7bc4-486d-8cb4-d7200ed0d22c",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:53:28.901687Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "8e4b6955-cfda-4212-8faa-ee583faa4a74",
@@ -207,7 +347,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:53:52.932905Z",
     "updated_at": "2026-02-23T02:20:58.262592Z",
-    "folder_id": "f27fcdd0-d38f-42a6-a47d-bc0cd4a3a45d"
+    "folder_id": "f27fcdd0-d38f-42a6-a47d-bc0cd4a3a45d",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:53:52.932905Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "f1467d29-8b4c-4c35-9300-93c8a29abacd",
@@ -217,7 +364,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:54:32.215744Z",
     "updated_at": "2026-02-23T02:20:58.263221Z",
-    "folder_id": "f27fcdd0-d38f-42a6-a47d-bc0cd4a3a45d"
+    "folder_id": "f27fcdd0-d38f-42a6-a47d-bc0cd4a3a45d",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:54:32.215744Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "ced14556-e45f-44e6-a01f-06a9b53f3772",
@@ -227,7 +381,14 @@
     "is_analyzed": true,
     "created_at": "2026-02-18T21:54:51.903841Z",
     "updated_at": "2026-02-23T02:26:14.166988Z",
-    "folder_id": "4d384205-cdb7-40dc-ba64-a45fdcbb9b52"
+    "folder_id": "4d384205-cdb7-40dc-ba64-a45fdcbb9b52",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:54:51.903841Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "7769ad55-bcd1-4cae-a1e1-3c420d9466ec",
@@ -237,7 +398,14 @@
     "is_analyzed": true,
     "created_at": "2026-02-18T21:55:20.052496Z",
     "updated_at": "2026-02-23T02:20:58.261057Z",
-    "folder_id": "d0989092-7bc4-486d-8cb4-d7200ed0d22c"
+    "folder_id": "d0989092-7bc4-486d-8cb4-d7200ed0d22c",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:55:20.052496Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "b3268c16-7326-4163-84cb-3386a359997e",
@@ -247,7 +415,14 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:55:32.123236Z",
     "updated_at": "2026-02-23T02:20:58.259151Z",
-    "folder_id": "afb75960-7df9-4958-b850-ee4581ce4e3b"
+    "folder_id": "afb75960-7df9-4958-b850-ee4581ce4e3b",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:55:32.123236Z",
+        "details": {}
+      }
+    ]
   },
   {
     "id": "46f93e29-57cc-43a5-bebb-eebf21266c58",
@@ -257,6 +432,57 @@
     "is_analyzed": false,
     "created_at": "2026-02-18T21:55:44.647397Z",
     "updated_at": "2026-02-23T02:26:06.213171Z",
-    "folder_id": "4f976f42-f4a6-4ffc-88b1-e3faef671729"
+    "folder_id": "4f976f42-f4a6-4ffc-88b1-e3faef671729",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-18T21:55:44.647397Z",
+        "details": {}
+      }
+    ]
+  },
+  {
+    "id": "d9f9bf62-c0ad-40f3-9981-8dadb2ddde20",
+    "title": "test",
+    "body": "test",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "folder_id": null,
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-23T05:15:21.867965Z",
+        "details": {}
+      },
+      {
+        "type": "updated",
+        "timestamp": "2026-02-23T05:15:24.333497Z",
+        "details": {}
+      }
+    ],
+    "created_at": "2026-02-23T05:15:21.867965Z",
+    "updated_at": "2026-02-23T05:15:24.333497Z"
+  },
+  {
+    "id": "96f1e1e5-024b-4f47-a2ff-11f85a1bd583",
+    "title": "work ?? ",
+    "body": "hi ? ",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "folder_id": null,
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-23T05:18:27.873003Z",
+        "details": {}
+      },
+      {
+        "type": "updated",
+        "timestamp": "2026-02-23T05:18:33.003537Z",
+        "details": {}
+      }
+    ],
+    "created_at": "2026-02-23T05:18:27.873003Z",
+    "updated_at": "2026-02-23T05:18:33.003537Z"
   }
 ]

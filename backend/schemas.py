@@ -2,11 +2,18 @@
 Pydantic schemas for request validation and response serialization.
 """
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Dict, Any
 from datetime import datetime
 
 
 # ==================== Base Models ====================
+
+class NoteActivity(BaseModel):
+    """Note activity entry"""
+    type: Literal['created', 'updated', 'moved']
+    timestamp: str
+    details: Optional[Dict[str, Any]] = {}
+
 
 class Note(BaseModel):
     """Note data model"""
@@ -16,6 +23,7 @@ class Note(BaseModel):
     is_inspiration: bool
     is_analyzed: bool
     folder_id: Optional[str] = None
+    activity_history: List[NoteActivity] = []
     created_at: str
     updated_at: str
 

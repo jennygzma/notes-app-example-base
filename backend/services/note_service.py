@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from repositories.note_repo import NoteRepository
 from repositories.folder_repo import FolderRepository
 from models.llm_client import LLMClient
+from datetime import datetime
 import json
 
 class NoteService:
@@ -128,4 +129,47 @@ class NoteService:
             "created_folders": len(created_folders),
             "updated_notes": len(updated_notes),
             "folders": created_folders
+        }
+
+    def get_notes_by_activity_date(self, date: str) -> Dict:
+        all_notes = self.repo.get_all()
+        
+        created = []
+        updated = []
+        moved = []
+        
+        for note in all_notes:
+            activity_history = note.get("activity_history", [])
+            
+            for activity in activity_history:
+                activity_date = activity["timestamp"].split("T")[0]
+                
+                if activity_date == date:
+                    if activity["type"] == "created":
+                        created.append({
+                            "note": note,
+                            "timestamp": activity["timestamp"]
+                        })
+                    elif activity["type"] == "updated":
+                        updated.append({
+                            "note": note,
+                            "timestamp": activity["timestamp"]
+                        })
+                    elif activity["type"] == "moved":
+                        moved.append({
+                            "note": note,
+                            "timestamp": activity["timestamp"],
+                            "from_folder": activity["details"].get("from_folder"),
+                            "to_folder": activity["details"].get("to_folder")
+                        })
+        
+        created.sort(key=lambda x: x["timestamp"])
+        updated.sort(key=lambda x: x["timestamp"])
+        moved.sort(key=lambda x: x["timestamp"])
+        
+        return {
+            "date": date,
+            "created": created,
+            "updated": updated,
+            "moved": moved
         }
