@@ -113,5 +113,118 @@
     ],
     "created_at": "2026-02-23T04:02:41.993021Z",
     "updated_at": "2026-02-23T04:03:20.679722Z"
+  },
+  {
+    "id": "eaf99502-760d-4cc9-a708-19f99620fa0f",
+    "messages": [
+      {
+        "role": "user",
+        "content": "where should i go in boston",
+        "timestamp": "2026-02-23T04:25:21.908019Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I couldn\u2019t find any Boston-specific recommendations in your notes. The closest related entry lists nearby Massachusetts and New England destinations you might consider instead: Salem, Rockport (Massachusetts), Cape Cod, Nantucket, Martha\u2019s Vineyard, the Berkshires, plus nearby spots like Portland (Maine), Newport and Block Island (Rhode Island), Mystic (Connecticut), Acadia National Park, the White Mountains, Stowe, and Ogunquit (Maine) [Note: 7769ad55-bcd1-4cae-a1e1-3c420d9466ec].",
+        "timestamp": "2026-02-23T04:26:08.013624Z",
+        "metadata": {
+          "reasoning": {
+            "folders_considered": [
+              {
+                "id": "aa7fec16-42d9-4854-88a3-3464c00df72a",
+                "name": "test"
+              },
+              {
+                "id": "54787ec0-e0f8-4494-994f-95a4ac00ac61",
+                "name": "social plans"
+              },
+              {
+                "id": "e8288a28-873e-4f46-ae48-68eb8b9a0d6a",
+                "name": "eval projects"
+              },
+              {
+                "id": "b1799641-f8f7-43c6-a7de-6312bb4d7e1c",
+                "name": "zoro system"
+              },
+              {
+                "id": "26b193cd-ef0d-486a-bc05-2013c19703e3",
+                "name": "contacts"
+              },
+              {
+                "id": "0d8bdeaf-5bd4-4bf7-925a-8a253f57e241",
+                "name": "career decisions"
+              },
+              {
+                "id": "9bdc90b4-bdd0-4b5a-851d-6dbba5afd5b8",
+                "name": "groceries"
+              },
+              {
+                "id": "3b87ff7b-dc14-4c78-a0ee-fd777c77ae98",
+                "name": "cloud setup"
+              },
+              {
+                "id": "28740ad5-2f2e-4971-99a3-e37612e5fb80",
+                "name": "personal codes"
+              },
+              {
+                "id": "a5fb059d-99a3-4210-b18c-115a6bdea8ae",
+                "name": "packing lists"
+              },
+              {
+                "id": "7825c182-8dee-4a21-a8bc-25a9609e7994",
+                "name": "event planning"
+              },
+              {
+                "id": "a5b0ba94-5269-46de-9141-3f527fba32ee",
+                "name": "restaurants to try"
+              },
+              {
+                "id": "5dff0b44-4384-4830-99c9-238566ed42d7",
+                "name": "travel logs"
+              },
+              {
+                "id": "d5910c90-1327-4bd6-a17d-121cf3bacbce",
+                "name": "travel ideas"
+              },
+              {
+                "id": "381a29e9-7f4e-49fd-bd57-74efeda7c128",
+                "name": "journaling"
+              },
+              {
+                "id": "57765f05-9879-4c76-bd52-77b8f39d99ac",
+                "name": "wishlist"
+              }
+            ],
+            "folders_selected": [
+              {
+                "id": "54787ec0-e0f8-4494-994f-95a4ac00ac61",
+                "name": "social plans"
+              },
+              {
+                "id": "a5b0ba94-5269-46de-9141-3f527fba32ee",
+                "name": "restaurants to try"
+              },
+              {
+                "id": "d5910c90-1327-4bd6-a17d-121cf3bacbce",
+                "name": "travel ideas"
+              }
+            ],
+            "folder_selection_reasoning": {
+              "a5b0ba94-5269-46de-9141-3f527fba32ee": "Likely contains specific Boston restaurant recommendations and dishes, directly answering 'where to go' for dining.",
+              "54787ec0-e0f8-4494-994f-95a4ac00ac61": "Local outings and plans with friends may include Boston venues, activities, and neighborhoods to visit.",
+              "d5910c90-1327-4bd6-a17d-121cf3bacbce": "Destination ideas and itineraries could include Boston attraction lists and suggested routes for exploring the city."
+            },
+            "notes_searched": 3,
+            "notes_cited": 1
+          },
+          "citations": [
+            "7769ad55-bcd1-4cae-a1e1-3c420d9466ec"
+          ],
+          "has_complete_answer": false,
+          "confidence": "medium"
+        }
+      }
+    ],
+    "created_at": "2026-02-23T04:25:21.906785Z",
+    "updated_at": "2026-02-23T04:26:08.013653Z"
   }
 ]
