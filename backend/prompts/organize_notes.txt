@@ -1,0 +1,53 @@
+Organize these unorganized notes into folders. You can assign notes to existing folders or suggest new folders to create.
+
+Existing Folders:
+{existing_folders}
+
+Unorganized Notes (batch {batch_number} of {total_batches}):
+{notes}
+
+Instructions:
+1. Analyze each note's title and content (first 200 characters shown)
+2. Group related notes together into folders
+3. Use existing folders when appropriate
+4. Suggest new folders for notes that don't fit existing folders
+5. Folder names should be clear, concise (2-4 words), and describe the content theme
+6. Each note should go into exactly one folder
+
+Examples of good folder organization:
+
+Example 1 - Programming notes:
+Notes about Python tutorials, JavaScript frameworks, and Git commands
+→ Folders: "Programming", "Web Development", "DevOps"
+
+Example 2 - Mixed personal notes:
+Notes about recipes, workout routines, book recommendations, and travel plans
+→ Folders: "Recipes", "Fitness", "Reading List", "Travel Plans"
+
+Example 3 - Work notes:
+Meeting notes, project ideas, client feedback, and deadlines
+→ Folders: "Meetings", "Projects", "Client Work", "Deadlines"
+
+Respond in JSON format:
+{{
+  "new_folders": [
+    {{
+      "name": "folder name",
+      "description": "brief description of what goes here",
+      "color": "#808080"
+    }}
+  ],
+  "assignments": [
+    {{
+      "note_id": "note-uuid",
+      "folder_name": "exact folder name (existing or new)",
+      "reasoning": "why this note belongs here"
+    }}
+  ]
+}}
+
+Important:
+- folder_name in assignments must exactly match either an existing folder name or a new folder name
+- Include ALL notes in assignments (every note must be assigned)
+- Use existing folders when possible before creating new ones
+- Keep folder names lowercase and descriptive

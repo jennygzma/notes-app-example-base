@@ -3,6 +3,7 @@ import { Box, Tabs, Tab, AppBar } from '@mui/material';
 import NotesView from './views/notes/NotesView';
 import InspirationsView from './views/inspiration/InspirationsView';
 import PlannerView from './views/calendar/PlannerView';
+import ChatView from './views/chat/ChatView';
 
 function App() {
   const [currentTab, setCurrentTab] = useState(0);
@@ -36,6 +37,7 @@ function App() {
           <Tab label="Notes" />
           <Tab label="Inspirations" />
           <Tab label="Planner" />
+          <Tab label="Chat" />
         </Tabs>
       </AppBar>
 
@@ -57,6 +59,11 @@ function App() {
           <PlannerView 
             initialSelectedTaskId={selectedTaskId}
             onNavigateToNote={handleNavigateToNote}
+          />
+        )}
+        {currentTab === 3 && (
+          <ChatView 
+            onOpenNote={handleNavigateToNote}
           />
         )}
       </Box>
