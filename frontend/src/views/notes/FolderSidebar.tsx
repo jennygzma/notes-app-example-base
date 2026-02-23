@@ -7,6 +7,7 @@ import {
   Typography,
   IconButton,
   Chip,
+  Stack,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,6 +19,7 @@ import Dialog from '../../components/shared/Dialog';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 import { foldersApi } from '../../services/api';
 import { Folder, Note } from '../../types';
+import { useDroppable } from '@dnd-kit/core';
 
 interface FolderSidebarProps {
   notes: Note[];
@@ -105,6 +107,34 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
     setEditDialogOpen(true);
   };
 
+  const DroppableFolderRow: React.FC<{
+    id: string;
+    selected: boolean;
+    onClick: () => void;
+    icon: React.ReactNode;
+    title: string;
+    count: number;
+    actions?: React.ReactNode;
+  }> = ({ id, selected, onClick, icon, title, count, actions }) => {
+    const { isOver, setNodeRef } = useDroppable({ id });
+    return (
+      <ListItemButton
+        ref={setNodeRef}
+        selected={selected}
+        onClick={onClick}
+        sx={{
+          backgroundColor: isOver ? 'action.hover' : 'transparent',
+          transition: 'background-color 120ms ease',
+        }}
+      >
+        {icon}
+        <ListItemText primary={title} />
+        <Chip label={count} size="small" sx={{ mr: actions ? 0.5 : 0 }} />
+        {actions}
+      </ListItemButton>
+    );
+  };
+
   return (
     <Box sx={{ width: 250, borderRight: 1, borderColor: 'divider', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -115,14 +145,14 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
       </Box>
 
       <List sx={{ flex: 1, overflow: 'auto' }}>
-        <ListItemButton
+        <DroppableFolderRow
+          id="folder:unorganized"
           selected={selectedFolderId === null}
           onClick={() => onFolderSelect(null)}
-        >
-          <InboxIcon sx={{ mr: 2, color: 'text.secondary' }} />
-          <ListItemText primary="Unorganized" />
-          <Chip label={getFolderNoteCount(null)} size="small" />
-        </ListItemButton>
+          icon={<InboxIcon sx={{ mr: 2, color: 'text.secondary' }} />}
+          title="Unorganized"
+          count={getFolderNoteCount(null)}
+        />
 
         {onOrganize && getFolderNoteCount(null) > 0 && (
           <Box sx={{ px: 2, py: 1 }}>
@@ -138,19 +168,23 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
         )}
 
         {folders.map((folder) => (
-          <ListItemButton
+          <DroppableFolderRow
             key={folder.id}
+            id={`folder:${folder.id}`}
             selected={selectedFolderId === folder.id}
             onClick={() => onFolderSelect(folder.id)}
-          >
-            <FolderIcon sx={{ mr: 2, color: folder.color }} />
-            <ListItemText primary={folder.name} />
-            <Chip label={getFolderNoteCount(folder.id)} size="small" sx={{ mr: 0.5 }} />
-            <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditDialog(folder); }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-            <InlineConfirmButton onConfirm={() => handleDeleteFolder(folder.id)} />
-          </ListItemButton>
+            icon={<FolderIcon sx={{ mr: 2, color: folder.color }} />}
+            title={folder.name}
+            count={getFolderNoteCount(folder.id)}
+            actions={
+              <>
+                <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditDialog(folder); }}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <InlineConfirmButton onConfirm={() => handleDeleteFolder(folder.id)} />
+              </>
+            }
+          />
         ))}
       </List>
 
@@ -165,25 +199,29 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
           </>
         }
       >
-        <TextField
-          label="Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          autoFocus
-        />
-        <TextField
-          label="Description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          multiline
-          rows={2}
-        />
-        <TextField
-          label="Color"
-          type="color"
-          value={formData.color}
-          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-        />
+        <Stack spacing={2}>
+          <TextField
+            label="Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            autoFocus
+          />
+          <TextField
+            label="Description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            multiline
+            rows={2}
+          />
+          <TextField
+            label="Color"
+            type="color"
+            value={formData.color}
+            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+            InputLabelProps={{ shrink: true }}
+            sx={{ '& input': { height: 40, padding: 0 } }}
+          />
+        </Stack>
       </Dialog>
 
       <Dialog
@@ -197,25 +235,29 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
           </>
         }
       >
-        <TextField
-          label="Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          autoFocus
-        />
-        <TextField
-          label="Description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          multiline
-          rows={2}
-        />
-        <TextField
-          label="Color"
-          type="color"
-          value={formData.color}
-          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-        />
+        <Stack spacing={2}>
+          <TextField
+            label="Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            autoFocus
+          />
+          <TextField
+            label="Description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            multiline
+            rows={2}
+          />
+          <TextField
+            label="Color"
+            type="color"
+            value={formData.color}
+            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+            InputLabelProps={{ shrink: true }}
+            sx={{ '& input': { height: 40, padding: 0 } }}
+          />
+        </Stack>
       </Dialog>
     </Box>
   );

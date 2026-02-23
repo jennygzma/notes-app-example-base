@@ -1,46 +1,5 @@
 [
   {
-    "id": "4aee6073-7e98-4a50-9bd1-cf0763964500",
-    "messages": [
-      {
-        "role": "user",
-        "content": "where should i go in boston",
-        "timestamp": "2026-02-23T02:22:05.416983Z"
-      },
-      {
-        "role": "assistant",
-        "content": "Your notes don\u2019t list specific spots in Boston itself. However, for nearby outings from the Boston area, your \"Massachusetts\" note mentions Salem and Rockport as options. For activities within the city that match your interests, your \"spring adventrues\" note points to hotpot and brunch, and \"china dfoods to try\" highlights Chinese hotpot/Hunan/seafood\u2014so exploring a hotpot spot or planning a brunch in Boston would align well with what you enjoy. If you\u2019d like concrete Boston venue recommendations, share more Boston-focused notes or preferences and I can narrow it down.",
-        "timestamp": "2026-02-23T02:22:05.418053Z",
-        "metadata": {
-          "citations": [
-            {
-              "note_id": "7769ad55-bcd1-4cae-a1e1-3c420d9466ec",
-              "note_title": "Massachusetts",
-              "excerpt": "Rockport, Massachusetts\nSalem",
-              "relevance": "Lists nearby Massachusetts destinations that can be easy trips from the Boston area."
-            },
-            {
-              "note_id": "8b3a771b-8704-43ac-8e9e-1f3adfc00411",
-              "note_title": "spring adventrues",
-              "excerpt": "hotpot\nbrunch with sebastian and brenda",
-              "relevance": "Shows your interest in hotpot and brunch, which can guide what to do in Boston."
-            },
-            {
-              "note_id": "5823df8b-b372-4623-84bc-f4c33319a5b1",
-              "note_title": "china dfoods to try",
-              "excerpt": "coconut chicken hotpot\uff1a\u6da6\u56ed\u56db\u5b63\nbeef hot pot \uff08meatballs\uff09\uff1a\u516b\u5408\u91cc\nhunan cuisine\uff1a\u5c0f\u8fa3\u6912\u65b0\u95fb\u8def\u5e97\nsteamed seafood ayce\uff1a \u821f\u5e02\u6c34\u4ea7",
-              "relevance": "Indicates interest in Chinese hotpot, Hunan cuisine, and seafood\u2014useful for picking Boston dining themes."
-            }
-          ],
-          "confidence": 0.55,
-          "notes_searched": 3
-        }
-      }
-    ],
-    "created_at": "2026-02-23T02:21:22.833888Z",
-    "updated_at": "2026-02-23T02:22:05.418066Z"
-  },
-  {
     "id": "47dc9e2d-26f0-4b6c-9dde-19fbd9925bc1",
     "messages": [
       {
