@@ -1,1 +1,117 @@
-[]
+[
+  {
+    "id": "164ae51c-aa71-47d0-9658-28f9b0f8d6a0",
+    "messages": [
+      {
+        "role": "user",
+        "content": "where should i go in boston",
+        "timestamp": "2026-02-23T04:02:41.993971Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I couldn\u2019t find any Boston-specific places in your notes. The only Massachusetts destinations listed are Rockport and Salem, along with other regional spots like Nantucket, Cape Cod, Martha\u2019s Vineyard, the Berkshires, and more [Note: 7769ad55-bcd1-4cae-a1e1-3c420d9466ec]. Your other notes mention plans like the botanical garden in Brooklyn, hotpot, Flushing, K-Town, and brunch with friends [Note: 8b3a771b-8704-43ac-8e9e-1f3adfc00411], and a list of Chinese foods to try without specific locations [Note: 5823df8b-b372-4623-84bc-f4c33319a5b1]. If you share Boston-specific interests (e.g., neighborhoods, museums, or restaurants), I can narrow it down.",
+        "timestamp": "2026-02-23T04:03:20.679706Z",
+        "metadata": {
+          "reasoning": {
+            "folders_considered": [
+              {
+                "id": "aa7fec16-42d9-4854-88a3-3464c00df72a",
+                "name": "test"
+              },
+              {
+                "id": "54787ec0-e0f8-4494-994f-95a4ac00ac61",
+                "name": "social plans"
+              },
+              {
+                "id": "e8288a28-873e-4f46-ae48-68eb8b9a0d6a",
+                "name": "eval projects"
+              },
+              {
+                "id": "b1799641-f8f7-43c6-a7de-6312bb4d7e1c",
+                "name": "zoro system"
+              },
+              {
+                "id": "26b193cd-ef0d-486a-bc05-2013c19703e3",
+                "name": "contacts"
+              },
+              {
+                "id": "0d8bdeaf-5bd4-4bf7-925a-8a253f57e241",
+                "name": "career decisions"
+              },
+              {
+                "id": "9bdc90b4-bdd0-4b5a-851d-6dbba5afd5b8",
+                "name": "groceries"
+              },
+              {
+                "id": "3b87ff7b-dc14-4c78-a0ee-fd777c77ae98",
+                "name": "cloud setup"
+              },
+              {
+                "id": "28740ad5-2f2e-4971-99a3-e37612e5fb80",
+                "name": "personal codes"
+              },
+              {
+                "id": "a5fb059d-99a3-4210-b18c-115a6bdea8ae",
+                "name": "packing lists"
+              },
+              {
+                "id": "7825c182-8dee-4a21-a8bc-25a9609e7994",
+                "name": "event planning"
+              },
+              {
+                "id": "a5b0ba94-5269-46de-9141-3f527fba32ee",
+                "name": "restaurants to try"
+              },
+              {
+                "id": "5dff0b44-4384-4830-99c9-238566ed42d7",
+                "name": "travel logs"
+              },
+              {
+                "id": "d5910c90-1327-4bd6-a17d-121cf3bacbce",
+                "name": "travel ideas"
+              },
+              {
+                "id": "381a29e9-7f4e-49fd-bd57-74efeda7c128",
+                "name": "journaling"
+              },
+              {
+                "id": "57765f05-9879-4c76-bd52-77b8f39d99ac",
+                "name": "wishlist"
+              }
+            ],
+            "folders_selected": [
+              {
+                "id": "54787ec0-e0f8-4494-994f-95a4ac00ac61",
+                "name": "social plans"
+              },
+              {
+                "id": "a5b0ba94-5269-46de-9141-3f527fba32ee",
+                "name": "restaurants to try"
+              },
+              {
+                "id": "d5910c90-1327-4bd6-a17d-121cf3bacbce",
+                "name": "travel ideas"
+              }
+            ],
+            "folder_selection_reasoning": {
+              "a5b0ba94-5269-46de-9141-3f527fba32ee": "Restaurants to try likely includes Boston spots and specific dishes\u2014useful if the question is about places to eat.",
+              "d5910c90-1327-4bd6-a17d-121cf3bacbce": "Travel ideas may contain destination notes or itineraries for Boston with attractions and suggested activities.",
+              "54787ec0-e0f8-4494-994f-95a4ac00ac61": "Social plans could have local outing ideas and venues in Boston planned with friends."
+            },
+            "notes_searched": 3,
+            "notes_cited": 3
+          },
+          "citations": [
+            "7769ad55-bcd1-4cae-a1e1-3c420d9466ec",
+            "8b3a771b-8704-43ac-8e9e-1f3adfc00411",
+            "5823df8b-b372-4623-84bc-f4c33319a5b1"
+          ],
+          "has_complete_answer": false,
+          "confidence": "low"
+        }
+      }
+    ],
+    "created_at": "2026-02-23T04:02:41.993021Z",
+    "updated_at": "2026-02-23T04:03:20.679722Z"
+  }
+]

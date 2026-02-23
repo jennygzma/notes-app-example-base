@@ -6,5 +6,125 @@
     "color": "#FDB813",
     "created_at": "2026-02-23T03:59:54.523837Z",
     "updated_at": "2026-02-23T03:59:54.523856Z"
+  },
+  {
+    "id": "54787ec0-e0f8-4494-994f-95a4ac00ac61",
+    "name": "social plans",
+    "description": "local outings and plans with friends",
+    "color": "#fb7185",
+    "created_at": "2026-02-23T04:02:04.063672Z",
+    "updated_at": "2026-02-23T04:02:04.063694Z"
+  },
+  {
+    "id": "e8288a28-873e-4f46-ae48-68eb8b9a0d6a",
+    "name": "eval projects",
+    "description": "notes and plans for evaluation experiments, testbeds, and app features",
+    "color": "#3b82f6",
+    "created_at": "2026-02-23T04:02:04.064466Z",
+    "updated_at": "2026-02-23T04:02:04.064473Z"
+  },
+  {
+    "id": "b1799641-f8f7-43c6-a7de-6312bb4d7e1c",
+    "name": "zoro system",
+    "description": "design, rules, and development notes for the ZORO system and related tooling",
+    "color": "#8b5cf6",
+    "created_at": "2026-02-23T04:02:04.064786Z",
+    "updated_at": "2026-02-23T04:02:04.064790Z"
+  },
+  {
+    "id": "26b193cd-ef0d-486a-bc05-2013c19703e3",
+    "name": "contacts",
+    "description": "lists of people, users, and contact info",
+    "color": "#10b981",
+    "created_at": "2026-02-23T04:02:04.065530Z",
+    "updated_at": "2026-02-23T04:02:04.065534Z"
+  },
+  {
+    "id": "0d8bdeaf-5bd4-4bf7-925a-8a253f57e241",
+    "name": "career decisions",
+    "description": "job offers, related emails, and pros/cons for career choices",
+    "color": "#ef4444",
+    "created_at": "2026-02-23T04:02:04.065722Z",
+    "updated_at": "2026-02-23T04:02:04.065724Z"
+  },
+  {
+    "id": "9bdc90b4-bdd0-4b5a-851d-6dbba5afd5b8",
+    "name": "groceries",
+    "description": "shopping lists and ingredients for meals or events",
+    "color": "#22c55e",
+    "created_at": "2026-02-23T04:02:04.065900Z",
+    "updated_at": "2026-02-23T04:02:04.065902Z"
+  },
+  {
+    "id": "3b87ff7b-dc14-4c78-a0ee-fd777c77ae98",
+    "name": "cloud setup",
+    "description": "cloud configuration, CLI commands, and setup notes",
+    "color": "#0ea5e9",
+    "created_at": "2026-02-23T04:02:04.066102Z",
+    "updated_at": "2026-02-23T04:02:04.066104Z"
+  },
+  {
+    "id": "28740ad5-2f2e-4971-99a3-e37612e5fb80",
+    "name": "personal codes",
+    "description": "private codes and access numbers",
+    "color": "#f59e0b",
+    "created_at": "2026-02-23T04:02:04.066370Z",
+    "updated_at": "2026-02-23T04:02:04.066373Z"
+  },
+  {
+    "id": "a5fb059d-99a3-4210-b18c-115a6bdea8ae",
+    "name": "packing lists",
+    "description": "reusable packing checklists for trips",
+    "color": "#6366f1",
+    "created_at": "2026-02-23T04:02:04.066630Z",
+    "updated_at": "2026-02-23T04:02:04.066632Z"
+  },
+  {
+    "id": "7825c182-8dee-4a21-a8bc-25a9609e7994",
+    "name": "event planning",
+    "description": "guest lists and details for upcoming events",
+    "color": "#f97316",
+    "created_at": "2026-02-23T04:02:04.067134Z",
+    "updated_at": "2026-02-23T04:02:04.067137Z"
+  },
+  {
+    "id": "a5b0ba94-5269-46de-9141-3f527fba32ee",
+    "name": "restaurants to try",
+    "description": "restaurants and specific dishes to try",
+    "color": "#84cc16",
+    "created_at": "2026-02-23T04:02:04.067704Z",
+    "updated_at": "2026-02-23T04:02:04.067708Z"
+  },
+  {
+    "id": "5dff0b44-4384-4830-99c9-238566ed42d7",
+    "name": "travel logs",
+    "description": "trip recaps and travel highlights",
+    "color": "#06b6d4",
+    "created_at": "2026-02-23T04:02:04.068229Z",
+    "updated_at": "2026-02-23T04:02:04.068231Z"
+  },
+  {
+    "id": "d5910c90-1327-4bd6-a17d-121cf3bacbce",
+    "name": "travel ideas",
+    "description": "destination ideas and itineraries to consider",
+    "color": "#059669",
+    "created_at": "2026-02-23T04:02:04.068706Z",
+    "updated_at": "2026-02-23T04:02:04.068708Z"
+  },
+  {
+    "id": "381a29e9-7f4e-49fd-bd57-74efeda7c128",
+    "name": "journaling",
+    "description": "personal reflections and notes about journaling practices",
+    "color": "#a855f7",
+    "created_at": "2026-02-23T04:02:04.069008Z",
+    "updated_at": "2026-02-23T04:02:04.069010Z"
+  },
+  {
+    "id": "57765f05-9879-4c76-bd52-77b8f39d99ac",
+    "name": "wishlist",
+    "description": "items to buy or consider purchasing",
+    "color": "#eab308",
+    "created_at": "2026-02-23T04:02:04.069390Z",
+    "updated_at": "2026-02-23T04:02:04.069392Z"
   }
 ]
