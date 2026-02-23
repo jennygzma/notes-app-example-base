@@ -7,9 +7,12 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
+import FolderSidebar from './FolderSidebar';
+import OrganizeDialog from './OrganizeDialog';
 import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
 import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../../services/api';
 import Dialog from '../../components/shared/Dialog';
@@ -24,6 +27,7 @@ interface NotesViewProps {
 const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigateToTask, onNavigateToInspiration }) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [linkedItems, setLinkedItems] = useState<PlannerItem[]>([]);
   const [noteCategory, setNoteCategory] = useState<string | null>(null);
@@ -43,6 +47,10 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     noteId: string;
     reasoning: string;
   } | null>(null);
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizePreview, setOrganizePreview] = useState<any>(null);
+  const [organizingNotes, setOrganizingNotes] = useState(false);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
   useEffect(() => {
     loadNotes();
@@ -254,10 +262,88 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     setSnackbar({ open: true, message, severity });
   };
 
+  const handleAutoOrganize = async () => {
+    setOrganizingNotes(true);
+    try {
+      const preview = await notesApi.organizePreview();
+      setOrganizePreview(preview);
+      setOrganizeDialogOpen(true);
+    } catch (error) {
+      showSnackbar('Failed to generate organization preview', 'error');
+    } finally {
+      setOrganizingNotes(false);
+    }
+  };
+
+  const handleApplyOrganization = async (plan: any) => {
+    setOrganizingNotes(true);
+    try {
+      await notesApi.organizeApply(plan);
+      showSnackbar('Notes organized successfully', 'success');
+      setOrganizeDialogOpen(false);
+      setOrganizePreview(null);
+      loadNotes();
+    } catch (error) {
+      showSnackbar('Failed to apply organization', 'error');
+    } finally {
+      setOrganizingNotes(false);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveNoteId(null);
+
+    if (!over) return;
+
+    const noteId = active.id as string;
+    const targetFolderId = over.id === 'unorganized' ? null : (over.id as string);
+
+    const note = notes.find(n => n.id === noteId);
+    if (!note || note.folder_id === targetFolderId) return;
+
+    const originalFolderId = note.folder_id;
+    setNotes(prev => prev.map(n => 
+      n.id === noteId ? { ...n, folder_id: targetFolderId } : n
+    ));
+
+    try {
+      await notesApi.bulkMove([noteId], targetFolderId);
+      showSnackbar('Note moved successfully', 'success');
+    } catch (error) {
+      setNotes(prev => prev.map(n => 
+        n.id === noteId ? { ...n, folder_id: originalFolderId } : n
+      ));
+      showSnackbar('Failed to move note', 'error');
+    }
+  };
+
+  const filteredNotes = notes.filter(note => {
+    if (selectedFolderId === null) {
+      return note.folder_id === null;
+    }
+    return note.folder_id === selectedFolderId;
+  });
+
   return (
+    <DndContext onDragEnd={handleDragEnd} onDragStart={(event) => setActiveNoteId(event.active.id as string)}>
     <Box sx={{ display: 'flex', height: '100vh' }}>
+      <FolderSidebar
+        selectedFolderId={selectedFolderId}
+        onSelectFolder={setSelectedFolderId}
+        onFoldersChange={loadNotes}
+      />
+      <Box sx={{ position: 'absolute', top: 16, right: 80, zIndex: 1000 }}>
+        <Button
+          onClick={handleAutoOrganize}
+          variant="outlined"
+          disabled={organizingNotes}
+        >
+          {organizingNotes ? 'Organizing...' : 'Auto-Organize'}
+        </Button>
+      </Box>
       <NotesList
-        notes={notes}
+        notes={filteredNotes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
@@ -319,6 +405,17 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         )}
       </Dialog>
 
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        onClose={() => {
+          setOrganizeDialogOpen(false);
+          setOrganizePreview(null);
+        }}
+        onApply={handleApplyOrganization}
+        preview={organizePreview}
+        loading={organizingNotes}
+      />
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -329,6 +426,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
         </Alert>
       </Snackbar>
     </Box>
+    </DndContext>
   );
 };
 

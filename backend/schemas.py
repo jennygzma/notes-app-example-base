@@ -15,6 +15,7 @@ class Note(BaseModel):
     body: str
     is_inspiration: bool
     is_analyzed: bool
+    folder_id: Optional[str] = None
     created_at: str
     updated_at: str
 
@@ -56,6 +57,15 @@ class Link(BaseModel):
     note_id: str
     planner_item_id: str
     created_at: str
+
+
+class Folder(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = "#808080"
+    created_at: str
+    updated_at: str
 
 
 # ==================== Request Schemas ====================
@@ -123,6 +133,18 @@ class ApproveCategoryRequest(BaseModel):
     note_id: Optional[str] = None
 
 
+class CreateFolderRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=1000)
+    color: Optional[str] = Field("#808080", pattern=r'^#[0-9a-fA-F]{6}$')
+
+
+class UpdateFolderRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=1000)
+    color: Optional[str] = Field(None, pattern=r'^#[0-9a-fA-F]{6}$')
+
+
 # ==================== Response Schemas ====================
 
 class NoteResponse(Note):
@@ -163,6 +185,14 @@ class CategoryListResponse(BaseModel):
 class LinkResponse(Link):
     """Response schema for link"""
     pass
+
+
+class FolderResponse(Folder):
+    pass
+
+
+class FolderListResponse(BaseModel):
+    folders: List[Folder]
 
 
 class ErrorResponse(BaseModel):

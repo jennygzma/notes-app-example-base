@@ -14,6 +14,7 @@ class NoteRepository(BaseRepository):
             "body": body,
             "is_inspiration": False,
             "is_analyzed": False,
+            "folder_id": None,
             "created_at": self._now(),
             "updated_at": self._now()
         }
@@ -22,11 +23,18 @@ class NoteRepository(BaseRepository):
         return note
     
     def get_all(self) -> List[Dict]:
-        return self._read_json()
+        notes = self._read_json()
+        for note in notes:
+            if "folder_id" not in note:
+                note["folder_id"] = None
+        return notes
     
     def get_by_id(self, note_id: str) -> Optional[Dict]:
         notes = self._read_json()
-        return next((n for n in notes if n["id"] == note_id), None)
+        note = next((n for n in notes if n["id"] == note_id), None)
+        if note and "folder_id" not in note:
+            note["folder_id"] = None
+        return note
     
     def update(
         self, 
@@ -34,11 +42,14 @@ class NoteRepository(BaseRepository):
         title: Optional[str] = None, 
         body: Optional[str] = None, 
         is_inspiration: Optional[bool] = None, 
-        is_analyzed: Optional[bool] = None
+        is_analyzed: Optional[bool] = None,
+        folder_id: Optional[str] = None
     ) -> Optional[Dict]:
         notes = self._read_json()
         for note in notes:
             if note["id"] == note_id:
+                if "folder_id" not in note:
+                    note["folder_id"] = None
                 if title is not None:
                     note["title"] = title
                 if body is not None:
@@ -47,6 +58,8 @@ class NoteRepository(BaseRepository):
                     note["is_inspiration"] = is_inspiration
                 if is_analyzed is not None:
                     note["is_analyzed"] = is_analyzed
+                if folder_id is not None:
+                    note["folder_id"] = folder_id
                 note["updated_at"] = self._now()
                 self._write_json(notes)
                 return note

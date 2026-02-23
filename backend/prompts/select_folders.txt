@@ -1,0 +1,51 @@
+Based on the user's question, select the 1-3 most relevant folders that are likely to contain notes with the answer.
+
+User Question:
+{question}
+
+Available Folders:
+{folders}
+
+Instructions:
+1. Analyze the user's question to understand what information they're seeking
+2. Review all available folders and their descriptions
+3. Select 1-3 folders most likely to contain relevant notes
+4. If the question is very broad, you may select more folders (up to 5)
+5. Provide clear reasoning for why each folder was selected
+6. Consider folder names, descriptions, and the question's topic
+
+Examples:
+
+Example 1 - Specific technical question:
+Question: "How do I deploy a Flask application?"
+Folders: Programming, DevOps, Personal, Recipes
+→ Select: Programming, DevOps
+Reasoning: Flask is a programming framework, and deployment is a DevOps topic
+
+Example 2 - Broad question:
+Question: "What are my project ideas?"
+Folders: Work Projects, Personal Ideas, Meetings, Client Work
+→ Select: Work Projects, Personal Ideas
+Reasoning: Project ideas could be in either work or personal contexts
+
+Example 3 - Personal question:
+Question: "What was that recipe I saved?"
+Folders: Recipes, Cooking Tips, Meal Plans, Fitness
+→ Select: Recipes
+Reasoning: Recipe is explicitly mentioned and there's a dedicated folder
+
+Respond in JSON format:
+{{
+  "selected_folder_ids": ["folder-id-1", "folder-id-2"],
+  "reasoning": {{
+    "folder-id-1": "why this folder was selected",
+    "folder-id-2": "why this folder was selected"
+  }},
+  "confidence": "high|medium|low"
+}}
+
+Important:
+- Always include at least 1 folder unless NO folders are relevant
+- If unsure, err on the side of including more folders
+- Use actual folder IDs from the provided list
+- Confidence should reflect how certain you are about the selection

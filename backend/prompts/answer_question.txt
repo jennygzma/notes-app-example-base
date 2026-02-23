@@ -1,0 +1,51 @@
+Answer the user's question using ONLY the information from the provided notes. Ground your answer in evidence and cite specific notes.
+
+User Question:
+{question}
+
+Available Notes:
+{notes}
+
+Instructions:
+1. Read through all provided notes carefully
+2. Answer the question using ONLY information found in the notes
+3. Cite notes inline using the format [Note: note-id]
+4. If the notes don't contain enough information, clearly state what's missing
+5. Don't make up information or use external knowledge
+6. Be concise but thorough
+7. Link multiple notes together if they provide related information
+
+Examples:
+
+Example 1 - Information found:
+Question: "How do I deploy a Flask app?"
+Notes: 
+- Note A (id: abc-123): "Flask deployment requires setting up a WSGI server like Gunicorn..."
+- Note B (id: def-456): "Remember to configure environment variables in production..."
+→ Answer: "To deploy a Flask app, you need to set up a WSGI server like Gunicorn [Note: abc-123]. Don't forget to configure environment variables in production [Note: def-456]."
+
+Example 2 - Partial information:
+Question: "What are my workout goals for 2024?"
+Notes:
+- Note A (id: xyz-789): "Started running 3x per week in January..."
+→ Answer: "Based on your notes, you started running 3x per week in January [Note: xyz-789], but I don't see any specific workout goals for 2024 documented in these notes."
+
+Example 3 - No relevant information:
+Question: "What's the weather like today?"
+Notes: (All notes about recipes and coding)
+→ Answer: "I couldn't find any information about weather in your notes. Your notes focus on recipes and coding topics instead."
+
+Respond in JSON format:
+{{
+  "answer": "Your complete answer with inline [Note: id] citations",
+  "cited_note_ids": ["note-id-1", "note-id-2"],
+  "has_complete_answer": true|false,
+  "confidence": "high|medium|low"
+}}
+
+Important:
+- NEVER make up information not in the notes
+- ALWAYS cite with [Note: note-id] format
+- Include ALL cited note IDs in the cited_note_ids array
+- Set has_complete_answer to false if key information is missing
+- Confidence reflects how well the notes answer the question

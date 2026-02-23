@@ -6,6 +6,7 @@ export interface Note {
   body: string;
   is_inspiration: boolean;
   is_analyzed: boolean;
+  folder_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -43,6 +44,19 @@ export interface Link {
   note_id: string;
   planner_item_id: string;
   created_at: string;
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FolderWithCount extends Folder {
+  note_count: number;
 }
 
 // ==================== Request Types ====================
@@ -100,6 +114,18 @@ export interface ApproveCategoryRequest {
   note_id?: string;
 }
 
+export interface CreateFolderRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateFolderRequest {
+  name?: string;
+  description?: string;
+  color?: string;
+}
+
 export interface PlannerFilters {
   date_start?: string;
   date_end?: string;
@@ -145,6 +171,58 @@ export interface CategorizeResponse {
 export interface ApproveCategoryResponse {
   category: InspirationCategory;
   inspiration?: Inspiration;
+}
+
+export interface FoldersResponse {
+  folders: FolderWithCount[];
+  unorganized_count: number;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  metadata?: {
+    reasoning?: ChatReasoning;
+    citations?: string[];
+    has_complete_answer?: boolean;
+    confidence?: string;
+  };
+}
+
+export interface Conversation {
+  id: string;
+  messages: ChatMessage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatCitation {
+  note_id: string;
+  title: string;
+  excerpt: string;
+}
+
+export interface ChatReasoning {
+  folders_considered: Array<{ id: string; name: string }>;
+  folders_selected: Array<{ id: string; name: string }>;
+  folder_selection_reasoning: { [folder_id: string]: string };
+  notes_searched: number;
+  notes_cited: number;
+}
+
+export interface ChatResponse {
+  answer: string;
+  conversation_id: string;
+  reasoning: ChatReasoning;
+  citations: ChatCitation[];
+  confidence: string;
+  has_complete_answer: boolean;
+}
+
+export interface SendMessageRequest {
+  message: string;
+  conversation_id?: string;
 }
 
 // ==================== Grouped Response Types ====================
