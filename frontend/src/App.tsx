@@ -57,6 +57,7 @@ function App() {
         )}
         {currentTab === 2 && (
           <PlannerView 
+            key={currentTab}
             initialSelectedTaskId={selectedTaskId}
             onNavigateToNote={handleNavigateToNote}
           />
