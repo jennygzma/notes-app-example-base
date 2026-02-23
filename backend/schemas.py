@@ -8,6 +8,12 @@ from datetime import datetime
 
 # ==================== Base Models ====================
 
+class NoteActivity(BaseModel):
+    type: Literal['created', 'updated', 'moved']
+    timestamp: str
+    details: Optional[dict] = {}
+
+
 class Note(BaseModel):
     """Note data model"""
     id: str
@@ -18,6 +24,7 @@ class Note(BaseModel):
     folder_id: Optional[str] = None
     created_at: str
     updated_at: str
+    activity_history: List[NoteActivity] = []
 
 
 class Folder(BaseModel):
