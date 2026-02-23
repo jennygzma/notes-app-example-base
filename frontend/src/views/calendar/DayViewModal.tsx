@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
-import Dialog from '../../components/shared/Dialog';
+import { Box, Typography, Divider, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { DayActivities, PlannerItem, Note } from '../../types';
 import NoteIcon from '@mui/icons-material/Description';
 import TaskIcon from '@mui/icons-material/CheckCircleOutline';
@@ -56,8 +55,10 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
     (activities && (activities.created.length > 0 || activities.updated.length > 0 || activities.moved.length > 0));
 
   return (
-    <Dialog open={open} onClose={onClose} title={`Day View - ${formatDate(date)}`} maxWidth="md">
-      <Box sx={{ minHeight: 300, maxHeight: '70vh', overflow: 'auto' }}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Day View - {formatDate(date)}</DialogTitle>
+      <DialogContent dividers>
+        <Box sx={{ minHeight: 300, maxHeight: '70vh', overflow: 'auto' }}>
         {!hasContent ? (
           <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
             <Typography variant="body1">No activities or tasks for this day</Typography>
@@ -220,7 +221,8 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
             )}
           </>
         )}
-      </Box>
+        </Box>
+      </DialogContent>
     </Dialog>
   );
 };
