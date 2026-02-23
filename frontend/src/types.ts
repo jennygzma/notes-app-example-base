@@ -1,5 +1,11 @@
 // ==================== Base Models ====================
 
+export interface NoteActivity {
+  type: 'created' | 'updated' | 'moved';
+  timestamp: string;
+  details?: Record<string, any>;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -9,6 +15,7 @@ export interface Note {
   folder_id: string | null;
   created_at: string;
   updated_at: string;
+  activity_history: NoteActivity[];
 }
 
 export interface Folder {
@@ -178,6 +185,13 @@ export interface NoteWithInspiration extends Note {
 
 export interface InspirationsGrouped {
   [category: string]: NoteWithInspiration[];
+}
+
+export interface DayActivities {
+  date: string;
+  created: Note[];
+  updated: Note[];
+  moved: Note[];
 }
 
 // ==================== API Response Wrappers ====================

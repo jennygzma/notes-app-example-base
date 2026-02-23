@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from repositories.note_repo import NoteRepository
 from repositories.folder_repo import FolderRepository
 from models.llm_client import LLMClient
+from datetime import datetime
 import json
 
 class NoteService:
@@ -31,6 +32,38 @@ class NoteService:
 
     def delete_note(self, note_id: str) -> bool:
         return self.repo.delete(note_id)
+
+    def _normalize_timestamp_to_date(self, timestamp: str) -> str:
+        dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        return dt.strftime('%Y-%m-%d')
+
+    def get_notes_by_activity_date(self, date: str) -> Dict:
+        all_notes = self.repo.get_all()
+        
+        created = []
+        updated = []
+        moved = []
+        
+        for note in all_notes:
+            activity_history = note.get('activity_history', [])
+            
+            for activity in activity_history:
+                activity_date = self._normalize_timestamp_to_date(activity['timestamp'])
+                
+                if activity_date == date:
+                    if activity['type'] == 'created':
+                        created.append(note)
+                    elif activity['type'] == 'updated':
+                        updated.append(note)
+                    elif activity['type'] == 'moved':
+                        moved.append(note)
+        
+        return {
+            "date": date,
+            "created": created,
+            "updated": updated,
+            "moved": moved
+        }
 
     def classify_note(self, note_id: str) -> Optional[Dict]:
         note = self.repo.get_by_id(note_id)
