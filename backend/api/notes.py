@@ -28,6 +28,20 @@ def get_notes():
     return jsonify(notes), 200
 
 
+@notes_bp.route('/activities/', methods=['GET'])
+def get_note_activities():
+    """Get notes grouped by activity type for a specific date"""
+    date = request.args.get('date')
+    if not date:
+        return jsonify(ErrorResponse(error="date parameter required").model_dump()), 400
+    
+    try:
+        activities = note_service.get_notes_by_activity_date(date)
+        return jsonify(activities), 200
+    except Exception as e:
+        return jsonify(ErrorResponse(error="Failed to get activities", details=str(e)).model_dump()), 500
+
+
 @notes_bp.route('/', methods=['POST'])
 def create_note():
     try:

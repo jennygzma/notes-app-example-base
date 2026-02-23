@@ -9,6 +9,8 @@ import {
   Snackbar,
   Alert,
   Divider,
+  Badge,
+  Chip,
 } from '@mui/material';
 import Button from '../../components/design-system/Button';
 import AddIcon from '@mui/icons-material/Add';
@@ -17,8 +19,9 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
 import CreateTaskDialog from './CreateTaskDialog';
 import TaskItem from './TaskItem';
-import { PlannerItem, CreatePlannerItemRequest, Note } from '../../types';
-import { plannerApi } from '../../services/api';
+import DayViewModal from './DayViewModal';
+import { PlannerItem, CreatePlannerItemRequest, Note, DayActivities } from '../../types';
+import { plannerApi, notesApi } from '../../services/api';
 
 type ViewType = 'weekly' | 'monthly';
 
@@ -32,8 +35,11 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const [currentDate, setCurrentDate] = useState(new Date());
   const [tasks, setTasks] = useState<PlannerItem[]>([]);
   const [taskLinkedNotes, setTaskLinkedNotes] = useState<{ [taskId: string]: Note[] }>({});
+  const [noteActivities, setNoteActivities] = useState<{ [date: string]: DayActivities }>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editTask, setEditTask] = useState<PlannerItem | null>(null);
+  const [dayViewOpen, setDayViewOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
     message: '',
@@ -89,6 +95,22 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         }
       }
       setTaskLinkedNotes(linksMap);
+
+      // Load note activities for date range
+      const activitiesMap: Record<string, DayActivities> = {};
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        try {
+          const activities = await notesApi.getActivitiesByDate(dateStr);
+          activitiesMap[dateStr] = activities;
+        } catch {
+          // Ignore errors for individual dates
+        }
+      }
+      setNoteActivities(activitiesMap);
     } catch (error) {
       showSnackbar('Failed to load tasks', 'error');
     }
@@ -230,6 +252,17 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     setSnackbar({ open: true, message, severity });
   };
 
+  const getNoteCount = (dateStr: string): number => {
+    const activities = noteActivities[dateStr];
+    if (!activities) return 0;
+    return (activities.created?.length || 0) + (activities.updated?.length || 0) + (activities.moved?.length || 0);
+  };
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDay(day);
+    setDayViewOpen(true);
+  };
+
   const groupedTasks = groupTasksByDate();
 
   return (
@@ -276,6 +309,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
               return (
                 <Box
                   key={dateStr}
+                  onClick={() => handleDayClick(day)}
                   sx={{
                     flex: 1,
                     minWidth: 200,
@@ -284,14 +318,34 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                     borderRadius: 2,
                     p: 2,
                     bgcolor: today ? 'primary.50' : 'background.paper',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: today ? 'primary.100' : 'action.hover',
+                    },
                   }}
                 >
-                  <Typography variant="subtitle2" fontWeight={600} color={today ? 'primary' : 'text.primary'}>
-                    {day.toLocaleDateString('en-US', { weekday: 'short' })}
-                  </Typography>
-                  <Typography variant="h6" color={today ? 'primary' : 'text.secondary'} sx={{ mb: 2 }}>
-                    {day.getDate()}
-                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={600} color={today ? 'primary' : 'text.primary'}>
+                        {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                      </Typography>
+                      <Typography variant="h6" color={today ? 'primary' : 'text.secondary'}>
+                        {day.getDate()}
+                      </Typography>
+                    </Box>
+                    {getNoteCount(dateStr) > 0 && (
+                      <Chip
+                        label={`${getNoteCount(dateStr)} 📝`}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: '0.7rem',
+                          bgcolor: 'secondary.main',
+                          color: 'white',
+                        }}
+                      />
+                    )}
+                  </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {dayTasks.map(task => (
                       <TaskItem
@@ -333,6 +387,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                   return (
                     <Box
                       key={dateStr}
+                      onClick={() => handleDayClick(day)}
                       sx={{
                         minHeight: 100,
                         border: 1,
@@ -341,15 +396,38 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                         p: 1,
                         bgcolor: today ? 'primary.50' : 'background.paper',
                         opacity: isCurrentMonth ? 1 : 0.4,
+                        cursor: 'pointer',
+                        '&:hover': {
+                          bgcolor: today ? 'primary.100' : 'action.hover',
+                        },
                       }}
                     >
-                      <Typography 
-                        variant="body2" 
-                        fontWeight={today ? 600 : 400}
-                        color={today ? 'primary' : isCurrentMonth ? 'text.primary' : 'text.secondary'}
-                      >
-                        {day.getDate()}
-                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Typography 
+                          variant="body2" 
+                          fontWeight={today ? 600 : 400}
+                          color={today ? 'primary' : isCurrentMonth ? 'text.primary' : 'text.secondary'}
+                        >
+                          {day.getDate()}
+                        </Typography>
+                        {getNoteCount(dateStr) > 0 && (
+                          <Chip
+                            label={getNoteCount(dateStr)}
+                            size="small"
+                            icon={<span>📝</span>}
+                            sx={{
+                              height: 16,
+                              fontSize: '0.65rem',
+                              bgcolor: 'secondary.main',
+                              color: 'white',
+                              '& .MuiChip-icon': {
+                                fontSize: '0.7rem',
+                                marginLeft: '2px',
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
                       <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         {dayTasks.slice(0, 3).map(task => (
                           <Typography
@@ -411,6 +489,21 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {selectedDay && (
+        <DayViewModal
+          open={dayViewOpen}
+          onClose={() => setDayViewOpen(false)}
+          date={selectedDay}
+          activities={noteActivities[selectedDay.toISOString().split('T')[0]] || null}
+          tasks={groupedTasks[selectedDay.toISOString().split('T')[0]] || []}
+          onNoteClick={(noteId) => {
+            setDayViewOpen(false);
+            onNavigateToNote?.(noteId);
+          }}
+          onTaskToggle={handleToggleComplete}
+        />
+      )}
     </Box>
   );
 };
