@@ -447,9 +447,9 @@
     "body": "",
     "is_inspiration": false,
     "is_analyzed": false,
-    "folder_id": null,
+    "folder_id": "95be1915-808d-4d61-a4ff-19217d59ffb5",
     "created_at": "2026-02-23T18:35:42.301374Z",
-    "updated_at": "2026-02-23T18:35:46.597548Z",
+    "updated_at": "2026-02-23T18:43:44.425697Z",
     "activity_history": [
       {
         "type": "created",
@@ -460,6 +460,14 @@
         "type": "updated",
         "timestamp": "2026-02-23T18:35:46.597548Z",
         "details": {}
+      },
+      {
+        "type": "moved",
+        "timestamp": "2026-02-23T18:43:44.425697Z",
+        "details": {
+          "from_folder": null,
+          "to_folder": "95be1915-808d-4d61-a4ff-19217d59ffb5"
+        }
       }
     ]
   }
