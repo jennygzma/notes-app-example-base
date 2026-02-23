@@ -16,6 +16,7 @@ import {
   Folder,
   CreateFolderRequest,
   UpdateFolderRequest,
+  DayActivities,
 } from '../types';
 
 // ============================================================================
@@ -43,6 +44,9 @@ export const notesApi = {
   
   markAnalyzed: (id: string): Promise<Note> => 
     apiClient.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
+  
+  getActivitiesByDate: (date: string): Promise<DayActivities> => 
+    apiClient.get<DayActivities>(`/api/notes/activities/?date=${date}`),
   
   organizePreview: (): Promise<any> => 
     apiClient.post<any>('/api/notes/organize/preview/', {}),

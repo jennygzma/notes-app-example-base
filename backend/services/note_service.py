@@ -32,6 +32,44 @@ class NoteService:
     def delete_note(self, note_id: str) -> bool:
         return self.repo.delete(note_id)
 
+    def get_notes_by_activity_date(self, date: str) -> Dict:
+        """
+        Get notes with activities on the specified date.
+        Returns notes grouped by activity type (created, updated, moved).
+        
+        Args:
+            date: Date string in YYYY-MM-DD format
+            
+        Returns:
+            Dict with keys 'created', 'updated', 'moved', each containing list of notes
+        """
+        all_notes = self.repo.get_all()
+        result = {
+            "created": [],
+            "updated": [],
+            "moved": []
+        }
+        
+        for note in all_notes:
+            activity_history = note.get("activity_history", [])
+            
+            for activity in activity_history:
+                # Extract date from timestamp (format: YYYY-MM-DDTHH:MM:SS.ffffff)
+                activity_date = activity.get("timestamp", "").split("T")[0]
+                
+                if activity_date == date:
+                    activity_type = activity.get("type")
+                    if activity_type in result:
+                        # Add note with activity details
+                        note_with_activity = {
+                            **note,
+                            "activity_timestamp": activity.get("timestamp"),
+                            "activity_details": activity.get("details", {})
+                        }
+                        result[activity_type].append(note_with_activity)
+        
+        return result
+
     def classify_note(self, note_id: str) -> Optional[Dict]:
         note = self.repo.get_by_id(note_id)
         if not note:
