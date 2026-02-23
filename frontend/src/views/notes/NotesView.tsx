@@ -7,11 +7,14 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import NotesList from './NotesList';
 import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
+import FolderSidebar from './FolderSidebar';
+import OrganizeDialog from './OrganizeDialog';
 import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
-import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi } from '../../services/api';
+import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../../services/api';
 import Dialog from '../../components/shared/Dialog';
 import Button from '../../components/design-system/Button';
 
@@ -23,7 +26,9 @@ interface NotesViewProps {
 
 const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigateToTask, onNavigateToInspiration }) => {
   const [notes, setNotes] = useState<Note[]>([]);
+  const [folders, setFolders] = useState<any[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [linkedItems, setLinkedItems] = useState<PlannerItem[]>([]);
   const [noteCategory, setNoteCategory] = useState<string | null>(null);
@@ -31,6 +36,9 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [translatingNoteId, setTranslatingNoteId] = useState<string | null>(null);
   const [translateSuggestions, setTranslateSuggestions] = useState<TranslateResponse | null>(null);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [organizeDialogOpen, setOrganizeDialogOpen] = useState(false);
+  const [organizeSuggestions, setOrganizeSuggestions] = useState<any>(null);
+  const [organizingNotes, setOrganizingNotes] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -46,6 +54,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
 
   useEffect(() => {
     loadNotes();
+    loadFolders();
   }, []);
 
   useEffect(() => {
@@ -74,6 +83,42 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       setNotes(notes);
     } catch (error) {
       showSnackbar('Failed to load notes', 'error');
+    }
+  };
+
+  const loadFolders = async () => {
+    try {
+      const folders = await foldersApi.getAll();
+      setFolders(folders);
+    } catch (error) {
+      console.error('Failed to load folders:', error);
+    }
+  };
+
+  const handleOrganizeNotes = async () => {
+    setOrganizingNotes(true);
+    setOrganizeDialogOpen(true);
+    try {
+      const suggestions = await notesApi.organizePreview();
+      setOrganizeSuggestions(suggestions);
+    } catch (error) {
+      showSnackbar('Failed to generate organization suggestions', 'error');
+      setOrganizeDialogOpen(false);
+    } finally {
+      setOrganizingNotes(false);
+    }
+  };
+
+  const handleApplyOrganization = async (plan: any) => {
+    try {
+      await notesApi.organizeApply(plan);
+      showSnackbar('Notes organized successfully', 'success');
+      setOrganizeDialogOpen(false);
+      setOrganizeSuggestions(null);
+      loadNotes();
+      loadFolders();
+    } catch (error) {
+      showSnackbar('Failed to apply organization', 'error');
     }
   };
 
@@ -254,10 +299,18 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     setSnackbar({ open: true, message, severity });
   };
 
+  const filteredNotes = notes.filter(note => note.folder_id === selectedFolderId);
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <NotesList
+      <FolderSidebar
         notes={notes}
+        selectedFolderId={selectedFolderId}
+        onFolderSelect={setSelectedFolderId}
+        onOrganize={handleOrganizeNotes}
+      />
+      <NotesList
+        notes={filteredNotes}
         selectedNoteId={selectedNote?.id || null}
         onSelectNote={setSelectedNote}
         searchQuery={searchQuery}
@@ -318,6 +371,19 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           </Typography>
         )}
       </Dialog>
+
+      <OrganizeDialog
+        open={organizeDialogOpen}
+        onClose={() => {
+          setOrganizeDialogOpen(false);
+          setOrganizeSuggestions(null);
+        }}
+        onApply={handleApplyOrganization}
+        suggestions={organizeSuggestions}
+        loading={organizingNotes}
+        notes={notes}
+        folders={folders}
+      />
 
       <Snackbar
         open={snackbar.open}
