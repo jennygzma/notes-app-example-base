@@ -16,9 +16,10 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
 import CreateTaskDialog from './CreateTaskDialog';
+import DayViewModal from './DayViewModal';
 import TaskItem from './TaskItem';
-import { PlannerItem, CreatePlannerItemRequest, Note } from '../../types';
-import { plannerApi } from '../../services/api';
+import { PlannerItem, CreatePlannerItemRequest, Note, DayActivities } from '../../types';
+import { plannerApi, notesApi } from '../../services/api';
 
 type ViewType = 'weekly' | 'monthly';
 
@@ -32,7 +33,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const [currentDate, setCurrentDate] = useState(new Date());
   const [tasks, setTasks] = useState<PlannerItem[]>([]);
   const [taskLinkedNotes, setTaskLinkedNotes] = useState<{ [taskId: string]: Note[] }>({});
+  const [noteActivities, setNoteActivities] = useState<{ [date: string]: DayActivities }>({});
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dayViewOpen, setDayViewOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [editTask, setEditTask] = useState<PlannerItem | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
@@ -78,7 +82,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
       });
       setTasks(tasksData);
       
-      // Load linked notes for each task
       const linksMap: Record<string, Note[]> = {};
       for (const task of tasksData) {
         try {
@@ -89,6 +92,21 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         }
       }
       setTaskLinkedNotes(linksMap);
+      
+      const activitiesMap: Record<string, DayActivities> = {};
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        try {
+          const activities = await notesApi.getActivitiesByDate(dateStr);
+          activitiesMap[dateStr] = activities;
+        } catch {
+          activitiesMap[dateStr] = { date: dateStr, created: [], updated: [], moved: [] };
+        }
+      }
+      setNoteActivities(activitiesMap);
     } catch (error) {
       showSnackbar('Failed to load tasks', 'error');
     }
@@ -230,6 +248,12 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     setSnackbar({ open: true, message, severity });
   };
 
+  const getNoteActivityCount = (dateStr: string): number => {
+    const activities = noteActivities[dateStr];
+    if (!activities) return 0;
+    return activities.created.length + activities.updated.length + activities.moved.length;
+  };
+
   const groupedTasks = groupTasksByDate();
 
   return (
@@ -286,12 +310,40 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                     bgcolor: today ? 'primary.50' : 'background.paper',
                   }}
                 >
-                  <Typography variant="subtitle2" fontWeight={600} color={today ? 'primary' : 'text.primary'}>
-                    {day.toLocaleDateString('en-US', { weekday: 'short' })}
-                  </Typography>
-                  <Typography variant="h6" color={today ? 'primary' : 'text.secondary'} sx={{ mb: 2 }}>
-                    {day.getDate()}
-                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={600} color={today ? 'primary' : 'text.primary'}>
+                        {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                      </Typography>
+                      <Typography variant="h6" color={today ? 'primary' : 'text.secondary'}>
+                        {day.getDate()}
+                      </Typography>
+                    </Box>
+                    {getNoteActivityCount(dateStr) > 0 && (
+                      <Box
+                        onClick={() => {
+                          setSelectedDate(dateStr);
+                          setDayViewOpen(true);
+                        }}
+                        sx={{
+                          bgcolor: 'primary.main',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: 24,
+                          height: 24,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          '&:hover': { opacity: 0.8 },
+                        }}
+                      >
+                        {getNoteActivityCount(dateStr)}
+                      </Box>
+                    )}
+                  </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {dayTasks.map(task => (
                       <TaskItem
@@ -343,13 +395,39 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                         opacity: isCurrentMonth ? 1 : 0.4,
                       }}
                     >
-                      <Typography 
-                        variant="body2" 
-                        fontWeight={today ? 600 : 400}
-                        color={today ? 'primary' : isCurrentMonth ? 'text.primary' : 'text.secondary'}
-                      >
-                        {day.getDate()}
-                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography 
+                          variant="body2" 
+                          fontWeight={today ? 600 : 400}
+                          color={today ? 'primary' : isCurrentMonth ? 'text.primary' : 'text.secondary'}
+                        >
+                          {day.getDate()}
+                        </Typography>
+                        {getNoteActivityCount(dateStr) > 0 && (
+                          <Box
+                            onClick={() => {
+                              setSelectedDate(dateStr);
+                              setDayViewOpen(true);
+                            }}
+                            sx={{
+                              bgcolor: 'primary.main',
+                              color: 'white',
+                              borderRadius: '50%',
+                              width: 18,
+                              height: 18,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.625rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              '&:hover': { opacity: 0.8 },
+                            }}
+                          >
+                            {getNoteActivityCount(dateStr)}
+                          </Box>
+                        )}
+                      </Box>
                       <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         {dayTasks.slice(0, 3).map(task => (
                           <Typography
@@ -411,6 +489,22 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <DayViewModal
+        open={dayViewOpen}
+        onClose={() => setDayViewOpen(false)}
+        date={selectedDate}
+        activities={noteActivities[selectedDate] || null}
+        tasks={groupedTasks[selectedDate] || []}
+        taskLinkedNotes={taskLinkedNotes}
+        onNoteClick={(noteId) => {
+          setDayViewOpen(false);
+          onNavigateToNote?.(noteId);
+        }}
+        onTaskToggleComplete={handleToggleComplete}
+        onTaskDelete={handleDeleteTask}
+        onTaskEdit={handleEditTask}
+      />
     </Box>
   );
 };

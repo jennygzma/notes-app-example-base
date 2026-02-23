@@ -143,3 +143,17 @@ def bulk_move_notes():
             updated_count += 1
     
     return jsonify({"updated": updated_count}), 200
+
+
+@notes_bp.route('/activities/', methods=['GET'])
+def get_note_activities():
+    date = request.args.get('date')
+    
+    if not date:
+        return jsonify(ErrorResponse(error="date parameter required").model_dump()), 400
+    
+    if len(date) != 10 or date[4] != '-' or date[7] != '-':
+        return jsonify(ErrorResponse(error="date must be in YYYY-MM-DD format").model_dump()), 400
+    
+    activities = note_service.get_notes_by_activity_date(date)
+    return jsonify(activities), 200
