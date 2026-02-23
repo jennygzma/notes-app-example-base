@@ -8,6 +8,7 @@ class NoteRepository(BaseRepository):
 
     def create(self, title: str, body: str) -> Dict:
         notes = self._read_json()
+        now = self._now()
         note = {
             "id": self._generate_id(),
             "title": title,
@@ -15,8 +16,15 @@ class NoteRepository(BaseRepository):
             "is_inspiration": False,
             "is_analyzed": False,
             "folder_id": None,
-            "created_at": self._now(),
-            "updated_at": self._now()
+            "activity_history": [
+                {
+                    "type": "created",
+                    "timestamp": now,
+                    "details": {}
+                }
+            ],
+            "created_at": now,
+            "updated_at": now
         }
         notes.append(note)
         self._write_json(notes)
@@ -41,17 +49,47 @@ class NoteRepository(BaseRepository):
         notes = self._read_json()
         for note in notes:
             if note["id"] == note_id:
-                if title is not None:
-                    note["title"] = title
-                if body is not None:
-                    note["body"] = body
+                now = self._now()
+                activity_added = False
+                
+                if title is not None or body is not None:
+                    if title is not None:
+                        note["title"] = title
+                    if body is not None:
+                        note["body"] = body
+                    
+                    if "activity_history" not in note:
+                        note["activity_history"] = []
+                    note["activity_history"].append({
+                        "type": "updated",
+                        "timestamp": now,
+                        "details": {}
+                    })
+                    activity_added = True
+                
+                if folder_id is not None:
+                    old_folder_id = note.get("folder_id")
+                    note["folder_id"] = folder_id
+                    
+                    if old_folder_id != folder_id:
+                        if "activity_history" not in note:
+                            note["activity_history"] = []
+                        note["activity_history"].append({
+                            "type": "moved",
+                            "timestamp": now,
+                            "details": {
+                                "from_folder": old_folder_id,
+                                "to_folder": folder_id
+                            }
+                        })
+                        activity_added = True
+                
                 if is_inspiration is not None:
                     note["is_inspiration"] = is_inspiration
                 if is_analyzed is not None:
                     note["is_analyzed"] = is_analyzed
-                if folder_id is not None:
-                    note["folder_id"] = folder_id
-                note["updated_at"] = self._now()
+                
+                note["updated_at"] = now
                 self._write_json(notes)
                 return note
         return None

@@ -111,6 +111,16 @@ def get_note_links(note_id: str):
     return jsonify(planner_items), 200
 
 
+@notes_bp.route('/activities/', methods=['GET'])
+def get_note_activities():
+    date = request.args.get('date')
+    if not date:
+        return jsonify(ErrorResponse(error="date parameter required").model_dump()), 400
+    
+    result = note_service.get_notes_by_activity_date(date)
+    return jsonify(result), 200
+
+
 @notes_bp.route('/organize/preview/', methods=['POST'])
 def organize_notes_preview():
     result = note_service.organize_notes_preview()
