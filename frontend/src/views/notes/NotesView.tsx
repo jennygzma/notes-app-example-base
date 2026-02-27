@@ -55,7 +55,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   } | null>(null);
 
   useEffect(() => {
-    loadNotes();
+    fetchNotes();
     loadFolders();
   }, []);
 
@@ -79,7 +79,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     }
   }, [selectedNote]);
 
-  const loadNotes = async () => {
+  const fetchNotes = async () => {
     try {
       const notes = await notesApi.getAll();
       setNotes(notes);
@@ -117,7 +117,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       showSnackbar('Notes organized successfully', 'success');
       setOrganizeDialogOpen(false);
       setOrganizeSuggestions(null);
-      loadNotes();
+      fetchNotes();
       loadFolders();
     } catch (error) {
       showSnackbar('Failed to apply organization', 'error');
@@ -290,7 +290,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       showSnackbar('Task created and linked to note', 'success');
       
       // Reload notes and linked items
-      loadNotes();
+      fetchNotes();
       loadLinkedItems(selectedNote.id);
     } catch (error) {
       showSnackbar('Failed to create task', 'error');
