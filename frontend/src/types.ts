@@ -1,11 +1,5 @@
 // ==================== Base Models ====================
 
-export interface NoteActivity {
-  type: 'created' | 'updated' | 'moved';
-  timestamp: string;
-  details?: Record<string, any>;
-}
-
 export interface Note {
   id: string;
   title: string;
@@ -13,7 +7,6 @@ export interface Note {
   is_inspiration: boolean;
   is_analyzed: boolean;
   folder_id: string | null;
-  activity_history: NoteActivity[];
   created_at: string;
   updated_at: string;
 }
@@ -185,20 +178,6 @@ export interface NoteWithInspiration extends Note {
 
 export interface InspirationsGrouped {
   [category: string]: NoteWithInspiration[];
-}
-
-export interface NoteActivityEntry {
-  note: Note;
-  timestamp: string;
-  from_folder?: string | null;
-  to_folder?: string | null;
-}
-
-export interface DayActivities {
-  date: string;
-  created: NoteActivityEntry[];
-  updated: NoteActivityEntry[];
-  moved: NoteActivityEntry[];
 }
 
 // ==================== API Response Wrappers ====================

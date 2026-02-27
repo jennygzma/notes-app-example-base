@@ -16,7 +16,6 @@ import {
   Folder,
   CreateFolderRequest,
   UpdateFolderRequest,
-  DayActivities,
 } from '../types';
 
 // ============================================================================
@@ -54,8 +53,6 @@ export const notesApi = {
   bulkMove: (noteIds: string[], folderId: string | null): Promise<{ updated: number }> => 
     apiClient.post<{ updated: number }>('/api/notes/bulk-move/', { note_ids: noteIds, folder_id: folderId }),
   
-  getActivitiesByDate: (date: string): Promise<DayActivities> => 
-    apiClient.get<DayActivities>('/api/notes/activities/', { date }),
 };
 
 // ============================================================================
