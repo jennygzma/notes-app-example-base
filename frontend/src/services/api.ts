@@ -17,6 +17,11 @@ import {
   CreateFolderRequest,
   UpdateFolderRequest,
   DayActivities,
+  Task,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  SyncPreviewResponse,
+  SyncResolution,
 } from '../types';
 
 // ============================================================================
@@ -179,4 +184,34 @@ export const chatApi = {
   
   deleteConversation: (id: string): Promise<void> => 
     apiClient.delete(`/api/chat/conversations/${id}/`),
+};
+
+// ============================================================================
+// TASKS API
+// ============================================================================
+
+export const taskApi = {
+  getAll: (): Promise<Task[]> => 
+    apiClient.get<Task[]>('/api/tasks/'),
+  
+  create: (data: CreateTaskRequest): Promise<Task> => 
+    apiClient.post<Task>('/api/tasks/', data),
+  
+  update: (id: string, data: UpdateTaskRequest): Promise<Task> => 
+    apiClient.put<Task>(`/api/tasks/${id}/`, data),
+  
+  delete: (id: string): Promise<void> => 
+    apiClient.delete(`/api/tasks/${id}/`),
+  
+  syncPreview: (): Promise<SyncPreviewResponse> => 
+    apiClient.get<SyncPreviewResponse>('/api/tasks/sync/preview/'),
+  
+  syncExecute: (resolutions: SyncResolution[]): Promise<any> => 
+    apiClient.post('/api/tasks/sync/execute/', { resolutions }),
+  
+  syncStatus: (): Promise<{ connected: boolean }> => 
+    apiClient.get<{ connected: boolean }>('/api/tasks/sync/status/'),
+  
+  migrate: (): Promise<{ migrated: number; skipped: number }> => 
+    apiClient.post('/api/tasks/migrate/'),
 };

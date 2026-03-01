@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '../../components/shared/Dialog';
-import { DayActivities, PlannerItem, Note } from '../../types';
+import { DayActivities, Task, Note } from '../../types';
 import TaskItem from './TaskItem';
 
 interface DayViewModalProps {
@@ -10,12 +10,12 @@ interface DayViewModalProps {
   onClose: () => void;
   date: string | null;
   activities: DayActivities | null;
-  tasks: PlannerItem[];
+  tasks: Task[];
   taskLinkedNotes: { [taskId: string]: Note[] };
   onOpenNote: (noteId: string) => void;
   onToggleComplete: (id: string) => void;
   onDeleteTask: (id: string) => void;
-  onEditTask: (task: PlannerItem) => void;
+  onEditTask: (task: Task) => void;
 }
 
 const DayViewModal: React.FC<DayViewModalProps> = ({
