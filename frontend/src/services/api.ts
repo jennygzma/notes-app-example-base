@@ -64,7 +64,7 @@ export const notesApi = {
 
 export const plannerApi = {
   getItems: (params?: PlannerFilters): Promise<PlannerItem[]> => 
-    apiClient.get<PlannerItem[]>('/api/planner/items/', { params }),
+    apiClient.get<PlannerItem[]>('/api/planner/items/', params),
   
   create: (data: CreatePlannerItemRequest): Promise<PlannerItem> => 
     apiClient.post<PlannerItem>('/api/planner/items/', data),

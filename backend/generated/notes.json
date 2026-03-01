@@ -470,5 +470,35 @@
         }
       }
     ]
+  },
+  {
+    "id": "c2288e62-5ae2-4b30-96b0-6e852b9a0943",
+    "title": "hihih",
+    "body": "testetst",
+    "is_inspiration": false,
+    "is_analyzed": false,
+    "folder_id": "cfad2f43-2c5a-4f21-bf45-d8ccc8ce702f",
+    "created_at": "2026-02-27T19:06:13.654063Z",
+    "updated_at": "2026-02-27T19:06:22.697094Z",
+    "activity_history": [
+      {
+        "type": "created",
+        "timestamp": "2026-02-27T19:06:13.654063Z",
+        "details": {}
+      },
+      {
+        "type": "updated",
+        "timestamp": "2026-02-27T19:06:18.723742Z",
+        "details": {}
+      },
+      {
+        "type": "moved",
+        "timestamp": "2026-02-27T19:06:22.697094Z",
+        "details": {
+          "from_folder": null,
+          "to_folder": "cfad2f43-2c5a-4f21-bf45-d8ccc8ce702f"
+        }
+      }
+    ]
   }
 ]

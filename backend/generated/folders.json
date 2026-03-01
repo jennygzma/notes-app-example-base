@@ -78,5 +78,13 @@
     "color": "#808080",
     "created_at": "2026-02-23T02:20:58.265422Z",
     "updated_at": "2026-02-23T02:20:58.265424Z"
+  },
+  {
+    "id": "cfad2f43-2c5a-4f21-bf45-d8ccc8ce702f",
+    "name": "test",
+    "description": "test",
+    "color": "#ffb8b8",
+    "created_at": "2026-02-27T19:06:08.772557Z",
+    "updated_at": "2026-02-27T19:06:08.772574Z"
   }
 ]

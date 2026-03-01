@@ -32,6 +32,13 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
 }) => {
   if (!date || !activities) return null;
 
+  const formatDateLocal = (value: Date): string => {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const formatDate = (dateStr: string) => {
     const [year, month, day] = dateStr.split('-').map(Number);
     const dateObj = new Date(year, month - 1, day);
@@ -43,6 +50,12 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
     });
   };
 
+  const getActivityForDate = (note: Note, type: 'created' | 'updated' | 'moved') => {
+    const activitiesForType = note.activity_history?.filter(a => a.type === type) || [];
+    const matching = activitiesForType.filter(a => formatDateLocal(new Date(a.timestamp)) === date);
+    return matching[matching.length - 1];
+  };
+
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', { 
@@ -52,17 +65,17 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
     });
   };
 
-  const sortByTime = (items: Note[]) => {
+  const sortByTime = (items: Note[], type: 'created' | 'updated' | 'moved') => {
     return [...items].sort((a, b) => {
-      const timeA = a.activity_history[a.activity_history.length - 1]?.timestamp || a.created_at;
-      const timeB = b.activity_history[b.activity_history.length - 1]?.timestamp || b.created_at;
+      const timeA = getActivityForDate(a, type)?.timestamp || a.created_at;
+      const timeB = getActivityForDate(b, type)?.timestamp || b.created_at;
       return new Date(timeA).getTime() - new Date(timeB).getTime();
     });
   };
 
-  const createdNotes = sortByTime(activities.created);
-  const updatedNotes = sortByTime(activities.updated);
-  const movedNotes = sortByTime(activities.moved);
+  const createdNotes = sortByTime(activities.created, 'created');
+  const updatedNotes = sortByTime(activities.updated, 'updated');
+  const movedNotes = sortByTime(activities.moved, 'moved');
 
   const hasActivities = createdNotes.length > 0 || updatedNotes.length > 0 || movedNotes.length > 0;
   const hasTasks = tasks.length > 0;
@@ -94,7 +107,7 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
                     Created ({createdNotes.length})
                   </Typography>
                   {createdNotes.map(note => {
-                    const activity = note.activity_history.find(a => a.type === 'created');
+                    const activity = getActivityForDate(note, 'created');
                     return (
                       <Box
                         key={note.id}
@@ -130,7 +143,7 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
                     Updated ({updatedNotes.length})
                   </Typography>
                   {updatedNotes.map(note => {
-                    const activity = note.activity_history.filter(a => a.type === 'updated').pop();
+                    const activity = getActivityForDate(note, 'updated');
                     return (
                       <Box
                         key={note.id}
@@ -166,7 +179,7 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
                     Moved ({movedNotes.length})
                   </Typography>
                   {movedNotes.map(note => {
-                    const activity = note.activity_history.filter(a => a.type === 'moved').pop();
+                    const activity = getActivityForDate(note, 'moved');
                     const fromFolder = activity?.details?.from_folder || '';
                     const toFolder = activity?.details?.to_folder || '';
                     return (

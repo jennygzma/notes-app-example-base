@@ -6,6 +6,7 @@ import {
   Alert,
   Typography,
   Paper,
+  useTheme,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
@@ -26,6 +27,7 @@ interface NotesViewProps {
 }
 
 const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigateToTask, onNavigateToInspiration }) => {
+  const theme = useTheme();
   const [notes, setNotes] = useState<Note[]>([]);
   const [folders, setFolders] = useState<any[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -182,15 +184,12 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const handleCategorize = async (noteId: string) => {
     setCategorizingNoteId(noteId);
     try {
-      // First, classify the note
       const classification = await aiApi.classify(noteId);
 
       if (classification.classification === 'task') {
-        // Route to task conversion
         setCategorizingNoteId(null);
         await handleConvertToTask(noteId);
       } else {
-        // Route to inspiration categorization
         const result = await inspirationsApi.categorize(noteId);
 
         if (result.is_new_category) {
@@ -203,7 +202,6 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           });
         } else {
           showSnackbar(`Categorized as "${result.category}"`, 'success');
-          // Update local state to reflect change immediately
           setNoteCategory(result.category);
           setNotes(prev => prev.map(n => 
             n.id === noteId ? { ...n, is_inspiration: true } : n
@@ -226,8 +224,7 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     try {
       await inspirationsApi.approveCategory(categoryDialog.categoryId, categoryDialog.noteId);
       showSnackbar(`Category "${categoryDialog.category}" approved`, 'success');
-      
-      // Update local state
+
       setNoteCategory(categoryDialog.category);
       setNotes(prev => prev.map(n => 
         n.id === categoryDialog.noteId ? { ...n, is_inspiration: true } : n
@@ -278,18 +275,14 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     if (!selectedNote) return;
 
     try {
-      // Create the planner item
       const createdTask = await plannerApi.create(task);
 
-      // Create the link between note and task
       await linksApi.create(selectedNote.id, createdTask.id);
 
-      // Mark note as analyzed (classified as task)
       await notesApi.markAnalyzed(selectedNote.id);
 
       showSnackbar('Task created and linked to note', 'success');
       
-      // Reload notes and linked items
       loadNotes();
       loadLinkedItems(selectedNote.id);
     } catch (error) {
@@ -435,7 +428,19 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           autoHideDuration={3000}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
         >
-          <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          <Alert
+            severity={snackbar.severity}
+            sx={{
+              width: '100%',
+              ...(snackbar.severity === 'error'
+                ? {
+                    bgcolor: theme.palette.error.main,
+                    color: theme.palette.error.contrastText,
+                    '& .MuiAlert-icon': { color: theme.palette.error.contrastText },
+                  }
+                : {}),
+            }}
+          >
             {snackbar.message}
           </Alert>
         </Snackbar>

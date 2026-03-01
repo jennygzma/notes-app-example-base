@@ -6,7 +6,10 @@ const theme = createTheme({
       main: '#009688', // Deep Teal
     },
     secondary: {
-      main: '#7c4dff', // Deep Purple
+      main: '#F06292', // Soft Rosy
+    },
+    error: {
+      main: '#E53935',
     },
   },
   typography: {

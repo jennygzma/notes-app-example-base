@@ -8,6 +8,7 @@ import {
   IconButton,
   Chip,
   Stack,
+  useTheme,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -34,6 +35,8 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
   onFolderSelect,
   onOrganize,
 }) => {
+  const theme = useTheme();
+  const defaultFolderColor = theme.palette.grey[500];
   const [folders, setFolders] = useState<Folder[]>([]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -41,7 +44,7 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    color: '#808080',
+    color: defaultFolderColor,
   });
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
     try {
       await foldersApi.create(formData);
       setCreateDialogOpen(false);
-      setFormData({ name: '', description: '', color: '#808080' });
+      setFormData({ name: '', description: '', color: defaultFolderColor });
       loadFolders();
     } catch (error) {
       console.error('Failed to create folder:', error);
@@ -78,7 +81,7 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
       await foldersApi.update(editingFolder.id, formData);
       setEditDialogOpen(false);
       setEditingFolder(null);
-      setFormData({ name: '', description: '', color: '#808080' });
+      setFormData({ name: '', description: '', color: defaultFolderColor });
       loadFolders();
     } catch (error) {
       console.error('Failed to update folder:', error);
@@ -102,7 +105,7 @@ const FolderSidebar: React.FC<FolderSidebarProps> = ({
     setFormData({
       name: folder.name,
       description: folder.description || '',
-      color: folder.color,
+      color: folder.color || defaultFolderColor,
     });
     setEditDialogOpen(true);
   };

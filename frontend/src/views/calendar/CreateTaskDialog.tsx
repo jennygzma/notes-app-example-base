@@ -27,13 +27,19 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [time, setTime] = useState('');
   const [viewType, setViewType] = useState<'weekly' | 'monthly'>('weekly');
 
+  const formatDateLocal = (value: Date): string => {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   useEffect(() => {
     if (editTask) {
       setTitle(editTask.title);
       setBody(editTask.body);
       setDate(editTask.date);
       setTime(editTask.time || '');
-      // Map old view types to new ones
       const mappedViewType = editTask.view_type === 'daily' || editTask.view_type === 'yearly' 
         ? 'weekly' 
         : editTask.view_type;
@@ -41,7 +47,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     } else {
       setTitle('');
       setBody('');
-      setDate(new Date().toISOString().split('T')[0]);
+      setDate(formatDateLocal(new Date()));
       setTime('');
       setViewType('weekly');
     }
