@@ -9,15 +9,15 @@ import {
   Box,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { PlannerItem, Note } from '../../types';
+import { Task, Note } from '../../types';
 import Tag from '../../components/design-system/Tag';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 
 interface TaskItemProps {
-  task: PlannerItem;
+  task: Task;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (task: PlannerItem) => void;
+  onEdit: (task: Task) => void;
   linkedNotes?: Note[];
   onNoteClick?: (noteId: string) => void;
 }
@@ -30,13 +30,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
   linkedNotes = [],
   onNoteClick,
 }) => {
-  const isCompleted = task.status === 'completed';
-
   return (
     <Card 
       sx={{ 
         mb: 1,
-        opacity: isCompleted ? 0.7 : 1,
+        opacity: task.completed ? 0.7 : 1,
         '&:hover': {
           boxShadow: 2,
         }
@@ -45,7 +43,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
           <Checkbox
-            checked={isCompleted}
+            checked={task.completed}
             onChange={() => onToggleComplete(task.id)}
             sx={{ mt: -1 }}
           />
@@ -54,33 +52,30 @@ const TaskItem: React.FC<TaskItemProps> = ({
             <Typography
               variant="subtitle1"
               sx={{
-                textDecoration: isCompleted ? 'line-through' : 'none',
+                textDecoration: task.completed ? 'line-through' : 'none',
                 fontWeight: 600,
               }}
             >
               {task.title}
             </Typography>
             
-            {task.body && (
+            {task.due_date && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                {task.body}
+                Due: {task.due_date}
               </Typography>
             )}
             
-            <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
-              {task.time && (
-                <Tag label={task.time} />
-              )}
-              <Tag label={task.view_type} color="primary" variant="outlined" />
-              
-              {linkedNotes.map((note) => (
-                <Tag
-                  key={note.id}
-                  label={note.title}
-                  onClick={() => onNoteClick?.(note.id)}
-                />
-              ))}
-            </Stack>
+            {linkedNotes.length > 0 && (
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
+                {linkedNotes.map((note) => (
+                  <Tag
+                    key={note.id}
+                    label={note.title}
+                    onClick={() => onNoteClick?.(note.id)}
+                  />
+                ))}
+              </Stack>
+            )}
           </Box>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
