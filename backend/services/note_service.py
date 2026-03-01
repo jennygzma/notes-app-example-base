@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from repositories.note_repo import NoteRepository
 from repositories.folder_repo import FolderRepository
-from models.llm_client import LLMClient
+from integrations.llm.openai_client import LLMClient
 from datetime import datetime
 import json
 

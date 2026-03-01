@@ -78,7 +78,6 @@ def delete_note(note_id: str):
 
 @notes_bp.route('/<note_id>/', methods=['PATCH'])
 def patch_note(note_id: str):
-    """Patch specific note fields"""
     try:
         data = PatchNoteRequest.model_validate(request.json)
     except ValidationError as e:

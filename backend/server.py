@@ -10,8 +10,12 @@ from api.links import links_bp
 from api.ai import ai_bp
 from api.folders import folders_bp
 from api.chat import chat_bp
+from api.tasks import tasks_bp
+from api.google_auth import google_auth_bp
+from migrations import run_migrations
 
 load_dotenv()
+run_migrations()
 
 app = Flask(__name__)
 CORS(app)
@@ -23,6 +27,8 @@ app.register_blueprint(links_bp)
 app.register_blueprint(ai_bp)
 app.register_blueprint(folders_bp)
 app.register_blueprint(chat_bp)
+app.register_blueprint(tasks_bp)
+app.register_blueprint(google_auth_bp)
 
 @app.route('/health', methods=['GET'])
 def health_check():

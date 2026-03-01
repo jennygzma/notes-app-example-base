@@ -9,6 +9,7 @@ import {
   Snackbar,
   Alert,
   Divider,
+  useTheme,
 } from '@mui/material';
 import Button from '../../components/design-system/Button';
 import AddIcon from '@mui/icons-material/Add';
@@ -29,6 +30,7 @@ interface PlannerViewProps {
 }
 
 const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavigateToNote }) => {
+  const theme = useTheme();
   const [viewType, setViewType] = useState<ViewType>('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [tasks, setTasks] = useState<PlannerItem[]>([]);
@@ -44,6 +46,18 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     severity: 'success',
   });
 
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateLocal = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   useEffect(() => {
     loadTasks();
     loadNoteActivities();
@@ -58,17 +72,16 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
       start.setDate(start.getDate() - dayOfWeek);
       end.setDate(end.getDate() + (6 - dayOfWeek));
       return {
-        start: start.toISOString().split('T')[0],
-        end: end.toISOString().split('T')[0],
+        start: formatDateLocal(start),
+        end: formatDateLocal(end),
       };
     } else {
-      // monthly
       start.setDate(1);
       end.setMonth(end.getMonth() + 1);
       end.setDate(0);
       return {
-        start: start.toISOString().split('T')[0],
-        end: end.toISOString().split('T')[0],
+        start: formatDateLocal(start),
+        end: formatDateLocal(end),
       };
     }
   };
@@ -110,7 +123,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
       const current = new Date(startDate);
       
       while (current <= endDate) {
-        const dateStr = current.toISOString().split('T')[0];
+        const dateStr = formatDateLocal(current);
         try {
           const activities = await notesApi.getActivityByDate(dateStr);
           activitiesMap[dateStr] = activities;
@@ -179,7 +192,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     if (viewType === 'weekly') {
       newDate.setDate(newDate.getDate() + (delta * 7));
     } else {
-      // monthly
       newDate.setMonth(newDate.getMonth() + delta);
     }
 
@@ -189,9 +201,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const getDisplayDate = () => {
     if (viewType === 'weekly') {
       const { start, end } = getDateRange();
-      return `${new Date(start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      const startDate = parseDateLocal(start);
+      const endDate = parseDateLocal(end);
+      return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
     } else {
-      // monthly
       return currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
     }
   };
@@ -210,7 +223,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const getWeekDays = () => {
     const { start } = getDateRange();
     const days = [];
-    // Parse the date string properly to avoid timezone issues
     const [year, month, day] = start.split('-').map(Number);
     const startDate = new Date(year, month - 1, day);
     
@@ -231,16 +243,12 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // First day of month
     const firstDay = new Date(year, month, 1);
-    // Last day of month
     const lastDay = new Date(year, month + 1, 0);
     
-    // Start from Sunday of the first week
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - startDate.getDay());
     
-    // Build 6 weeks (42 days) to cover all possible month layouts
     const calendar: Date[][] = [];
     let currentWeek: Date[] = [];
     
@@ -309,10 +317,9 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
 
       <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
         {viewType === 'weekly' ? (
-          // Weekly view: 7 day cards
           <Box sx={{ display: 'flex', gap: 2, minWidth: 'fit-content' }}>
             {getWeekDays().map(day => {
-              const dateStr = day.toISOString().split('T')[0];
+              const dateStr = formatDateLocal(day);
               const dayTasks = groupedTasks[dateStr] || [];
               const today = isToday(day);
               
@@ -329,11 +336,33 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                     p: 2,
                     bgcolor: today ? 'primary.50' : 'background.paper',
                     cursor: 'pointer',
+                    position: 'relative',
                     '&:hover': {
                       bgcolor: today ? 'primary.100' : 'action.hover',
                     },
                   }}
                 >
+                  {getNoteActivityCount(dateStr) > 0 && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        bgcolor: 'primary.main',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: 20,
+                        height: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {getNoteActivityCount(dateStr)}
+                    </Box>
+                  )}
                   <Typography variant="subtitle2" fontWeight={600} color={today ? 'primary' : 'text.primary'}>
                     {day.toLocaleDateString('en-US', { weekday: 'short' })}
                   </Typography>
@@ -341,24 +370,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                     <Typography variant="h6" color={today ? 'primary' : 'text.secondary'}>
                       {day.getDate()}
                     </Typography>
-                    {getNoteActivityCount(dateStr) > 0 && (
-                      <Box
-                        sx={{
-                          bgcolor: 'info.main',
-                          color: 'white',
-                          borderRadius: '50%',
-                          width: 20,
-                          height: 20,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '0.7rem',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {getNoteActivityCount(dateStr)}
-                      </Box>
-                    )}
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {dayTasks.map(task => (
@@ -378,9 +389,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
             })}
           </Box>
         ) : (
-          // Monthly view: Calendar grid
           <Box>
-            {/* Day headers */}
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, mb: 2 }}>
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <Typography key={day} variant="subtitle2" textAlign="center" fontWeight={600} color="text.secondary">
@@ -389,11 +398,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
               ))}
             </Box>
             
-            {/* Calendar grid */}
             {getMonthCalendar().map((week, weekIdx) => (
               <Box key={weekIdx} sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, mb: 1 }}>
                 {week.map(day => {
-                  const dateStr = day.toISOString().split('T')[0];
+                  const dateStr = formatDateLocal(day);
                   const dayTasks = groupedTasks[dateStr] || [];
                   const today = isToday(day);
                   const isCurrentMonth = day.getMonth() === currentDate.getMonth();
@@ -411,11 +419,33 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                         bgcolor: today ? 'primary.50' : 'background.paper',
                         opacity: isCurrentMonth ? 1 : 0.4,
                         cursor: 'pointer',
+                        position: 'relative',
                         '&:hover': {
                           bgcolor: today ? 'primary.100' : 'action.hover',
                         },
                       }}
                     >
+                      {getNoteActivityCount(dateStr) > 0 && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 6,
+                            right: 6,
+                            bgcolor: 'primary.main',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: 16,
+                            height: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.6rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {getNoteActivityCount(dateStr)}
+                        </Box>
+                      )}
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                         <Typography 
                           variant="body2" 
@@ -424,24 +454,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                         >
                           {day.getDate()}
                         </Typography>
-                        {getNoteActivityCount(dateStr) > 0 && (
-                          <Box
-                            sx={{
-                              bgcolor: 'info.main',
-                              color: 'white',
-                              borderRadius: '50%',
-                              width: 16,
-                              height: 16,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '0.6rem',
-                              fontWeight: 600,
-                            }}
-                          >
-                            {getNoteActivityCount(dateStr)}
-                          </Box>
-                        )}
                       </Box>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         {dayTasks.slice(0, 3).map(task => (
@@ -513,7 +525,18 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert severity={snackbar.severity}>
+        <Alert
+          severity={snackbar.severity}
+          sx={
+            snackbar.severity === 'error'
+              ? {
+                  bgcolor: theme.palette.error.main,
+                  color: theme.palette.error.contrastText,
+                  '& .MuiAlert-icon': { color: theme.palette.error.contrastText },
+                }
+              : undefined
+          }
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

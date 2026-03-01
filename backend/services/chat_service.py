@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from repositories.conversation_repo import ConversationRepository
 from repositories.folder_repo import FolderRepository
 from repositories.note_repo import NoteRepository
-from models.llm_client import LLMClient
+from integrations.llm.openai_client import LLMClient
 import json
 
 class ChatService:
