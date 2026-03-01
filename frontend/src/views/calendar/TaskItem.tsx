@@ -9,15 +9,15 @@ import {
   Box,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { PlannerItem, Note } from '../../types';
+import { Task, Note } from '../../types';
 import Tag from '../../components/design-system/Tag';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 
 interface TaskItemProps {
-  task: PlannerItem;
+  task: Task;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (task: PlannerItem) => void;
+  onEdit: (task: Task) => void;
   linkedNotes?: Note[];
   onNoteClick?: (noteId: string) => void;
 }
@@ -30,7 +30,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   linkedNotes = [],
   onNoteClick,
 }) => {
-  const isCompleted = task.status === 'completed';
+  const isCompleted = task.completed;
 
   return (
     <Card 
@@ -61,17 +61,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
               {task.title}
             </Typography>
             
-            {task.body && (
+            {task.due_date && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                {task.body}
+                Due: {task.due_date}
               </Typography>
             )}
             
             <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
-              {task.time && (
-                <Tag label={task.time} />
+              {task.google_task_id && (
+                <Tag label="Synced" color="primary" variant="outlined" />
               )}
-              <Tag label={task.view_type} color="primary" variant="outlined" />
               
               {linkedNotes.map((note) => (
                 <Tag
