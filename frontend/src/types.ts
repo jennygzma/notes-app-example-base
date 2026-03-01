@@ -1,11 +1,35 @@
 // ==================== Base Models ====================
 
+export interface NoteActivity {
+  type: 'created' | 'updated' | 'moved';
+  timestamp: string;
+  details?: Record<string, any>;
+}
+
 export interface Note {
   id: string;
   title: string;
   body: string;
   is_inspiration: boolean;
   is_analyzed: boolean;
+  folder_id: string | null;
+  created_at: string;
+  updated_at: string;
+  activity_history: NoteActivity[];
+}
+
+export interface DayActivities {
+  date: string;
+  created: Note[];
+  updated: Note[];
+  moved: Note[];
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
   created_at: string;
   updated_at: string;
 }
@@ -98,6 +122,18 @@ export interface CreateLinkRequest {
 
 export interface ApproveCategoryRequest {
   note_id?: string;
+}
+
+export interface CreateFolderRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateFolderRequest {
+  name?: string;
+  description?: string;
+  color?: string;
 }
 
 export interface PlannerFilters {

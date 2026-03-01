@@ -1,26 +1,38 @@
-"""
-Pydantic schemas for request validation and response serialization.
-"""
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List, Literal
 from datetime import datetime
 
 
 # ==================== Base Models ====================
 
+class NoteActivity(BaseModel):
+    type: Literal['created', 'updated', 'moved']
+    timestamp: str
+    details: Optional[dict] = {}
+
+
 class Note(BaseModel):
-    """Note data model"""
     id: str
     title: str
     body: str
     is_inspiration: bool
     is_analyzed: bool
+    folder_id: Optional[str] = None
+    created_at: str
+    updated_at: str
+    activity_history: List[NoteActivity] = []
+
+
+class Folder(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = "#808080"
     created_at: str
     updated_at: str
 
 
 class PlannerItem(BaseModel):
-    """Planner item data model"""
     id: str
     title: str
     body: str
@@ -33,7 +45,6 @@ class PlannerItem(BaseModel):
 
 
 class Inspiration(BaseModel):
-    """Inspiration data model"""
     id: str
     note_id: str
     category: str
@@ -42,7 +53,6 @@ class Inspiration(BaseModel):
 
 
 class Category(BaseModel):
-    """Inspiration category data model"""
     id: str
     name: str
     status: Literal['active', 'pending_approval']
@@ -51,7 +61,6 @@ class Category(BaseModel):
 
 
 class Link(BaseModel):
-    """Note-to-planner-item link data model"""
     id: str
     note_id: str
     planner_item_id: str
@@ -60,26 +69,26 @@ class Link(BaseModel):
 
 # ==================== Request Schemas ====================
 
-class CreateNoteRequest(BaseModel):
-    """Request schema for creating a note"""
+class StrictRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class CreateNoteRequest(StrictRequest):
     title: str = Field(min_length=1, max_length=500)
     body: str = Field(default="")
 
 
-class UpdateNoteRequest(BaseModel):
-    """Request schema for updating a note"""
+class UpdateNoteRequest(StrictRequest):
     title: Optional[str] = Field(None, min_length=1, max_length=500)
     body: Optional[str] = None
 
 
-class PatchNoteRequest(BaseModel):
-    """Request schema for patching note fields"""
+class PatchNoteRequest(StrictRequest):
     is_analyzed: Optional[bool] = None
     is_inspiration: Optional[bool] = None
 
 
-class CreatePlannerItemRequest(BaseModel):
-    """Request schema for creating a planner item"""
+class CreatePlannerItemRequest(StrictRequest):
     title: str = Field(min_length=1, max_length=500)
     body: str
     date: str = Field(pattern=r'^\d{4}-\d{2}-\d{2}$')
@@ -87,8 +96,7 @@ class CreatePlannerItemRequest(BaseModel):
     view_type: Literal['daily', 'weekly', 'monthly', 'yearly']
 
 
-class UpdatePlannerItemRequest(BaseModel):
-    """Request schema for updating a planner item"""
+class UpdatePlannerItemRequest(StrictRequest):
     title: Optional[str] = Field(None, min_length=1, max_length=500)
     body: Optional[str] = None
     date: Optional[str] = Field(None, pattern=r'^\d{4}-\d{2}-\d{2}$')
@@ -97,76 +105,109 @@ class UpdatePlannerItemRequest(BaseModel):
     status: Optional[Literal['pending', 'completed']] = None
 
 
-class CategorizeNoteRequest(BaseModel):
-    """Request schema for categorizing a note"""
+class CategorizeNoteRequest(StrictRequest):
     note_id: str
 
 
-class TranslateNoteRequest(BaseModel):
-    """Request schema for translating a note to planner items"""
+class TranslateNoteRequest(StrictRequest):
     note_id: str
 
 
-class ClassifyNoteRequest(BaseModel):
-    """Request schema for classifying a note"""
+class ClassifyNoteRequest(StrictRequest):
     note_id: str
 
 
-class CreateLinkRequest(BaseModel):
-    """Request schema for creating a note-planner link"""
+class CreateLinkRequest(StrictRequest):
     note_id: str
     planner_item_id: str
 
 
-class ApproveCategoryRequest(BaseModel):
-    """Request schema for approving a category"""
+class ApproveCategoryRequest(StrictRequest):
     note_id: Optional[str] = None
+
+
+class CreateFolderRequest(StrictRequest):
+    name: str = Field(min_length=1, max_length=200)
+    description: Optional[str] = None
+    color: Optional[str] = "#808080"
+
+
+class UpdateFolderRequest(StrictRequest):
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = None
+    color: Optional[str] = None
+
+
+class Task(BaseModel):
+    id: str
+    title: str
+    completed: bool
+    due_date: Optional[str] = None
+    google_task_id: Optional[str] = None
+    updated_at: str
+    last_synced_at: Optional[str] = None
+
+
+class CreateTaskRequest(StrictRequest):
+    title: str = Field(min_length=1, max_length=500)
+    completed: bool = False
+    due_date: Optional[str] = None
+
+
+class UpdateTaskRequest(StrictRequest):
+    title: Optional[str] = Field(None, min_length=1, max_length=500)
+    completed: Optional[bool] = None
+    due_date: Optional[str] = None
 
 
 # ==================== Response Schemas ====================
 
 class NoteResponse(Note):
-    """Response schema for note"""
     pass
 
 
 class NoteListResponse(BaseModel):
-    """Response schema for list of notes"""
     notes: List[Note]
 
 
 class PlannerItemResponse(PlannerItem):
-    """Response schema for planner item"""
     pass
 
 
 class PlannerItemListResponse(BaseModel):
-    """Response schema for list of planner items"""
     items: List[PlannerItem]
 
 
 class InspirationResponse(Inspiration):
-    """Response schema for inspiration"""
     pass
 
 
 class CategoryResponse(Category):
-    """Response schema for category"""
     pass
 
 
 class CategoryListResponse(BaseModel):
-    """Response schema for list of categories"""
     categories: List[Category]
 
 
 class LinkResponse(Link):
-    """Response schema for link"""
     pass
 
 
+class TaskResponse(Task):
+    pass
+
+
+class TaskListResponse(BaseModel):
+    tasks: List[Task]
+
+
+class OAuthResponse(BaseModel):
+    access_token: str
+    expires_at: str
+
+
 class ErrorResponse(BaseModel):
-    """Standard error response"""
     error: str
     details: Optional[str] = None
 
@@ -174,14 +215,12 @@ class ErrorResponse(BaseModel):
 # ==================== AI Response Schemas ====================
 
 class ClassifyResponse(BaseModel):
-    """Response schema for note classification"""
     classification: Literal['inspiration', 'task']
     confidence: float = Field(ge=0.0, le=1.0)
     reasoning: str
 
 
 class TranslateSuggestion(BaseModel):
-    """Single planner item suggestion"""
     title: str
     body: str
     date: str
@@ -190,12 +229,10 @@ class TranslateSuggestion(BaseModel):
 
 
 class TranslateResponse(BaseModel):
-    """Response schema for note translation to planner items"""
     suggestions: List[TranslateSuggestion]
 
 
 class CategorizeResponse(BaseModel):
-    """Response schema for note categorization"""
     category: str
     confidence: float = Field(ge=0.0, le=1.0)
     is_new_category: bool
@@ -206,7 +243,6 @@ class CategorizeResponse(BaseModel):
 
 
 class ApproveCategoryResponse(BaseModel):
-    """Response schema for approving a category"""
     category: Category
     inspiration: Optional[Inspiration] = None
 
@@ -214,22 +250,18 @@ class ApproveCategoryResponse(BaseModel):
 # ==================== Grouped Response Schemas ====================
 
 class NoteWithInspiration(Note):
-    """Note with inspiration metadata"""
     inspiration_id: str
     ai_confidence: float
 
 
 class InspirationsByCategory(BaseModel):
-    """Grouped inspirations by category"""
     category: str
     notes: List[NoteWithInspiration]
 
 
 class InspirationsGroupedResponse(BaseModel):
-    """Response schema for grouped inspirations"""
     data: dict[str, List[NoteWithInspiration]]
 
 
 class NoteInspirationsResponse(BaseModel):
-    """Response schema for inspirations of a specific note"""
     inspirations: List[Inspiration]

@@ -46,7 +46,6 @@ const ConvertToTaskDialog: React.FC<ConvertToTaskDialogProps> = ({
       setBody(suggestion.body);
       setDate(suggestion.date);
       setTime(suggestion.time || '');
-      // Map old view types to new ones
       const mappedViewType = suggestion.view_type === 'daily' || suggestion.view_type === 'yearly' 
         ? 'weekly' 
         : suggestion.view_type;
