@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  MenuItem,
   Box,
 } from '@mui/material';
-import { CreatePlannerItemRequest, PlannerItem } from '../../types';
+import { CreateTaskRequest, Task } from '../../types';
 import Button from '../../components/design-system/Button';
 import TextField from '../../components/design-system/TextField';
 import Dialog from '../../components/shared/Dialog';
@@ -11,8 +10,8 @@ import Dialog from '../../components/shared/Dialog';
 interface CreateTaskDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (task: CreatePlannerItemRequest) => Promise<void>;
-  editTask?: PlannerItem | null;
+  onSave: (task: CreateTaskRequest) => Promise<void>;
+  editTask?: Task | null;
 }
 
 const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
@@ -22,10 +21,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   editTask,
 }) => {
   const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [viewType, setViewType] = useState<'weekly' | 'monthly'>('weekly');
+  const [dueDate, setDueDate] = useState('');
 
   const formatDateLocal = (value: Date): string => {
     const year = value.getFullYear();
@@ -37,29 +33,17 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   useEffect(() => {
     if (editTask) {
       setTitle(editTask.title);
-      setBody(editTask.body);
-      setDate(editTask.date);
-      setTime(editTask.time || '');
-      const mappedViewType = editTask.view_type === 'daily' || editTask.view_type === 'yearly' 
-        ? 'weekly' 
-        : editTask.view_type;
-      setViewType(mappedViewType as 'weekly' | 'monthly');
+      setDueDate(editTask.due_date || '');
     } else {
       setTitle('');
-      setBody('');
-      setDate(formatDateLocal(new Date()));
-      setTime('');
-      setViewType('weekly');
+      setDueDate(formatDateLocal(new Date()));
     }
   }, [editTask, open]);
 
   const handleSave = async () => {
-    const task: CreatePlannerItemRequest = {
+    const task: CreateTaskRequest = {
       title,
-      body,
-      date,
-      time: time || undefined,
-      view_type: viewType,
+      due_date: dueDate || undefined,
     };
     await onSave(task);
     onClose();
@@ -73,7 +57,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       actions={
         <>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" disabled={!title || !date}>
+          <Button onClick={handleSave} variant="contained" disabled={!title || !dueDate}>
             {editTask ? 'Update' : 'Create'}
           </Button>
         </>
@@ -88,39 +72,13 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         />
         
         <TextField
-          label="Description"
-          multiline
-          rows={3}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-        />
-        
-        <TextField
-          label="Date"
+          label="Due Date"
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
           required
         />
-        
-        <TextField
-          label="Time (optional)"
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-        
-        <TextField
-          label="View Type"
-          select
-          value={viewType}
-          onChange={(e) => setViewType(e.target.value as 'weekly' | 'monthly')}
-        >
-          <MenuItem value="weekly">Weekly</MenuItem>
-          <MenuItem value="monthly">Monthly</MenuItem>
-        </TextField>
       </Box>
     </Dialog>
   );

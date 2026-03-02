@@ -69,6 +69,16 @@ export interface Link {
   created_at: string;
 }
 
+export interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  due_date: string | null;
+  google_task_id: string | null;
+  updated_at: string;
+  last_synced_at: string | null;
+}
+
 // ==================== Request Types ====================
 
 export interface CreateNoteRequest {
@@ -141,6 +151,44 @@ export interface PlannerFilters {
   date_end?: string;
   view_type?: string;
   status?: string;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  completed?: boolean;
+  due_date?: string;
+}
+
+export interface UpdateTaskRequest {
+  title?: string;
+  completed?: boolean;
+  due_date?: string;
+}
+
+export interface SyncAction {
+  action: 'create' | 'update' | 'delete';
+  task: Task;
+  source: 'local' | 'google';
+  reason: string;
+}
+
+export interface SyncConflict {
+  task_id: string;
+  local_task: Task;
+  google_task: Task;
+  local_updated_at: string;
+  google_updated_at: string;
+}
+
+export interface SyncPreviewResponse {
+  actions: SyncAction[];
+  conflicts: SyncConflict[];
+  summary: { [key: string]: number };
+}
+
+export interface SyncResolution {
+  task_id: string;
+  resolution: 'use_local' | 'use_google' | 'skip';
 }
 
 // ==================== Response Types ====================
