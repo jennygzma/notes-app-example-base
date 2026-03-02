@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Dict
 from datetime import datetime
 
 
@@ -160,6 +160,30 @@ class UpdateTaskRequest(StrictRequest):
     due_date: Optional[str] = None
 
 
+class SyncAction(BaseModel):
+    action: Literal['create', 'update', 'delete']
+    task: Task
+    source: Literal['local', 'google']
+    reason: str
+
+
+class SyncConflict(BaseModel):
+    task_id: str
+    local_task: Task
+    google_task: Task
+    local_updated_at: str
+    google_updated_at: str
+
+
+class SyncResolution(BaseModel):
+    task_id: str
+    resolution: Literal['use_local', 'use_google', 'skip']
+
+
+class SyncExecuteRequest(StrictRequest):
+    resolutions: List[SyncResolution]
+
+
 # ==================== Response Schemas ====================
 
 class NoteResponse(Note):
@@ -200,6 +224,20 @@ class TaskResponse(Task):
 
 class TaskListResponse(BaseModel):
     tasks: List[Task]
+
+
+class SyncPreviewResponse(BaseModel):
+    actions: List[SyncAction]
+    conflicts: List[SyncConflict]
+    summary: Dict[str, int]
+
+
+class SyncExecuteResponse(BaseModel):
+    created: int
+    updated: int
+    deleted: int
+    skipped: int
+    errors: List[str]
 
 
 class OAuthResponse(BaseModel):
