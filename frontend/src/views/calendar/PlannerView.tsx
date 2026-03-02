@@ -8,7 +8,6 @@ import {
   Fab,
   Snackbar,
   Alert,
-  Divider,
   useTheme,
 } from '@mui/material';
 import Button from '../../components/design-system/Button';
@@ -16,11 +15,14 @@ import AddIcon from '@mui/icons-material/Add';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
+import SyncIcon from '@mui/icons-material/Sync';
 import CreateTaskDialog from './CreateTaskDialog';
 import TaskItem from './TaskItem';
 import DayViewModal from './DayViewModal';
-import { PlannerItem, CreatePlannerItemRequest, Note, DayActivities } from '../../types';
-import { plannerApi, notesApi } from '../../services/api';
+import { SyncPreviewDialog } from './SyncPreviewDialog';
+import { LinkGoogleDialog } from './LinkGoogleDialog';
+import { Task, CreateTaskRequest, Note, DayActivities, SyncPreviewResponse, SyncResolution } from '../../types';
+import { taskApi, notesApi } from '../../services/api';
 
 type ViewType = 'weekly' | 'monthly';
 
@@ -33,13 +35,17 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const theme = useTheme();
   const [viewType, setViewType] = useState<ViewType>('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [tasks, setTasks] = useState<PlannerItem[]>([]);
-  const [taskLinkedNotes, setTaskLinkedNotes] = useState<{ [taskId: string]: Note[] }>({});
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [noteActivities, setNoteActivities] = useState<{ [date: string]: DayActivities }>({});
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editTask, setEditTask] = useState<PlannerItem | null>(null);
+  const [editTask, setEditTask] = useState<Task | null>(null);
   const [dayViewOpen, setDayViewOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [syncPreview, setSyncPreview] = useState<SyncPreviewResponse | null>(null);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
     message: '',
@@ -61,7 +67,17 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   useEffect(() => {
     loadTasks();
     loadNoteActivities();
+    checkSyncStatus();
   }, [currentDate, viewType]);
+
+  const checkSyncStatus = async () => {
+    try {
+      const status = await taskApi.syncStatus();
+      setIsConnected(status.connected);
+    } catch (error) {
+      setIsConnected(false);
+    }
+  };
 
   const getDateRange = () => {
     const start = new Date(currentDate);
@@ -88,24 +104,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
 
   const loadTasks = async () => {
     try {
-      const { start, end } = getDateRange();
-      const tasksData = await plannerApi.getItems({
-        date_start: start,
-        date_end: end,
-        view_type: viewType
-      });
+      const tasksData = await taskApi.getAll();
       setTasks(tasksData);
-      
-      const linksMap: Record<string, Note[]> = {};
-      for (const task of tasksData) {
-        try {
-          const linkedNotes = await plannerApi.getLinks(task.id);
-          linksMap[task.id] = linkedNotes;
-        } catch {
-          linksMap[task.id] = [];
-        }
-      }
-      setTaskLinkedNotes(linksMap);
     } catch (error) {
       showSnackbar('Failed to load tasks', 'error');
     }
@@ -139,13 +139,13 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     }
   };
 
-  const handleCreateTask = async (task: CreatePlannerItemRequest) => {
+  const handleCreateTask = async (taskData: CreateTaskRequest) => {
     try {
       if (editTask) {
-        await plannerApi.update(editTask.id, task);
+        await taskApi.update(editTask.id, taskData);
         showSnackbar('Task updated', 'success');
       } else {
-        await plannerApi.create(task);
+        await taskApi.create(taskData);
         showSnackbar('Task created', 'success');
       }
       setEditTask(null);
@@ -157,8 +157,11 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
 
   const handleToggleComplete = async (id: string) => {
     try {
-      await plannerApi.toggleComplete(id);
-      loadTasks();
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        await taskApi.update(id, { completed: !task.completed });
+        loadTasks();
+      }
     } catch (error) {
       showSnackbar('Failed to toggle task', 'error');
     }
@@ -166,7 +169,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
 
   const handleDeleteTask = async (id: string) => {
     try {
-      await plannerApi.delete(id);
+      await taskApi.delete(id);
       showSnackbar('Task deleted', 'success');
       loadTasks();
     } catch (error) {
@@ -174,9 +177,42 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     }
   };
 
-  const handleEditTask = (task: PlannerItem) => {
+  const handleEditTask = (task: Task) => {
     setEditTask(task);
     setDialogOpen(true);
+  };
+
+  const handleSync = async () => {
+    if (!isConnected) {
+      setLinkDialogOpen(true);
+      return;
+    }
+
+    try {
+      setSyncLoading(true);
+      const preview = await taskApi.syncPreview();
+      setSyncPreview(preview);
+      setSyncDialogOpen(true);
+    } catch (error) {
+      showSnackbar('Failed to get sync preview', 'error');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const handleSyncExecute = async (resolutions: SyncResolution[]) => {
+    try {
+      setSyncLoading(true);
+      const result = await taskApi.syncExecute(resolutions);
+      setSyncDialogOpen(false);
+      setSyncPreview(null);
+      showSnackbar(`Synced: ${result.created + result.updated} tasks`, 'success');
+      loadTasks();
+    } catch (error) {
+      showSnackbar('Failed to execute sync', 'error');
+    } finally {
+      setSyncLoading(false);
+    }
   };
 
   const navigateDate = (direction: 'prev' | 'next' | 'today') => {
@@ -210,12 +246,14 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   };
 
   const groupTasksByDate = () => {
-    const grouped: { [date: string]: PlannerItem[] } = {};
+    const grouped: { [date: string]: Task[] } = {};
     tasks.forEach(task => {
-      if (!grouped[task.date]) {
-        grouped[task.date] = [];
+      if (task.due_date) {
+        if (!grouped[task.due_date]) {
+          grouped[task.due_date] = [];
+        }
+        grouped[task.due_date].push(task);
       }
-      grouped[task.date].push(task);
     });
     return grouped;
   };
@@ -313,6 +351,20 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         >
           Today
         </Button>
+        
+        <Button
+          startIcon={<SyncIcon />}
+          onClick={handleSync}
+          variant="outlined"
+          size="small"
+          disabled={syncLoading}
+          sx={{ 
+            borderColor: isConnected ? theme.palette.secondary.main : undefined,
+            color: isConnected ? theme.palette.secondary.main : undefined,
+          }}
+        >
+          {syncLoading ? 'Syncing...' : 'Sync with Google'}
+        </Button>
       </Box>
 
       <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
@@ -379,7 +431,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                         onToggleComplete={handleToggleComplete}
                         onDelete={handleDeleteTask}
                         onEdit={handleEditTask}
-                        linkedNotes={taskLinkedNotes[task.id] || []}
+                        linkedNotes={[]}
                         onNoteClick={(noteId) => onNavigateToNote?.(noteId)}
                       />
                     ))}
@@ -464,8 +516,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
-                              textDecoration: task.status === 'completed' ? 'line-through' : 'none',
-                              color: task.status === 'completed' ? 'text.disabled' : 'text.primary',
+                              textDecoration: task.completed ? 'line-through' : 'none',
+                              color: task.completed ? 'text.disabled' : 'text.primary',
                             }}
                           >
                             {task.title}
@@ -507,13 +559,26 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         editTask={editTask}
       />
 
+      <SyncPreviewDialog
+        open={syncDialogOpen}
+        onClose={() => setSyncDialogOpen(false)}
+        preview={syncPreview}
+        onExecute={handleSyncExecute}
+        loading={syncLoading}
+      />
+
+      <LinkGoogleDialog
+        open={linkDialogOpen}
+        onClose={() => setLinkDialogOpen(false)}
+      />
+
       <DayViewModal
         open={dayViewOpen}
         onClose={() => setDayViewOpen(false)}
         date={selectedDate}
         activities={selectedDate ? noteActivities[selectedDate] : null}
         tasks={selectedDate ? groupedTasks[selectedDate] || [] : []}
-        taskLinkedNotes={taskLinkedNotes}
+        taskLinkedNotes={{}}
         onOpenNote={(noteId) => onNavigateToNote?.(noteId)}
         onToggleComplete={handleToggleComplete}
         onDeleteTask={handleDeleteTask}
