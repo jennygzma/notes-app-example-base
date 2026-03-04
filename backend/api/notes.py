@@ -8,6 +8,14 @@ from schemas import (
     UpdateNoteRequest,
     PatchNoteRequest,
     NoteResponse,
+    NoteListResponse,
+    PlannerItemListResponse,
+    NoteActivitiesResponse,
+    OrganizationPlanRequest,
+    OrganizationPreviewResponse,
+    OrganizationApplyResponse,
+    BulkMoveRequest,
+    BulkMoveResponse,
     ErrorResponse
 )
 
@@ -25,7 +33,7 @@ def handle_validation_error(e: ValidationError) -> tuple:
 @notes_bp.route('/', methods=['GET'])
 def get_notes():
     notes = note_service.get_notes()
-    return jsonify(notes), 200
+    return jsonify(NoteListResponse(notes=notes).model_dump()), 200
 
 
 @notes_bp.route('/', methods=['POST'])
@@ -107,7 +115,7 @@ def get_note_links(note_id: str):
         if item:
             planner_items.append(item)
     
-    return jsonify(planner_items), 200
+    return jsonify(PlannerItemListResponse(items=planner_items).model_dump()), 200
 
 
 @notes_bp.route('/activities/', methods=['GET'])
@@ -117,33 +125,35 @@ def get_notes_activities():
         return jsonify(ErrorResponse(error="date query parameter required").model_dump()), 400
     
     result = note_service.get_notes_by_activity_date(date)
-    return jsonify(result), 200
+    return jsonify(NoteActivitiesResponse.model_validate(result).model_dump()), 200
 
 
 @notes_bp.route('/organize/preview/', methods=['POST'])
 def organize_notes_preview():
     result = note_service.organize_notes_preview()
-    return jsonify(result), 200
+    return jsonify(OrganizationPreviewResponse.model_validate(result).model_dump()), 200
 
 
 @notes_bp.route('/organize/apply/', methods=['POST'])
 def apply_organization():
-    plan = request.json
-    if not plan:
-        return jsonify(ErrorResponse(error="No plan provided").model_dump()), 400
-    
-    result = note_service.apply_organization(plan)
-    return jsonify(result), 200
+    try:
+        plan = OrganizationPlanRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+
+    result = note_service.apply_organization(plan.model_dump())
+    return jsonify(OrganizationApplyResponse.model_validate(result).model_dump()), 200
 
 
 @notes_bp.route('/bulk-move/', methods=['POST'])
 def bulk_move_notes():
-    data = request.json
-    if not data or 'note_ids' not in data:
-        return jsonify(ErrorResponse(error="note_ids required").model_dump()), 400
-    
-    note_ids = data['note_ids']
-    folder_id = data.get('folder_id')
+    try:
+        data = BulkMoveRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+
+    note_ids = data.note_ids
+    folder_id = data.folder_id
     
     updated_count = 0
     for note_id in note_ids:
@@ -151,4 +161,4 @@ def bulk_move_notes():
         if note:
             updated_count += 1
     
-    return jsonify({"updated": updated_count}), 200
+    return jsonify(BulkMoveResponse(updated=updated_count).model_dump()), 200

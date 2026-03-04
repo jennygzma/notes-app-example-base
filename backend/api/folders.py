@@ -5,6 +5,7 @@ from schemas import (
     CreateFolderRequest,
     UpdateFolderRequest,
     Folder,
+    FolderListResponse,
     ErrorResponse
 )
 
@@ -20,7 +21,7 @@ def handle_validation_error(e: ValidationError) -> tuple:
 @folders_bp.route('/', methods=['GET'])
 def get_folders():
     folders = folder_service.get_folders()
-    return jsonify(folders), 200
+    return jsonify(FolderListResponse(folders=folders).model_dump()), 200
 
 
 @folders_bp.route('/', methods=['POST'])

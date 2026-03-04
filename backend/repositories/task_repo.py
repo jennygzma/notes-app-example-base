@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+from migrations import run_migrations
 
 
 class TaskRepository:
@@ -11,38 +12,12 @@ class TaskRepository:
             db_path = Path(__file__).parent.parent / "generated" / "app.db"
         db_path.parent.mkdir(exist_ok=True)
         self.db_path = db_path
-        self._init_db()
+        run_migrations(self.db_path)
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
-
-    def _init_db(self) -> None:
-        with self._connect() as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS tasks (
-                    id TEXT PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    completed INTEGER NOT NULL DEFAULT 0,
-                    due_date TEXT NULL,
-                    google_task_id TEXT NULL,
-                    updated_at TEXT NOT NULL,
-                    last_synced_at TEXT NULL
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS schema_version (
-                    version INTEGER NOT NULL
-                )
-                """
-            )
-            row = conn.execute("SELECT version FROM schema_version LIMIT 1").fetchone()
-            if not row:
-                conn.execute("INSERT INTO schema_version (version) VALUES (1)")
 
     def _now(self) -> str:
         return datetime.utcnow().isoformat() + "Z"

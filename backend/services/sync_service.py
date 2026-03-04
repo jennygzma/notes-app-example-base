@@ -91,7 +91,12 @@ class SyncService:
                 elif g_task["updated_at"] > last_synced:
                     actions.append({
                         "action": "update",
-                        "task": {**local, **g_task},
+                        "task": {
+                            **local,
+                            **g_task,
+                            "id": local["id"],
+                            "google_task_id": local.get("google_task_id") or g_task.get("google_task_id"),
+                        },
                         "source": "google",
                         "reason": "Updated on Google"
                     })
@@ -150,14 +155,13 @@ class SyncService:
             try:
                 if action["action"] == "create" and action["source"] == "google":
                     task_data = action["task"]
-                    self.task_service.create_task(
+                    created_task = self.task_service.create_task(
                         title=task_data["title"],
                         completed=task_data["completed"],
                         due_date=task_data.get("due_date")
                     )
-                    task = self.task_service.get_tasks()[-1]
                     self.task_service.update_task(
-                        task_id=task["id"],
+                        task_id=created_task["id"],
                         google_task_id=task_data["google_task_id"],
                         last_synced_at=now
                     )

@@ -67,6 +67,20 @@ class Link(BaseModel):
     created_at: str
 
 
+class ConversationMessage(BaseModel):
+    role: Literal['user', 'assistant']
+    content: str
+    timestamp: str
+    metadata: Optional[dict] = None
+
+
+class Conversation(BaseModel):
+    id: str
+    messages: List[ConversationMessage]
+    created_at: str
+    updated_at: str
+
+
 # ==================== Request Schemas ====================
 
 class StrictRequest(BaseModel):
@@ -136,6 +150,33 @@ class UpdateFolderRequest(StrictRequest):
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = None
     color: Optional[str] = None
+
+
+class ChatMessageRequest(StrictRequest):
+    message: str = Field(min_length=1, max_length=5000)
+    conversation_id: Optional[str] = None
+
+
+class OrganizationFolderPlan(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = None
+    note_ids: List[str] = []
+
+
+class OrganizationAssignmentPlan(BaseModel):
+    folder_id: str
+    note_ids: List[str] = []
+
+
+class OrganizationPlanRequest(StrictRequest):
+    new_folders: List[OrganizationFolderPlan] = []
+    existing_assignments: List[OrganizationAssignmentPlan] = []
+
+
+class BulkMoveRequest(StrictRequest):
+    note_ids: List[str]
+    folder_id: Optional[str] = None
 
 
 class Task(BaseModel):
@@ -238,6 +279,65 @@ class TaskResponse(Task):
 
 class TaskListResponse(BaseModel):
     tasks: List[Task]
+
+
+class FolderListResponse(BaseModel):
+    folders: List[Folder]
+
+
+class ConversationListResponse(BaseModel):
+    conversations: List[Conversation]
+
+class NoteActivitiesResponse(BaseModel):
+    date: str
+    created: List[Note]
+    updated: List[Note]
+    moved: List[Note]
+
+
+class OrganizationPreviewResponse(BaseModel):
+    message: Optional[str] = None
+    new_folders: List[OrganizationFolderPlan] = []
+    existing_assignments: List[OrganizationAssignmentPlan] = []
+
+
+class OrganizationApplyResponse(BaseModel):
+    created_folders: int
+    updated_notes: int
+    folders: List[Folder]
+
+
+class BulkMoveResponse(BaseModel):
+    updated: int
+
+
+class ChatReasoning(BaseModel):
+    folders_considered: int
+    folders_selected: int
+    notes_searched: int
+    notes_cited: int
+
+
+class ChatResponse(BaseModel):
+    answer: str
+    conversation_id: str
+    reasoning: ChatReasoning
+    citations: List[dict]
+    confidence: float
+
+
+class InspirationByNoteEntry(BaseModel):
+    category: str
+    ai_confidence: float
+    inspiration_id: str
+
+
+class InspirationByNoteResponse(BaseModel):
+    inspirations: List[InspirationByNoteEntry]
+
+
+class SyncStatusResponse(BaseModel):
+    connected: bool
 
 
 class OAuthResponse(BaseModel):
