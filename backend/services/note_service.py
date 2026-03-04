@@ -162,3 +162,117 @@ class NoteService:
             'updated': updated,
             'moved': moved
         }
+    
+    def search_notes(self, query: str) -> List[Dict]:
+        results = self.repo.search_notes_and_versions(query)
+        search_results = []
+        
+        for note, is_version_history, version in results:
+            result = {
+                "note": note,
+                "is_version_history": is_version_history,
+                "version": version,
+                "match_snippet": self._extract_snippet(
+                    version["body"] if version else note["body"],
+                    query
+                )
+            }
+            search_results.append(result)
+        
+        return search_results
+    
+    def _extract_snippet(self, text: str, query: str, context_length: int = 100) -> str:
+        lower_text = text.lower()
+        lower_query = query.lower()
+        
+        index = lower_text.find(lower_query)
+        if index == -1:
+            return text[:context_length] + "..." if len(text) > context_length else text
+        
+        start = max(0, index - context_length // 2)
+        end = min(len(text), index + len(query) + context_length // 2)
+        
+        snippet = text[start:end]
+        if start > 0:
+            snippet = "..." + snippet
+        if end < len(text):
+            snippet = snippet + "..."
+        
+        return snippet
+    
+    def get_note_versions(self, note_id: str) -> List[Dict]:
+        return self.repo.get_versions(note_id)
+    
+    def get_note_version(self, version_id: str) -> Optional[Dict]:
+        return self.repo.get_version(version_id)
+    
+    def compute_diff(self, current_content: str, version_content: str) -> List[Dict]:
+        current_paragraphs = [p.strip() for p in current_content.split("\n\n") if p.strip()]
+        version_paragraphs = [p.strip() for p in version_content.split("\n\n") if p.strip()]
+        
+        diff_chunks = []
+        max_len = max(len(current_paragraphs), len(version_paragraphs))
+        
+        for i in range(max_len):
+            current_para = current_paragraphs[i] if i < len(current_paragraphs) else None
+            version_para = version_paragraphs[i] if i < len(version_paragraphs) else None
+            
+            if current_para == version_para and current_para is not None:
+                diff_chunks.append({
+                    "type": "unchanged",
+                    "content": current_para,
+                    "index": i
+                })
+            elif current_para and not version_para:
+                diff_chunks.append({
+                    "type": "add",
+                    "content": current_para,
+                    "index": i
+                })
+            elif version_para and not current_para:
+                diff_chunks.append({
+                    "type": "remove",
+                    "content": version_para,
+                    "index": i
+                })
+            elif current_para != version_para:
+                diff_chunks.append({
+                    "type": "remove",
+                    "content": version_para,
+                    "index": i
+                })
+                diff_chunks.append({
+                    "type": "add",
+                    "content": current_para,
+                    "index": i
+                })
+        
+        return diff_chunks
+    
+    def revert_to_version(self, note_id: str, version_id: str, paragraph_indices: Optional[List[int]] = None) -> Optional[Dict]:
+        current_note = self.repo.get_by_id(note_id)
+        version = self.repo.get_version(version_id)
+        
+        if not current_note or not version:
+            return None
+        
+        if paragraph_indices is None:
+            return self.repo.update(
+                note_id,
+                title=version["title"],
+                body=version["body"]
+            )
+        
+        current_paragraphs = [p.strip() for p in current_note["body"].split("\n\n") if p.strip()]
+        version_paragraphs = [p.strip() for p in version["body"].split("\n\n") if p.strip()]
+        
+        for index in paragraph_indices:
+            if index < len(version_paragraphs):
+                if index < len(current_paragraphs):
+                    current_paragraphs[index] = version_paragraphs[index]
+                else:
+                    current_paragraphs.append(version_paragraphs[index])
+        
+        new_body = "\n\n".join(current_paragraphs)
+        
+        return self.repo.update(note_id, body=new_body)
