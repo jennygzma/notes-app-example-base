@@ -28,6 +28,7 @@ class SyncService:
                 due_date = due_str
 
         return {
+            'id': google_task['id'],
             'google_task_id': google_task['id'],
             'title': google_task.get('title', ''),
             'completed': google_task.get('status') == 'completed',
@@ -126,7 +127,13 @@ class SyncService:
         }
 
     def execute_sync(self, resolutions: List[Dict]) -> Dict:
-        resolution_map = {r['task_id']: r['resolution'] for r in resolutions}
+        normalized_resolutions = []
+        for r in resolutions:
+            if hasattr(r, "model_dump"):
+                normalized_resolutions.append(r.model_dump())
+            else:
+                normalized_resolutions.append(r)
+        resolution_map = {r['task_id']: r['resolution'] for r in normalized_resolutions}
         preview = self.preview_sync()
         
         created = 0
