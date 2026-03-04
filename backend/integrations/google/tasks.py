@@ -1,5 +1,6 @@
 import requests
-from typing import Dict
+from datetime import datetime
+from typing import Dict, Optional
 from integrations.google.auth import GoogleAuthService
 
 
@@ -14,6 +15,17 @@ class GoogleTasksService:
             raise ValueError("Missing Google access token")
         return {"Authorization": f"Bearer {token}"}
 
+    def _to_rfc3339_date(self, due_date: Optional[str]) -> Optional[str]:
+        if not due_date:
+            return None
+        if "T" in due_date:
+            return due_date
+        try:
+            parsed = datetime.strptime(due_date, "%Y-%m-%d")
+        except ValueError:
+            return None
+        return parsed.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
     def fetch_google_tasks(self) -> Dict:
         url = f"{self.base_url}/lists/@default/tasks"
         response = requests.get(url, headers=self._headers(), timeout=30)
@@ -25,8 +37,9 @@ class GoogleTasksService:
         payload = {
             "title": task.get("title"),
         }
-        if task.get("due_date"):
-            payload["due"] = task["due_date"]
+        due = self._to_rfc3339_date(task.get("due_date"))
+        if due:
+            payload["due"] = due
         response = requests.post(url, headers=self._headers(), json=payload, timeout=30)
         response.raise_for_status()
         return response.json()
@@ -42,7 +55,9 @@ class GoogleTasksService:
         if "completed" in task:
             payload["status"] = "completed" if task["completed"] else "needsAction"
         if "due_date" in task and task["due_date"]:
-            payload["due"] = task["due_date"]
+            due = self._to_rfc3339_date(task["due_date"])
+            if due:
+                payload["due"] = due
         response = requests.patch(url, headers=self._headers(), json=payload, timeout=30)
         response.raise_for_status()
         return response.json()
