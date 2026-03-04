@@ -30,6 +30,7 @@ class SyncService:
         updated_at = self._normalize_google_timestamp(google_task.get("updated", ""))
         
         return {
+            "id": google_task.get("id"),
             "title": google_task.get("title", "Untitled"),
             "completed": completed,
             "due_date": due_date,
@@ -112,22 +113,12 @@ class SyncService:
         
         for g_id, local in local_by_google_id.items():
             if g_id not in google_by_id:
-                last_synced = local.get("last_synced_at")
-                if local["updated_at"] > (last_synced or ""):
-                    conflicts.append({
-                        "task_id": local["id"],
-                        "local_task": local,
-                        "google_task": None,
-                        "local_updated_at": local["updated_at"],
-                        "google_updated_at": None
-                    })
-                else:
-                    actions.append({
-                        "action": "delete",
-                        "task": local,
-                        "source": "local",
-                        "reason": "Deleted on Google"
-                    })
+                actions.append({
+                    "action": "delete",
+                    "task": local,
+                    "source": "local",
+                    "reason": "Deleted on Google"
+                })
         
         summary = {}
         for action in actions:

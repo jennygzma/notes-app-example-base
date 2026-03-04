@@ -18,7 +18,7 @@ interface Props {
 
 export const LinkGoogleDialog: React.FC<Props> = ({ open, onClose }) => {
   const handleLinkGoogle = () => {
-    const oauthUrl = `${API_BASE_URL || 'http://localhost:8001'}/api/google/auth/start/`;
+    const oauthUrl = `${API_BASE_URL || 'http://localhost:8001'}/api/google/auth/start`;
     window.location.href = oauthUrl;
   };
 
