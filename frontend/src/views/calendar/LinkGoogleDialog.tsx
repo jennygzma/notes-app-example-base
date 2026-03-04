@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import Button from '../../components/design-system/Button';
 import GoogleIcon from '@mui/icons-material/Google';
+import { API_BASE_URL } from '../../config';
 
 interface Props {
   open: boolean;
@@ -18,7 +19,8 @@ interface Props {
 
 const LinkGoogleDialog: React.FC<Props> = ({ open, onClose }) => {
   const handleLink = () => {
-    window.location.href = '/api/google/auth/start';
+    const baseUrl = API_BASE_URL ? API_BASE_URL.replace(/\/$/, '') : 'http://localhost:8001';
+    window.location.href = `${baseUrl}/api/google/auth/start`;
   };
 
   return (
