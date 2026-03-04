@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Tabs, Tab, AppBar } from '@mui/material';
 import NotesView from './views/notes/NotesView';
 import InspirationsView from './views/inspiration/InspirationsView';
@@ -10,6 +10,24 @@ function App() {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab === 'planner') {
+      setCurrentTab(2);
+    } else if (tab === 'notes') {
+      setCurrentTab(0);
+    } else if (tab === 'inspirations') {
+      setCurrentTab(1);
+    } else if (tab === 'chat') {
+      setCurrentTab(3);
+    }
+
+    if (params.has('tab') || params.has('oauth')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);

@@ -82,7 +82,7 @@ def delete_task(task_id: str):
 
 @tasks_bp.route("/sync/preview/", methods=["GET"])
 def preview_sync():
-    token = oauth_repo.get_token()
+    token = oauth_repo.get()
     if not token:
         return jsonify(ErrorResponse(error="Google account not connected").model_dump()), 401
     
@@ -95,7 +95,7 @@ def preview_sync():
 
 @tasks_bp.route("/sync/execute/", methods=["POST"])
 def execute_sync():
-    token = oauth_repo.get_token()
+    token = oauth_repo.get()
     if not token:
         return jsonify(ErrorResponse(error="Google account not connected").model_dump()), 401
     
@@ -113,6 +113,6 @@ def execute_sync():
 
 @tasks_bp.route("/sync/status/", methods=["GET"])
 def sync_status():
-    token = oauth_repo.get_token()
+    token = oauth_repo.get()
     connected = token is not None
     return jsonify({"connected": connected}), 200

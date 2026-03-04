@@ -191,8 +191,11 @@ export const chatApi = {
 // ============================================================================
 
 export const taskApi = {
-  getAll: (): Promise<Task[]> => 
-    apiClient.get<Task[]>('/api/tasks/'),
+  getAll: (): Promise<Task[]> =>
+    apiClient.get<{ tasks: Task[] } | Task[]>('/api/tasks/').then((data) => {
+      if (Array.isArray(data)) return data;
+      return data.tasks ?? [];
+    }),
   
   create: (data: CreateTaskRequest): Promise<Task> => 
     apiClient.post<Task>('/api/tasks/', data),
