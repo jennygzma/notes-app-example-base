@@ -140,7 +140,25 @@ class SyncService:
         actions = preview["actions"]
         conflicts = preview["conflicts"]
 
-        resolution_map = {r["task_id"]: r["resolution"] for r in resolutions}
+        def _resolution_value(resolution) -> str:
+            if hasattr(resolution, "resolution"):
+                return resolution.resolution
+            if isinstance(resolution, dict):
+                return resolution.get("resolution", "skip")
+            return "skip"
+
+        def _resolution_task_id(resolution) -> Optional[str]:
+            if hasattr(resolution, "task_id"):
+                return resolution.task_id
+            if isinstance(resolution, dict):
+                return resolution.get("task_id")
+            return None
+
+        resolution_map = {}
+        for r in resolutions:
+            task_id = _resolution_task_id(r)
+            if task_id:
+                resolution_map[task_id] = _resolution_value(r)
 
         created = 0
         updated = 0

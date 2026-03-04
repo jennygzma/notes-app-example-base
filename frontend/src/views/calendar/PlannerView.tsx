@@ -22,6 +22,7 @@ import CreateTaskDialog from './CreateTaskDialog';
 import TaskItem from './TaskItem';
 import DayViewModal from './DayViewModal';
 import SyncPreviewDialog from './SyncPreviewDialog';
+import LinkGoogleDialog from './LinkGoogleDialog';
 import { Task, CreateTaskRequest, Note, DayActivities, SyncPreviewResponse, SyncResolution } from '../../types';
 import { taskApi, notesApi } from '../../services/api';
 
@@ -46,6 +47,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [syncPreview, setSyncPreview] = useState<SyncPreviewResponse | null>(null);
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
     message: '',
@@ -69,6 +71,23 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
     loadNoteActivities();
     checkGoogleStatus();
   }, [currentDate, viewType]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      checkGoogleStatus();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkGoogleStatus();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const checkGoogleStatus = async () => {
     try {
@@ -366,6 +385,15 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         </Button>
 
         <Button
+          startIcon={<SyncIcon />}
+          onClick={() => setLinkDialogOpen(true)}
+          variant="outlined"
+          size="small"
+        >
+          Connect Google
+        </Button>
+
+        <Button
           startIcon={<MigrateIcon />}
           onClick={handleMigrate}
           variant="outlined"
@@ -572,6 +600,14 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
         onClose={() => setSyncDialogOpen(false)}
         preview={syncPreview}
         onExecute={handleSyncExecute}
+      />
+
+      <LinkGoogleDialog
+        open={linkDialogOpen}
+        onClose={() => {
+          setLinkDialogOpen(false);
+          checkGoogleStatus();
+        }}
       />
 
       <DayViewModal

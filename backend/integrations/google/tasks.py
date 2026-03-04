@@ -26,7 +26,9 @@ class GoogleTasksService:
             "title": task.get("title"),
         }
         if task.get("due_date"):
-            payload["due"] = task["due_date"]
+            payload["due"] = self._format_due(task["due_date"])
+        if task.get("completed"):
+            payload["status"] = "completed"
         response = requests.post(url, headers=self._headers(), json=payload, timeout=30)
         response.raise_for_status()
         return response.json()
@@ -42,7 +44,7 @@ class GoogleTasksService:
         if "completed" in task:
             payload["status"] = "completed" if task["completed"] else "needsAction"
         if "due_date" in task and task["due_date"]:
-            payload["due"] = task["due_date"]
+            payload["due"] = self._format_due(task["due_date"])
         response = requests.patch(url, headers=self._headers(), json=payload, timeout=30)
         response.raise_for_status()
         return response.json()
