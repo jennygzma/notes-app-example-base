@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional, Dict
+from migrations import run_migrations
 
 
 class OAuthTokenRepository:
@@ -10,49 +11,12 @@ class OAuthTokenRepository:
             db_path = Path(__file__).parent.parent / "generated" / "app.db"
         db_path.parent.mkdir(exist_ok=True)
         self.db_path = db_path
-        self._init_db()
+        run_migrations(self.db_path)
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
-
-    def _init_db(self) -> None:
-        with self._connect() as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS oauth_tokens (
-                    id INTEGER PRIMARY KEY CHECK (id = 1),
-                    access_token TEXT NOT NULL,
-                    refresh_token TEXT NOT NULL,
-                    expires_at TEXT NOT NULL,
-                    issued_at TEXT
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS oauth_states (
-                    state TEXT PRIMARY KEY,
-                    expires_at TEXT NOT NULL
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS schema_version (
-                    version INTEGER NOT NULL
-                )
-                """
-            )
-            row = conn.execute("SELECT version FROM schema_version LIMIT 1").fetchone()
-            if not row:
-                conn.execute("INSERT INTO schema_version (version) VALUES (1)")
-            columns = [r["name"] for r in conn.execute("PRAGMA table_info(oauth_tokens)").fetchall()]
-            if "issued_at" not in columns:
-                conn.execute("ALTER TABLE oauth_tokens ADD COLUMN issued_at TEXT")
-                now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-                conn.execute("UPDATE oauth_tokens SET issued_at = ? WHERE issued_at IS NULL", (now,))
 
     def get(self) -> Optional[Dict]:
         with self._connect() as conn:

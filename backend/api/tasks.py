@@ -12,6 +12,7 @@ from schemas import (
     SyncPreviewResponse,
     SyncExecuteRequest,
     SyncExecuteResponse,
+    SyncStatusResponse,
 )
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/api/tasks")
@@ -115,4 +116,4 @@ def execute_sync():
 def sync_status():
     token = oauth_repo.get()
     connected = token is not None
-    return jsonify({"connected": connected}), 200
+    return jsonify(SyncStatusResponse(connected=connected).model_dump()), 200

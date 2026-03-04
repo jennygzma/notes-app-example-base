@@ -31,7 +31,7 @@ import {
 
 export const notesApi = {
   getAll: (): Promise<Note[]> => 
-    apiClient.get<Note[]>('/api/notes/'),
+    apiClient.get<{ notes: Note[] }>('/api/notes/').then(res => res.notes),
   
   create: (data: CreateNoteRequest): Promise<Note> => 
     apiClient.post<Note>('/api/notes/', data),
@@ -46,7 +46,7 @@ export const notesApi = {
     apiClient.delete(`/api/notes/${id}/`),
   
   getLinks: (id: string): Promise<PlannerItem[]> => 
-    apiClient.get<PlannerItem[]>(`/api/notes/${id}/links/`),
+    apiClient.get<{ items: PlannerItem[] }>(`/api/notes/${id}/links/`).then(res => res.items),
   
   markAnalyzed: (id: string): Promise<Note> => 
     apiClient.patch<Note>(`/api/notes/${id}/`, { is_analyzed: true }),
@@ -70,7 +70,7 @@ export const notesApi = {
 
 export const plannerApi = {
   getItems: (params?: PlannerFilters): Promise<PlannerItem[]> => 
-    apiClient.get<PlannerItem[]>('/api/planner/items/', params),
+    apiClient.get<{ items: PlannerItem[] }>('/api/planner/items/', params).then(res => res.items),
   
   create: (data: CreatePlannerItemRequest): Promise<PlannerItem> => 
     apiClient.post<PlannerItem>('/api/planner/items/', data),
@@ -88,7 +88,7 @@ export const plannerApi = {
     apiClient.patch<PlannerItem>(`/api/planner/items/${id}/complete/`),
   
   getLinks: (id: string): Promise<Note[]> => 
-    apiClient.get<Note[]>(`/api/planner/items/${id}/links/`),
+    apiClient.get<{ notes: Note[] }>(`/api/planner/items/${id}/links/`).then(res => res.notes),
 };
 
 // ============================================================================
@@ -97,19 +97,23 @@ export const plannerApi = {
 
 export const inspirationsApi = {
   getAll: (): Promise<InspirationsGrouped> => 
-    apiClient.get<InspirationsGrouped>('/api/inspirations/'),
+    apiClient.get<{ data: InspirationsGrouped }>('/api/inspirations/').then(res => res.data),
   
   getByNoteId: (noteId: string): Promise<Array<{ category: string; ai_confidence: number; inspiration_id: string }>> => 
-    apiClient.get<Array<{ category: string; ai_confidence: number; inspiration_id: string }>>(`/api/inspirations/note/${noteId}/`),
+    apiClient
+      .get<{ inspirations: Array<{ category: string; ai_confidence: number; inspiration_id: string }> }>(
+        `/api/inspirations/note/${noteId}/`
+      )
+      .then(res => res.inspirations),
   
   categorize: (noteId: string): Promise<CategorizeResponse> => 
     apiClient.post<CategorizeResponse>('/api/inspirations/categorize/', { note_id: noteId }),
   
   getCategories: (): Promise<InspirationCategory[]> => 
-    apiClient.get<InspirationCategory[]>('/api/inspirations/categories/'),
+    apiClient.get<{ categories: InspirationCategory[] }>('/api/inspirations/categories/').then(res => res.categories),
   
   getPendingCategories: (): Promise<InspirationCategory[]> => 
-    apiClient.get<InspirationCategory[]>('/api/inspirations/categories/pending/'),
+    apiClient.get<{ categories: InspirationCategory[] }>('/api/inspirations/categories/pending/').then(res => res.categories),
   
   approveCategory: (categoryId: string, noteId?: string): Promise<any> => 
     apiClient.post(`/api/inspirations/categories/${categoryId}/approve/`, { note_id: noteId }),
@@ -154,7 +158,7 @@ export const aiApi = {
 
 export const foldersApi = {
   getAll: (): Promise<Folder[]> => 
-    apiClient.get<Folder[]>('/api/folders/'),
+    apiClient.get<{ folders: Folder[] }>('/api/folders/').then(res => res.folders),
   
   create: (data: CreateFolderRequest): Promise<Folder> => 
     apiClient.post<Folder>('/api/folders/', data),
@@ -178,7 +182,7 @@ export const chatApi = {
     apiClient.post<any>('/api/chat/', { message, conversation_id: conversationId }),
   
   getConversations: (): Promise<any[]> => 
-    apiClient.get<any[]>('/api/chat/conversations/'),
+    apiClient.get<{ conversations: any[] }>('/api/chat/conversations/').then(res => res.conversations),
   
   getConversation: (id: string): Promise<any> => 
     apiClient.get<any>(`/api/chat/conversations/${id}/`),

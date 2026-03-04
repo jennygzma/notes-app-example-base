@@ -6,30 +6,99 @@ from typing import Optional, Dict
 from datetime import datetime
 
 
-def run_migrations(db_path: Optional[Path] = None) -> int:
+LATEST_SCHEMA_VERSION = 3
+
+
+def _get_db_path(db_path: Optional[Path]) -> Path:
     if db_path is None:
         db_path = Path(__file__).parent / "generated" / "app.db"
     db_path.parent.mkdir(exist_ok=True)
+    return db_path
+
+
+def _ensure_schema_version(conn: sqlite3.Connection) -> int:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS schema_version (
+            version INTEGER NOT NULL
+        )
+        """
+    )
+    row = conn.execute("SELECT version FROM schema_version LIMIT 1").fetchone()
+    if not row:
+        conn.execute("INSERT INTO schema_version (version) VALUES (1)")
+        return 1
+    return int(row["version"])
+
+
+def _set_schema_version(conn: sqlite3.Connection, version: int) -> None:
+    conn.execute("UPDATE schema_version SET version = ?", (version,))
+
+
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, ddl: str) -> None:
+    columns = [r["name"] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+    if column not in columns:
+        conn.execute(ddl)
+
+
+def run_migrations(db_path: Optional[Path] = None) -> int:
+    db_path = _get_db_path(db_path)
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     with conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS schema_version (
-                version INTEGER NOT NULL
+        version = _ensure_schema_version(conn)
+
+        if version < 2:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS tasks (
+                    id TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    completed INTEGER NOT NULL DEFAULT 0,
+                    due_date TEXT NULL,
+                    google_task_id TEXT NULL,
+                    updated_at TEXT NOT NULL,
+                    last_synced_at TEXT NULL
+                )
+                """
             )
-            """
-        )
-        row = conn.execute("SELECT version FROM schema_version LIMIT 1").fetchone()
-        if not row:
-            conn.execute("INSERT INTO schema_version (version) VALUES (1)")
-            return 1
-        return int(row["version"])
+            _set_schema_version(conn, 2)
+            version = 2
+
+        if version < 3:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS oauth_tokens (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    access_token TEXT NOT NULL,
+                    refresh_token TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    issued_at TEXT
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS oauth_states (
+                    state TEXT PRIMARY KEY,
+                    expires_at TEXT NOT NULL
+                )
+                """
+            )
+            _ensure_column(
+                conn,
+                "oauth_tokens",
+                "issued_at",
+                "ALTER TABLE oauth_tokens ADD COLUMN issued_at TEXT",
+            )
+            _set_schema_version(conn, 3)
+            version = 3
+
+        return version
 
 
 def migrate_planner_to_tasks(db_path: Optional[Path] = None) -> Dict:
-    if db_path is None:
-        db_path = Path(__file__).parent / "generated" / "app.db"
+    db_path = _get_db_path(db_path)
     
     planner_file = Path(__file__).parent / "generated" / "planner_items.json"
     
