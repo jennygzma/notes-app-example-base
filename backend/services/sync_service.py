@@ -119,7 +119,7 @@ class SyncService:
         actions = preview["actions"]
         conflicts = preview["conflicts"]
         
-        resolution_map = {r["task_id"]: r["resolution"] for r in resolutions}
+        resolution_map = {r.task_id: r.resolution for r in resolutions}
         
         created = 0
         updated = 0

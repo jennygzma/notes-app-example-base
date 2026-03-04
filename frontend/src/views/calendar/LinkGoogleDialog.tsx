@@ -13,7 +13,7 @@ interface LinkGoogleDialogProps {
 
 const LinkGoogleDialog: React.FC<LinkGoogleDialogProps> = ({ open, onClose }) => {
   const handleLinkAccount = () => {
-    window.location.href = `${API_BASE_URL}/api/google/auth/start/`;
+    window.location.href = `${API_BASE_URL}/api/google/auth/start`;
   };
 
   return (

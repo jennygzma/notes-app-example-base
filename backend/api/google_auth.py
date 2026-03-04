@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request, jsonify, redirect
 from integrations.google.auth import GoogleAuthService
 from schemas import ErrorResponse, OAuthResponse
@@ -24,4 +25,6 @@ def auth_callback():
         result = auth_service.handle_callback(code, state)
     except Exception as e:
         return jsonify(ErrorResponse(error="OAuth callback failed", details=str(e)).model_dump()), 500
-    return jsonify(OAuthResponse.model_validate(result).model_dump()), 200
+    frontend_base_url = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
+    redirect_url = f"{frontend_base_url}/?tab=planner&oauth=connected"
+    return redirect(redirect_url)
