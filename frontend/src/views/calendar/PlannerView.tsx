@@ -128,7 +128,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
           const activities = await notesApi.getActivityByDate(dateStr);
           activitiesMap[dateStr] = activities;
         } catch {
-          activitiesMap[dateStr] = { date: dateStr, created: [], updated: [], moved: [] };
+          activitiesMap[dateStr] = { date: dateStr, created: [], updated: [], moved: [], email_sent: [] };
         }
         current.setDate(current.getDate() + 1);
       }

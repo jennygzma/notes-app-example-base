@@ -6,7 +6,7 @@ from datetime import datetime
 # ==================== Base Models ====================
 
 class NoteActivity(BaseModel):
-    type: Literal['created', 'updated', 'moved']
+    type: Literal['created', 'updated', 'moved', 'email_sent']
     timestamp: str
     details: Optional[dict] = {}
 
@@ -270,6 +270,16 @@ class RevertRequest(StrictRequest):
     paragraph_indices: Optional[List[int]] = None
 
 
+class ProvideFeedbackRequest(StrictRequest):
+    selected_text: str = Field(min_length=1, max_length=10000)
+    feedback_type: str = Field(min_length=1, max_length=500)
+
+
+class SendEmailRequest(StrictRequest):
+    recipient: str = Field(min_length=1, max_length=500)
+    subject: Optional[str] = None
+
+
 # ==================== Response Schemas ====================
 
 class NoteResponse(Note):
@@ -324,6 +334,7 @@ class NoteActivitiesResponse(BaseModel):
     created: List[Note]
     updated: List[Note]
     moved: List[Note]
+    email_sent: List[Note]
 
 
 class OrganizationPreviewResponse(BaseModel):
@@ -452,3 +463,13 @@ class SearchResultListResponse(BaseModel):
 
 class DiffChunkListResponse(BaseModel):
     items: List[DiffChunk]
+
+
+class FeedbackResponse(BaseModel):
+    feedback: str
+    suggested_rewrite: Optional[str] = None
+
+
+class SendEmailResponse(BaseModel):
+    message_id: str
+    sent_at: str
