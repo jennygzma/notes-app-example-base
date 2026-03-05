@@ -18,6 +18,32 @@ export interface Note {
   activity_history: NoteActivity[];
 }
 
+export interface NoteVersion {
+  id: string;
+  note_id: string;
+  version_number: number;
+  title: string;
+  body: string;
+  created_at: string;
+}
+
+export interface SearchResult {
+  id: string;
+  note_id: string;
+  title: string;
+  body: string;
+  is_version_history: boolean;
+  version_number: number | null;
+  snippet: string;
+  created_at: string;
+}
+
+export interface DiffChunk {
+  type: 'unchanged' | 'added' | 'removed';
+  content: string;
+  paragraph_index: number;
+}
+
 export interface DayActivities {
   date: string;
   created: Note[];
@@ -190,6 +216,11 @@ export interface UpdateFolderRequest {
   name?: string;
   description?: string;
   color?: string;
+}
+
+export interface RevertRequest {
+  version_id: string;
+  paragraph_indices?: number[];
 }
 
 export interface PlannerFilters {

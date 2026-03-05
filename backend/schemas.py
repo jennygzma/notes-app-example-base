@@ -23,6 +23,32 @@ class Note(BaseModel):
     activity_history: List[NoteActivity] = []
 
 
+class NoteVersion(BaseModel):
+    id: str
+    note_id: str
+    version_number: int
+    title: str
+    body: str
+    created_at: str
+
+
+class SearchResult(BaseModel):
+    id: str
+    note_id: str
+    title: str
+    body: str
+    is_version_history: bool
+    version_number: Optional[int] = None
+    snippet: str
+    created_at: str
+
+
+class DiffChunk(BaseModel):
+    type: Literal['unchanged', 'added', 'removed']
+    content: str
+    paragraph_index: int
+
+
 class Folder(BaseModel):
     id: str
     name: str
@@ -239,6 +265,11 @@ class SyncExecuteResponse(BaseModel):
     errors: List[str]
 
 
+class RevertRequest(StrictRequest):
+    version_id: str
+    paragraph_indices: Optional[List[int]] = None
+
+
 # ==================== Response Schemas ====================
 
 class NoteResponse(Note):
@@ -403,3 +434,21 @@ class InspirationsGroupedResponse(BaseModel):
 
 class NoteInspirationsResponse(BaseModel):
     inspirations: List[Inspiration]
+
+
+# ==================== Version Response Schemas ====================
+
+class NoteVersionResponse(NoteVersion):
+    pass
+
+
+class NoteVersionListResponse(BaseModel):
+    items: List[NoteVersion]
+
+
+class SearchResultListResponse(BaseModel):
+    items: List[SearchResult]
+
+
+class DiffChunkListResponse(BaseModel):
+    items: List[DiffChunk]

@@ -1,15 +1,36 @@
 import { createTheme } from '@mui/material/styles';
+import { colors } from './design-system/colors';
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    versionHistory: Palette['primary'];
+    diffHighlight: Palette['primary'];
+  }
+  interface PaletteOptions {
+    versionHistory?: PaletteOptions['primary'];
+    diffHighlight?: PaletteOptions['primary'];
+  }
+}
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#009688', // Deep Teal
+      main: colors.primary,
     },
     secondary: {
-      main: '#F06292', // Soft Rosy
+      main: colors.secondary,
     },
     error: {
-      main: '#E53935',
+      main: colors.error,
+    },
+    versionHistory: {
+      main: colors.versionHistory,
+      contrastText: colors.versionHistoryText,
+    },
+    diffHighlight: {
+      main: colors.diffHighlight,
+      light: colors.diffHighlightLight,
+      contrastText: colors.diffHighlightText,
     },
   },
   typography: {

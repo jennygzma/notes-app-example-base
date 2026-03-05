@@ -5,6 +5,7 @@ from repositories.folder_repo import FolderRepository
 from integrations.llm.openai_client import LLMClient
 from datetime import datetime
 import json
+import difflib
 
 class NoteService:
     def __init__(self):
@@ -162,3 +163,101 @@ class NoteService:
             'updated': updated,
             'moved': moved
         }
+    
+    def search_notes(self, query: str) -> List[Dict]:
+        results = self.repo.search_notes_and_versions(query)
+        enriched = []
+        for result in results:
+            enriched.append({
+                **result,
+                "snippet": self._extract_snippet(result.get("body", ""), query),
+            })
+        return enriched
+
+    def _extract_snippet(self, text: str, query: str, context_length: int = 100) -> str:
+        if not text:
+            return ""
+        lower_text = text.lower()
+        lower_query = query.lower()
+        index = lower_text.find(lower_query)
+        if index == -1:
+            return text[:context_length] + "..." if len(text) > context_length else text
+        start = max(0, index - context_length // 2)
+        end = min(len(text), index + len(query) + context_length // 2)
+        snippet = text[start:end]
+        if start > 0:
+            snippet = "..." + snippet
+        if end < len(text):
+            snippet = snippet + "..."
+        return snippet
+    
+    def get_note_versions(self, note_id: str) -> List[Dict]:
+        return self.repo.get_versions(note_id)
+    
+    def compute_diff(self, current_content: str, version_content: str) -> List[Dict]:
+        current_paragraphs = current_content.split('\n\n')
+        version_paragraphs = version_content.split('\n\n')
+        
+        diff = []
+        matcher = difflib.SequenceMatcher(None, version_paragraphs, current_paragraphs)
+        
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == 'equal':
+                for i in range(i1, i2):
+                    diff.append({
+                        'type': 'unchanged',
+                        'content': version_paragraphs[i],
+                        'paragraph_index': i
+                    })
+            elif tag == 'replace':
+                for i in range(i1, i2):
+                    diff.append({
+                        'type': 'removed',
+                        'content': version_paragraphs[i],
+                        'paragraph_index': i
+                    })
+                for j in range(j1, j2):
+                    diff.append({
+                        'type': 'added',
+                        'content': current_paragraphs[j],
+                        'paragraph_index': j
+                    })
+            elif tag == 'delete':
+                for i in range(i1, i2):
+                    diff.append({
+                        'type': 'removed',
+                        'content': version_paragraphs[i],
+                        'paragraph_index': i
+                    })
+            elif tag == 'insert':
+                for j in range(j1, j2):
+                    diff.append({
+                        'type': 'added',
+                        'content': current_paragraphs[j],
+                        'paragraph_index': j
+                    })
+        
+        return diff
+    
+    def revert_partial(self, note_id: str, version_id: str, paragraph_indices: List[int]) -> Optional[Dict]:
+        note = self.repo.get_by_id(note_id)
+        if not note:
+            return None
+        
+        version = self.repo.get_version(version_id)
+        if not version:
+            return None
+        
+        current_paragraphs = note['body'].split('\n\n')
+        version_paragraphs = version['body'].split('\n\n')
+        
+        for idx in paragraph_indices:
+            if 0 <= idx < len(version_paragraphs):
+                if idx < len(current_paragraphs):
+                    current_paragraphs[idx] = version_paragraphs[idx]
+                else:
+                    current_paragraphs.append(version_paragraphs[idx])
+        
+        new_body = '\n\n'.join(current_paragraphs)
+        
+        return self.repo.update(note_id, body=new_body, title=note.get('title'))
