@@ -239,6 +239,36 @@ export interface ApproveCategoryResponse {
   inspiration?: Inspiration;
 }
 
+export interface NoteVersion {
+  id: string;
+  note_id: string;
+  version_number: number;
+  title: string;
+  body: string;
+  created_at: string;
+}
+
+export interface SearchResult {
+  id: string;
+  note_id: string;
+  title: string;
+  body: string;
+  is_version_history: boolean;
+  version_number: number | null;
+  created_at: string;
+}
+
+export interface DiffChunk {
+  type: 'unchanged' | 'added' | 'removed';
+  content: string;
+  paragraph_index: number;
+}
+
+export interface RevertRequest {
+  version_id: string;
+  paragraph_indices?: number[];
+}
+
 // ==================== Grouped Response Types ====================
 
 export interface NoteWithInspiration extends Note {

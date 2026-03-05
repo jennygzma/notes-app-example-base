@@ -23,6 +23,10 @@ import {
   SyncPreviewResponse,
   SyncResolution,
   SyncExecuteResponse,
+  NoteVersion,
+  SearchResult,
+  DiffChunk,
+  RevertRequest,
 } from '../types';
 
 // ============================================================================
@@ -62,6 +66,21 @@ export const notesApi = {
   
   getActivityByDate: (date: string): Promise<DayActivities> => 
     apiClient.get<DayActivities>('/api/notes/activities/', { date }),
+  
+  search: (query: string): Promise<SearchResult[]> => 
+    apiClient.get<{ items: SearchResult[] }>('/api/notes/search/', { q: query }).then(res => res.items),
+  
+  getVersions: (noteId: string): Promise<NoteVersion[]> => 
+    apiClient.get<{ items: NoteVersion[] }>(`/api/notes/${noteId}/versions/`).then(res => res.items),
+  
+  getVersion: (noteId: string, versionId: string): Promise<NoteVersion> => 
+    apiClient.get<NoteVersion>(`/api/notes/${noteId}/versions/${versionId}/`),
+  
+  getDiff: (noteId: string, versionId: string): Promise<DiffChunk[]> => 
+    apiClient.get<{ items: DiffChunk[] }>(`/api/notes/${noteId}/versions/${versionId}/diff/`).then(res => res.items),
+  
+  revertToVersion: (noteId: string, data: RevertRequest): Promise<Note> => 
+    apiClient.post<Note>(`/api/notes/${noteId}/revert/`, data),
 };
 
 // ============================================================================
