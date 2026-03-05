@@ -7,7 +7,10 @@ from schemas import (
     CategorizeResponse,
     ApproveCategoryResponse,
     CategoryResponse,
+    CategoryListResponse,
     InspirationResponse,
+    InspirationsGroupedResponse,
+    InspirationByNoteResponse,
     ErrorResponse
 )
 
@@ -22,21 +25,26 @@ def handle_validation_error(e: ValidationError) -> tuple:
 
 @inspirations_bp.route('/', methods=['GET'])
 def get_inspirations():
-    """Get all inspirations grouped by category"""
     result = inspiration_service.get_all_grouped()
-    return jsonify(result), 200
+    return jsonify(InspirationsGroupedResponse(data=result).model_dump()), 200
 
 
 @inspirations_bp.route('/note/<note_id>/', methods=['GET'])
 def get_inspirations_by_note(note_id: str):
-    """Get inspirations for a specific note"""
     inspirations = inspiration_service.get_by_note_id(note_id)
-    return jsonify(inspirations), 200
+    shaped = [
+        {
+            "category": inspiration["category"],
+            "ai_confidence": inspiration["ai_confidence"],
+            "inspiration_id": inspiration["id"],
+        }
+        for inspiration in inspirations
+    ]
+    return jsonify(InspirationByNoteResponse(inspirations=shaped).model_dump()), 200
 
 
 @inspirations_bp.route('/categorize/', methods=['POST'])
 def categorize_note():
-    """Categorize a note as an inspiration"""
     try:
         data = CategorizeNoteRequest.model_validate(request.json)
     except ValidationError as e:
@@ -52,21 +60,18 @@ def categorize_note():
 
 @inspirations_bp.route('/categories/', methods=['GET'])
 def get_categories():
-    """Get all active categories"""
     categories = inspiration_service.get_categories(status="active")
-    return jsonify(categories), 200
+    return jsonify(CategoryListResponse(categories=categories).model_dump()), 200
 
 
 @inspirations_bp.route('/categories/pending/', methods=['GET'])
 def get_pending_categories():
-    """Get all pending approval categories"""
     categories = inspiration_service.get_categories(status="pending_approval")
-    return jsonify(categories), 200
+    return jsonify(CategoryListResponse(categories=categories).model_dump()), 200
 
 
 @inspirations_bp.route('/categories/<category_id>/approve/', methods=['POST'])
 def approve_category(category_id: str):
-    """Approve a pending category"""
     try:
         data = ApproveCategoryRequest.model_validate(request.json or {})
     except ValidationError as e:
@@ -94,7 +99,6 @@ def approve_category(category_id: str):
 
 @inspirations_bp.route('/categories/<category_id>/reject/', methods=['DELETE'])
 def reject_category(category_id: str):
-    """Reject and delete a pending category"""
     success = inspiration_service.reject_category(category_id)
     if not success:
         return jsonify(ErrorResponse(error="Category not found").model_dump()), 404
@@ -103,7 +107,6 @@ def reject_category(category_id: str):
 
 @inspirations_bp.route('/<inspiration_id>/', methods=['DELETE'])
 def delete_inspiration(inspiration_id: str):
-    """Delete an inspiration"""
     success = inspiration_service.delete_inspiration(inspiration_id)
     if not success:
         return jsonify(ErrorResponse(error="Inspiration not found").model_dump()), 404

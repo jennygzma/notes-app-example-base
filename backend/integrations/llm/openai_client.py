@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class LLMClient:
     def __init__(self, model: str = "gpt-5"):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))

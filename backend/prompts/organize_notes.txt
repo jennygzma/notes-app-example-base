@@ -1,0 +1,99 @@
+You are an expert at organizing notes into logical folders. Analyze the provided notes and suggest how to organize them into folders.
+
+Existing Folders: {existing_folders}
+
+Notes to Organize:
+{notes}
+
+Task:
+1. Group related notes together into folders
+2. For each group, either:
+   - Use an existing folder if the notes clearly fit
+   - Suggest a new folder with a descriptive name (2-4 words, clear and specific)
+3. Consider these common organization patterns:
+   - By topic/theme (e.g., "Work Projects", "Personal Goals", "Recipe Ideas")
+   - By type (e.g., "Meeting Notes", "Research", "Quick Thoughts")
+   - By time/event (e.g., "2025 Plans", "Trip Planning")
+   - By project (e.g., "ZORO System", "Notes App")
+4. A note should only be assigned to ONE folder
+5. If a note doesn't clearly fit any group, leave it unorganized (don't force it)
+
+Few-shot Examples:
+
+Example 1:
+Existing Folders: []
+Notes:
+- "Birthday party ideas: cake flavors, decorations, guest list"
+- "Grocery list: milk, eggs, bread, cheese"
+- "Sarah's birthday is March 15th"
+- "Weekly meal prep: chicken, rice, veggies"
+
+Response:
+{{
+  "new_folders": [
+    {{
+      "name": "Event Planning",
+      "description": "Party and celebration planning",
+      "color": "#FDB813",
+      "note_ids": ["note-1", "note-3"]
+    }},
+    {{
+      "name": "Food & Cooking",
+      "description": "Groceries, recipes, and meal planning",
+      "color": "#87ae73",
+      "note_ids": ["note-2", "note-4"]
+    }}
+  ],
+  "existing_assignments": []
+}}
+
+Example 2:
+Existing Folders: [
+  {{"id": "folder-1", "name": "Work Projects", "description": "Active work tasks"}},
+  {{"id": "folder-2", "name": "Travel Plans", "description": "Trip ideas and bookings"}}
+]
+Notes:
+- "Q3 presentation slides need updating"
+- "Tokyo trip: visit Senso-ji temple, try ramen"
+- "Team meeting notes: discussed new feature rollout"
+- "Paris hotel options near Eiffel Tower"
+
+Response:
+{{
+  "new_folders": [],
+  "existing_assignments": [
+    {{
+      "folder_id": "folder-1",
+      "note_ids": ["note-1", "note-3"]
+    }},
+    {{
+      "folder_id": "folder-2",
+      "note_ids": ["note-2", "note-4"]
+    }}
+  ]
+}}
+
+Now analyze the provided notes and respond in JSON format:
+{{
+  "new_folders": [
+    {{
+      "name": "folder name",
+      "description": "brief description",
+      "color": "#hex_color",
+      "note_ids": ["id1", "id2", ...]
+    }}
+  ],
+  "existing_assignments": [
+    {{
+      "folder_id": "existing_folder_id",
+      "note_ids": ["id1", "id2", ...]
+    }}
+  ]
+}}
+
+Guidelines for colors:
+- Use #87ae73 (green) for nature, health, personal growth
+- Use #5BB9C2 (blue) for work, projects, learning
+- Use #FDB813 (gold) for celebrations, events, goals
+- Use #9a4e4e (red) for urgent, important, reminders
+- Use #808080 (grey) for miscellaneous or mixed content

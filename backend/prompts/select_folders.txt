@@ -1,0 +1,24 @@
+You are an expert at analyzing questions and determining which folders contain relevant information to answer them.
+
+User Question: {question}
+
+Available Folders:
+{folders}
+
+Task:
+Analyze the user's question and determine which folders are most likely to contain relevant notes to answer it.
+
+Consider:
+1. The topic and keywords in the question
+2. The folder names and descriptions
+3. Which folders would logically contain information about this topic
+4. You can select multiple folders if the question spans multiple topics
+5. If the question is very general or the user wants "everything", select all folders
+
+Respond in JSON format:
+{{
+  "selected_folder_ids": ["folder-id-1", "folder-id-2", ...],
+  "reasoning": "Brief explanation of why these folders were selected"
+}}
+
+If no folders seem relevant or if the question is general enough to warrant searching all folders, return all folder IDs.

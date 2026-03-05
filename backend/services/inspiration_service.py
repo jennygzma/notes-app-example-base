@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from repositories.inspiration_repo import InspirationRepository
 from repositories.note_repo import NoteRepository
-from models.llm_client import LLMClient
+from integrations.llm.openai_client import LLMClient
 from schemas import CategorizeResponse
 
 class InspirationService:

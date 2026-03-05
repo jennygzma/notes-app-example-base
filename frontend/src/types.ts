@@ -1,11 +1,35 @@
 // ==================== Base Models ====================
 
+export interface NoteActivity {
+  type: 'created' | 'updated' | 'moved';
+  timestamp: string;
+  details?: Record<string, any>;
+}
+
 export interface Note {
   id: string;
   title: string;
   body: string;
   is_inspiration: boolean;
   is_analyzed: boolean;
+  folder_id: string | null;
+  created_at: string;
+  updated_at: string;
+  activity_history: NoteActivity[];
+}
+
+export interface DayActivities {
+  date: string;
+  created: Note[];
+  updated: Note[];
+  moved: Note[];
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
   created_at: string;
   updated_at: string;
 }
@@ -20,6 +44,62 @@ export interface PlannerItem {
   status: 'pending' | 'completed';
   created_at: string;
   updated_at: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  due_date: string | null;
+  google_task_id: string | null;
+  updated_at: string;
+  last_synced_at: string | null;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  completed?: boolean;
+  due_date?: string;
+}
+
+export interface UpdateTaskRequest {
+  title?: string;
+  completed?: boolean;
+  due_date?: string;
+}
+
+export interface SyncAction {
+  action: 'create' | 'update' | 'delete';
+  task: Task;
+  source: 'local' | 'google';
+  reason: string;
+}
+
+export interface SyncConflict {
+  task_id: string;
+  local_task: Task;
+  google_task: Task;
+  local_updated_at: string;
+  google_updated_at: string;
+}
+
+export interface SyncPreviewResponse {
+  actions: SyncAction[];
+  conflicts: SyncConflict[];
+  summary: { [key: string]: number };
+}
+
+export interface SyncResolution {
+  task_id: string;
+  resolution: 'use_local' | 'use_google' | 'skip';
+}
+
+export interface SyncExecuteResponse {
+  created: number;
+  updated: number;
+  deleted: number;
+  skipped: number;
+  errors: string[];
 }
 
 export interface Inspiration {
@@ -98,6 +178,18 @@ export interface CreateLinkRequest {
 
 export interface ApproveCategoryRequest {
   note_id?: string;
+}
+
+export interface CreateFolderRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateFolderRequest {
+  name?: string;
+  description?: string;
+  color?: string;
 }
 
 export interface PlannerFilters {
