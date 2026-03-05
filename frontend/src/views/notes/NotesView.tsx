@@ -15,10 +15,12 @@ import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
 import FolderSidebar from './FolderSidebar';
 import OrganizeDialog from './OrganizeDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
+import SearchResults from './SearchResults';
+import { Note, PlannerItem, CategorizeResponse, TranslateResponse, SearchResult } from '../../types';
 import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../../services/api';
 import Dialog from '../../components/shared/Dialog';
 import Button from '../../components/design-system/Button';
+import TextField from '../../components/design-system/TextField';
 
 interface NotesViewProps {
   initialSelectedNoteId?: string | null;
@@ -33,6 +35,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [linkedItems, setLinkedItems] = useState<PlannerItem[]>([]);
   const [noteCategory, setNoteCategory] = useState<string | null>(null);
   const [categorizingNoteId, setCategorizingNoteId] = useState<string | null>(null);
@@ -178,6 +182,34 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       showSnackbar('Note deleted', 'success');
     } catch (error) {
       showSnackbar('Failed to delete note', 'error');
+    }
+  };
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim().length === 0) {
+      setSearchResults(null);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await notesApi.search(query);
+      setSearchResults(results);
+    } catch (error) {
+      showSnackbar('Search failed', 'error');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectVersionFromSearch = (noteId: string, versionId: string) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      setSelectedNote(note);
+      setSearchResults(null);
+      setSearchQuery('');
     }
   };
 
@@ -347,13 +379,35 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           onFolderSelect={setSelectedFolderId}
           onOrganize={handleOrganizeNotes}
         />
-        <NotesList
-          notes={filteredNotes}
-          selectedNoteId={selectedNote?.id || null}
-          onSelectNote={setSelectedNote}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
+        <Box sx={{ width: 300, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <TextField
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Search notes..."
+              size="small"
+            />
+          </Box>
+          {searchResults ? (
+            <SearchResults
+              results={searchResults}
+              onSelectNote={(note) => {
+                setSelectedNote(note);
+                setSearchResults(null);
+                setSearchQuery('');
+              }}
+              onSelectVersion={handleSelectVersionFromSearch}
+            />
+          ) : (
+            <NotesList
+              notes={filteredNotes}
+              selectedNoteId={selectedNote?.id || null}
+              onSelectNote={setSelectedNote}
+              searchQuery=""
+              onSearchChange={() => {}}
+            />
+          )}
+        </Box>
         <NoteDetail
           note={selectedNote}
           onUpdate={handleUpdateNote}

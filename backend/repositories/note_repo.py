@@ -1,41 +1,142 @@
 from pathlib import Path
 from typing import Dict, List, Optional
-from repositories.base_repo import BaseRepository
+import sqlite3
+import json
+import uuid
+from datetime import datetime
 
-class NoteRepository(BaseRepository):
-    def __init__(self, base_path: str = "generated"):
-        super().__init__(Path(base_path) / "notes.json")
+
+class NoteRepository:
+    def __init__(self, db_path: Optional[Path] = None):
+        if db_path is None:
+            db_path = Path(__file__).parent.parent / "generated" / "app.db"
+        self.db_path = db_path
+        self.db_path.parent.mkdir(exist_ok=True)
+
+    def _get_connection(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def _now(self) -> str:
+        return datetime.utcnow().isoformat() + "Z"
+
+    def _row_to_note(self, row: sqlite3.Row) -> Dict:
+        return {
+            "id": row["id"],
+            "title": row["title"],
+            "body": row["body"],
+            "is_inspiration": bool(row["is_inspiration"]),
+            "is_analyzed": bool(row["is_analyzed"]),
+            "folder_id": row["folder_id"],
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+            "activity_history": []
+        }
+
+    def _row_to_version(self, row: sqlite3.Row) -> Dict:
+        return {
+            "version_id": row["version_id"],
+            "note_id": row["note_id"],
+            "title": row["title"],
+            "content": row["content"],
+            "folder_id": row["folder_id"],
+            "tags": json.loads(row["tags"]),
+            "created_at": row["created_at"],
+            "version_number": row["version_number"]
+        }
 
     def create(self, title: str, body: str) -> Dict:
-        notes = self._read_json()
         timestamp = self._now()
-        note = {
-            "id": self._generate_id(),
-            "title": title,
-            "body": body,
-            "is_inspiration": False,
-            "is_analyzed": False,
-            "folder_id": None,
-            "created_at": timestamp,
-            "updated_at": timestamp,
-            "activity_history": [
-                {
-                    "type": "created",
-                    "timestamp": timestamp,
-                    "details": {}
-                }
-            ]
-        }
-        notes.append(note)
-        self._write_json(notes)
-        return note
+        note_id = str(uuid.uuid4())
+        
+        with self._get_connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO notes (id, title, body, is_inspiration, is_analyzed, folder_id, created_at, updated_at)
+                VALUES (?, ?, ?, 0, 0, NULL, ?, ?)
+                """,
+                (note_id, title, body, timestamp, timestamp)
+            )
+            
+            version_id = str(uuid.uuid4())
+            conn.execute(
+                """
+                INSERT INTO note_versions (version_id, note_id, title, content, folder_id, tags, created_at, version_number)
+                VALUES (?, ?, ?, ?, NULL, '[]', ?, 1)
+                """,
+                (version_id, note_id, title, body, timestamp)
+            )
+            
+            row = conn.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
+            return self._row_to_note(row)
     
     def get_all(self) -> List[Dict]:
-        return self._read_json()
+        with self._get_connection() as conn:
+            rows = conn.execute("SELECT * FROM notes ORDER BY updated_at DESC").fetchall()
+            return [self._row_to_note(row) for row in rows]
     
     def get_by_id(self, note_id: str) -> Optional[Dict]:
-        notes = self._read_json()
-        return next((n for n in notes if n["id"] == note_id), None)
+        with self._get_connection() as conn:
+            row = conn.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
+            return self._row_to_note(row) if row else None
+    
+    def save_version(self, note_id: str) -> Optional[str]:
+        with self._get_connection() as conn:
+            note_row = conn.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
+            if not note_row:
+                return None
+            
+            max_version = conn.execute(
+                "SELECT MAX(version_number) as max_ver FROM note_versions WHERE note_id = ?",
+                (note_id,)
+            ).fetchone()["max_ver"] or 0
+            
+            new_version_number = max_version + 1
+            version_id = str(uuid.uuid4())
+            timestamp = self._now()
+            
+            conn.execute(
+                """
+                INSERT INTO note_versions (version_id, note_id, title, content, folder_id, tags, created_at, version_number)
+                VALUES (?, ?, ?, ?, ?, '[]', ?, ?)
+                """,
+                (version_id, note_id, note_row["title"], note_row["body"], note_row["folder_id"], timestamp, new_version_number)
+            )
+            
+            return version_id
+    
+    def get_versions(self, note_id: str) -> List[Dict]:
+        with self._get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM note_versions WHERE note_id = ? ORDER BY version_number DESC",
+                (note_id,)
+            ).fetchall()
+            return [self._row_to_version(row) for row in rows]
+    
+    def get_version(self, version_id: str) -> Optional[Dict]:
+        with self._get_connection() as conn:
+            row = conn.execute("SELECT * FROM note_versions WHERE version_id = ?", (version_id,)).fetchone()
+            return self._row_to_version(row) if row else None
+    
+    def search_notes_and_versions(self, query: str) -> Dict:
+        query_pattern = f"%{query}%"
+        
+        with self._get_connection() as conn:
+            note_rows = conn.execute(
+                "SELECT * FROM notes WHERE title LIKE ? OR body LIKE ?",
+                (query_pattern, query_pattern)
+            ).fetchall()
+            
+            version_rows = conn.execute(
+                "SELECT * FROM note_versions WHERE title LIKE ? OR content LIKE ?",
+                (query_pattern, query_pattern)
+            ).fetchall()
+            
+            return {
+                "current_notes": [self._row_to_note(row) for row in note_rows],
+                "version_history": [self._row_to_version(row) for row in version_rows]
+            }
     
     def update(
         self, 
@@ -46,52 +147,45 @@ class NoteRepository(BaseRepository):
         is_analyzed: Optional[bool] = None,
         folder_id: Optional[str] = None
     ) -> Optional[Dict]:
-        notes = self._read_json()
-        for note in notes:
-            if note["id"] == note_id:
-                timestamp = self._now()
-                previous_folder_id = note.get("folder_id")
-                
-                if 'activity_history' not in note:
-                    note['activity_history'] = []
-                
-                if title is not None:
-                    note["title"] = title
-                if body is not None:
-                    note["body"] = body
-                if is_inspiration is not None:
-                    note["is_inspiration"] = is_inspiration
-                if is_analyzed is not None:
-                    note["is_analyzed"] = is_analyzed
-                if folder_id is not None:
-                    note["folder_id"] = folder_id
-                
-                note["updated_at"] = timestamp
-                
-                if folder_id is not None and folder_id != previous_folder_id:
-                    note["activity_history"].append({
-                        "type": "moved",
-                        "timestamp": timestamp,
-                        "details": {
-                            "from_folder": previous_folder_id,
-                            "to_folder": folder_id
-                        }
-                    })
-                else:
-                    note["activity_history"].append({
-                        "type": "updated",
-                        "timestamp": timestamp,
-                        "details": {}
-                    })
-                
-                self._write_json(notes)
-                return note
-        return None
+        with self._get_connection() as conn:
+            note_row = conn.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
+            if not note_row:
+                return None
+            
+            timestamp = self._now()
+            updates = []
+            params = []
+            
+            if title is not None:
+                updates.append("title = ?")
+                params.append(title)
+            if body is not None:
+                updates.append("body = ?")
+                params.append(body)
+            if is_inspiration is not None:
+                updates.append("is_inspiration = ?")
+                params.append(1 if is_inspiration else 0)
+            if is_analyzed is not None:
+                updates.append("is_analyzed = ?")
+                params.append(1 if is_analyzed else 0)
+            if folder_id is not None:
+                updates.append("folder_id = ?")
+                params.append(folder_id)
+            
+            updates.append("updated_at = ?")
+            params.append(timestamp)
+            params.append(note_id)
+            
+            conn.execute(
+                f"UPDATE notes SET {', '.join(updates)} WHERE id = ?",
+                params
+            )
+            
+            row = conn.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
+            return self._row_to_note(row)
     
     def delete(self, note_id: str) -> bool:
-        notes = self._read_json()
-        filtered = [n for n in notes if n["id"] != note_id]
-        if len(filtered) < len(notes):
-            self._write_json(filtered)
-            return True
-        return False
+        with self._get_connection() as conn:
+            cursor = conn.execute("DELETE FROM notes WHERE id = ?", (note_id,))
+            conn.execute("DELETE FROM note_versions WHERE note_id = ?", (note_id,))
+            return cursor.rowcount > 0

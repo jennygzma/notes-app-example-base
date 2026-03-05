@@ -16,6 +16,11 @@ from schemas import (
     OrganizationApplyResponse,
     BulkMoveRequest,
     BulkMoveResponse,
+    NoteVersionResponse,
+    NoteVersionListResponse,
+    SearchResultsResponse,
+    DiffResponse,
+    RevertRequest,
     ErrorResponse
 )
 
@@ -64,6 +69,8 @@ def update_note(note_id: str):
         data = UpdateNoteRequest.model_validate(request.json)
     except ValidationError as e:
         return handle_validation_error(e)
+    
+    note_service.repo.save_version(note_id)
     
     note = note_service.update_note(
         note_id=note_id,
@@ -162,3 +169,82 @@ def bulk_move_notes():
             updated_count += 1
     
     return jsonify(BulkMoveResponse(updated=updated_count).model_dump()), 200
+
+
+@notes_bp.route('/search/', methods=['GET'])
+def search_notes():
+    query = request.args.get('q', '')
+    if not query:
+        return jsonify(ErrorResponse(error="Query parameter 'q' is required").model_dump()), 400
+    
+    results = note_service.search_notes(query)
+    return jsonify(SearchResultsResponse.model_validate(results).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/versions/', methods=['GET'])
+def get_note_versions(note_id: str):
+    note = note_service.get_note(note_id)
+    if not note:
+        return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
+    
+    versions = note_service.get_note_versions(note_id)
+    return jsonify(NoteVersionListResponse(versions=versions).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/versions/<version_id>/', methods=['GET'])
+def get_note_version(note_id: str, version_id: str):
+    note = note_service.get_note(note_id)
+    if not note:
+        return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
+    
+    version = note_service.repo.get_version(version_id)
+    if not version:
+        return jsonify(ErrorResponse(error="Version not found").model_dump()), 404
+    
+    return jsonify(NoteVersionResponse.model_validate(version).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/versions/<version_id>/diff/', methods=['GET'])
+def get_version_diff(note_id: str, version_id: str):
+    note = note_service.get_note(note_id)
+    if not note:
+        return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
+    
+    version = note_service.repo.get_version(version_id)
+    if not version:
+        return jsonify(ErrorResponse(error="Version not found").model_dump()), 404
+    
+    diff_chunks = note_service.compute_diff(note['body'], version['content'])
+    return jsonify(DiffResponse(chunks=diff_chunks).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/revert/', methods=['POST'])
+def revert_to_version(note_id: str):
+    try:
+        data = RevertRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+    
+    note = note_service.get_note(note_id)
+    if not note:
+        return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
+    
+    version = note_service.repo.get_version(data.version_id)
+    if not version:
+        return jsonify(ErrorResponse(error="Version not found").model_dump()), 404
+    
+    if data.paragraph_indices is not None:
+        updated_note = note_service.revert_partial(note_id, data.version_id, data.paragraph_indices)
+    else:
+        note_service.repo.save_version(note_id)
+        updated_note = note_service.update_note(
+            note_id,
+            title=version['title'],
+            body=version['content'],
+            folder_id=version['folder_id']
+        )
+    
+    if not updated_note:
+        return jsonify(ErrorResponse(error="Failed to revert note").model_dump()), 500
+    
+    return jsonify(NoteResponse.model_validate(updated_note).model_dump()), 200

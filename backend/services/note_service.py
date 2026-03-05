@@ -162,3 +162,79 @@ class NoteService:
             'updated': updated,
             'moved': moved
         }
+
+    def search_notes(self, query: str) -> Dict:
+        results = self.repo.search_notes_and_versions(query)
+        
+        for version in results['version_history']:
+            version['is_version_history'] = True
+        
+        return results
+
+    def get_note_versions(self, note_id: str) -> List[Dict]:
+        return self.repo.get_versions(note_id)
+
+    def compute_diff(self, current_content: str, version_content: str) -> List[Dict]:
+        current_paragraphs = current_content.split('\n\n')
+        version_paragraphs = version_content.split('\n\n')
+        
+        diff_chunks = []
+        max_len = max(len(current_paragraphs), len(version_paragraphs))
+        
+        for i in range(max_len):
+            current_para = current_paragraphs[i] if i < len(current_paragraphs) else ""
+            version_para = version_paragraphs[i] if i < len(version_paragraphs) else ""
+            
+            if current_para == version_para:
+                diff_chunks.append({
+                    "type": "unchanged",
+                    "current": current_para,
+                    "version": version_para,
+                    "index": i
+                })
+            elif current_para and not version_para:
+                diff_chunks.append({
+                    "type": "added",
+                    "current": current_para,
+                    "version": "",
+                    "index": i
+                })
+            elif not current_para and version_para:
+                diff_chunks.append({
+                    "type": "removed",
+                    "current": "",
+                    "version": version_para,
+                    "index": i
+                })
+            else:
+                diff_chunks.append({
+                    "type": "changed",
+                    "current": current_para,
+                    "version": version_para,
+                    "index": i
+                })
+        
+        return diff_chunks
+
+    def revert_partial(self, note_id: str, version_id: str, paragraph_indices: List[int]) -> Optional[Dict]:
+        note = self.repo.get_by_id(note_id)
+        version = self.repo.get_version(version_id)
+        
+        if not note or not version:
+            return None
+        
+        current_paragraphs = note['body'].split('\n\n')
+        version_paragraphs = version['content'].split('\n\n')
+        
+        for idx in paragraph_indices:
+            if idx < len(version_paragraphs):
+                if idx < len(current_paragraphs):
+                    current_paragraphs[idx] = version_paragraphs[idx]
+                else:
+                    current_paragraphs.append(version_paragraphs[idx])
+        
+        new_body = '\n\n'.join(current_paragraphs)
+        
+        self.repo.save_version(note_id)
+        
+        return self.repo.update(note_id, body=new_body)

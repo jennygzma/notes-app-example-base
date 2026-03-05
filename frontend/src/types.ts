@@ -18,6 +18,34 @@ export interface Note {
   activity_history: NoteActivity[];
 }
 
+export interface NoteVersion {
+  version_id: string;
+  note_id: string;
+  title: string;
+  content: string;
+  folder_id: string | null;
+  tags: string[];
+  created_at: string;
+  version_number: number;
+}
+
+export interface SearchResult {
+  current_notes: Note[];
+  version_history: NoteVersion[];
+}
+
+export interface DiffChunk {
+  type: 'unchanged' | 'added' | 'removed' | 'changed';
+  current: string;
+  version: string;
+  index: number;
+}
+
+export interface RevertRequest {
+  version_id: string;
+  paragraph_indices?: number[];
+}
+
 export interface DayActivities {
   date: string;
   created: Note[];
