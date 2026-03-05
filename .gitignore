@@ -2,6 +2,8 @@
 .zoro/
 .clinerules/
 .env
+backend/generated/app.db
+backend/generated/*.db
 
 # Python cache
 __pycache__/

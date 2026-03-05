@@ -7,6 +7,8 @@ from schemas import (
     CreatePlannerItemRequest,
     UpdatePlannerItemRequest,
     PlannerItemResponse,
+    PlannerItemListResponse,
+    NoteListResponse,
     ErrorResponse
 )
 
@@ -34,7 +36,7 @@ def get_planner_items():
         view_type=view_type,
         status=status
     )
-    return jsonify(items), 200
+    return jsonify(PlannerItemListResponse(items=items).model_dump()), 200
 
 
 @planner_bp.route('/items/', methods=['POST'])
@@ -107,4 +109,4 @@ def get_planner_item_links(item_id: str):
         if note:
             notes.append(note)
     
-    return jsonify(notes), 200
+    return jsonify(NoteListResponse(notes=notes).model_dump()), 200

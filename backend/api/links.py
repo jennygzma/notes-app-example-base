@@ -16,14 +16,12 @@ planner_service = PlannerService()
 
 
 def handle_validation_error(e: ValidationError) -> tuple:
-    """Helper to format Pydantic validation errors"""
     errors = '; '.join([f"{err['loc'][0]}: {err['msg']}" for err in e.errors()])
     return jsonify(ErrorResponse(error="Validation error", details=errors).model_dump()), 400
 
 
 @links_bp.route('/', methods=['POST'])
 def create_link():
-    """Create a link between a note and planner item"""
     try:
         data = CreateLinkRequest.model_validate(request.json)
     except ValidationError as e:
@@ -45,7 +43,6 @@ def create_link():
 
 @links_bp.route('/<link_id>/', methods=['DELETE'])
 def delete_link(link_id: str):
-    """Delete a link"""
     success = link_service.delete_link(link_id)
     if not success:
         return jsonify(ErrorResponse(error="Link not found").model_dump()), 404

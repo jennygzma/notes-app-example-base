@@ -1,0 +1,90 @@
+[
+  {
+    "id": "95be1915-808d-4d61-a4ff-19217d59ffb5",
+    "name": "Food & Cooking",
+    "description": "Groceries, recipes, meal ideas and leftovers",
+    "color": "#87ae73",
+    "created_at": "2026-02-23T02:20:58.238517Z",
+    "updated_at": "2026-02-23T02:20:58.238539Z"
+  },
+  {
+    "id": "0f4a6f9e-1ffa-498d-8b36-a001d6299c97",
+    "name": "Social & Outings",
+    "description": "Local plans, hangouts, and activity ideas",
+    "color": "#FDB813",
+    "created_at": "2026-02-23T02:20:58.249701Z",
+    "updated_at": "2026-02-23T02:20:58.249705Z"
+  },
+  {
+    "id": "1bae3994-4689-45ec-bfcd-54a975687566",
+    "name": "Eval Project Notes",
+    "description": "Evaluation features, apps, and testbed notes",
+    "color": "#5BB9C2",
+    "created_at": "2026-02-23T02:20:58.250498Z",
+    "updated_at": "2026-02-23T02:20:58.250500Z"
+  },
+  {
+    "id": "e768fe72-9ebe-48ad-92a4-0e6f0ae4f40e",
+    "name": "ZORO System",
+    "description": "Rules, testing, and extension development for ZORO",
+    "color": "#5BB9C2",
+    "created_at": "2026-02-23T02:20:58.253056Z",
+    "updated_at": "2026-02-23T02:20:58.253059Z"
+  },
+  {
+    "id": "7d67b2da-49ce-445b-88d0-69876d669302",
+    "name": "Career Decisions",
+    "description": "Job offers, pros/cons, and related email drafts",
+    "color": "#5BB9C2",
+    "created_at": "2026-02-23T02:20:58.255035Z",
+    "updated_at": "2026-02-23T02:20:58.255036Z"
+  },
+  {
+    "id": "afb75960-7df9-4958-b850-ee4581ce4e3b",
+    "name": "Packing Lists",
+    "description": "Packing checklists and everyday essentials",
+    "color": "#FDB813",
+    "created_at": "2026-02-23T02:20:58.258138Z",
+    "updated_at": "2026-02-23T02:20:58.258140Z"
+  },
+  {
+    "id": "d6458639-d8fa-4e24-bc9d-44b2cc1da26a",
+    "name": "Birthdays & Celebrations",
+    "description": "Birthday tracking and celebration planning",
+    "color": "#FDB813",
+    "created_at": "2026-02-23T02:20:58.259772Z",
+    "updated_at": "2026-02-23T02:20:58.259774Z"
+  },
+  {
+    "id": "d0989092-7bc4-486d-8cb4-d7200ed0d22c",
+    "name": "Travel & Destinations",
+    "description": "Trip ideas, places to visit, and eat",
+    "color": "#FDB813",
+    "created_at": "2026-02-23T02:20:58.260730Z",
+    "updated_at": "2026-02-23T02:20:58.260734Z"
+  },
+  {
+    "id": "f27fcdd0-d38f-42a6-a47d-bc0cd4a3a45d",
+    "name": "2025 Reflections",
+    "description": "Yearly recap and highlights for 2025",
+    "color": "#87ae73",
+    "created_at": "2026-02-23T02:20:58.262245Z",
+    "updated_at": "2026-02-23T02:20:58.262246Z"
+  },
+  {
+    "id": "6f05c2ed-40a2-4af9-b194-7baf5ccea171",
+    "name": "Contacts & People",
+    "description": "Lists of users and contacts",
+    "color": "#808080",
+    "created_at": "2026-02-23T02:20:58.265422Z",
+    "updated_at": "2026-02-23T02:20:58.265424Z"
+  },
+  {
+    "id": "cfad2f43-2c5a-4f21-bf45-d8ccc8ce702f",
+    "name": "test",
+    "description": "test",
+    "color": "#ffb8b8",
+    "created_at": "2026-02-27T19:06:08.772557Z",
+    "updated_at": "2026-02-27T19:06:08.772574Z"
+  }
+]

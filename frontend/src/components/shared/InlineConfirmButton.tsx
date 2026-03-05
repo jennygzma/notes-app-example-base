@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -17,6 +17,8 @@ const InlineConfirmButton: React.FC<InlineConfirmButtonProps> = ({
   confirmText = 'Delete?',
   color = 'error',
 }) => {
+  const theme = useTheme();
+  const isError = color === 'error';
   const [isConfirming, setIsConfirming] = useState(false);
 
   const handleConfirm = (e: React.MouseEvent) => {
@@ -39,11 +41,15 @@ const InlineConfirmButton: React.FC<InlineConfirmButtonProps> = ({
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         {confirmText && (
-          <Typography variant="caption" color="error" fontWeight="bold">
+          <Typography
+            variant="caption"
+            fontWeight="bold"
+            sx={{ color: theme.palette.error.main }}
+          >
             {confirmText}
           </Typography>
         )}
-        <IconButton size="small" onClick={handleConfirm} color="error">
+        <IconButton size="small" onClick={handleConfirm} sx={{ color: theme.palette.error.main }}>
           <CheckIcon fontSize="small" />
         </IconButton>
         <IconButton size="small" onClick={handleCancel}>
@@ -54,7 +60,12 @@ const InlineConfirmButton: React.FC<InlineConfirmButtonProps> = ({
   }
 
   return (
-    <IconButton size="small" onClick={handleStart} color={color}>
+    <IconButton
+      size="small"
+      onClick={handleStart}
+      color={isError ? 'default' : color}
+      sx={isError ? { color: theme.palette.error.main } : undefined}
+    >
       {icon}
     </IconButton>
   );

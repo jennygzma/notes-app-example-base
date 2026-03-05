@@ -1,12 +1,36 @@
 import { createTheme } from '@mui/material/styles';
+import { colors } from './design-system/colors';
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    versionHistory: Palette['primary'];
+    diffHighlight: Palette['primary'];
+  }
+  interface PaletteOptions {
+    versionHistory?: PaletteOptions['primary'];
+    diffHighlight?: PaletteOptions['primary'];
+  }
+}
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#009688', // Deep Teal
+      main: colors.primary,
     },
     secondary: {
-      main: '#7c4dff', // Deep Purple
+      main: colors.secondary,
+    },
+    error: {
+      main: colors.error,
+    },
+    versionHistory: {
+      main: colors.versionHistory,
+      contrastText: colors.versionHistoryText,
+    },
+    diffHighlight: {
+      main: colors.diffHighlight,
+      light: colors.diffHighlightLight,
+      contrastText: colors.diffHighlightText,
     },
   },
   typography: {

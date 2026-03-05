@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from repositories.planner_repo import PlannerRepository
 from repositories.note_repo import NoteRepository
-from models.llm_client import LLMClient
+from integrations.llm.openai_client import LLMClient
 
 class PlannerService:
     def __init__(self):

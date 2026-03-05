@@ -98,7 +98,6 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
           Inspirations
         </Typography>
 
-        {/* Dashboard grid of category cards */}
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 3 }}>
           {categories.map((category) => {
             const items = inspirations[category];
@@ -130,7 +129,6 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
                       sx={{ mb: 2 }}
                     />
                     
-                    {/* Preview of first 2 items */}
                     <Box sx={{ mt: 2 }}>
                       {items.slice(0, 2).map((note) => (
                         <Typography
@@ -161,7 +159,6 @@ const InspirationsView: React.FC<InspirationsViewProps> = ({ onNoteClick, initia
         </Box>
       </Box>
 
-      {/* Dialog to show items in selected category */}
       <Dialog 
         open={selectedCategory !== null} 
         onClose={() => setSelectedCategory(null)}
