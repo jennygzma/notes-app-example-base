@@ -6,9 +6,9 @@ from datetime import datetime
 # ==================== Base Models ====================
 
 class NoteActivity(BaseModel):
-    type: Literal['created', 'updated', 'moved']
+    type: Literal['created', 'updated', 'moved', 'email_sent']
     timestamp: str
-    details: Optional[dict] = {}
+    details: Optional[Dict] = {}
 
 
 class Note(BaseModel):
@@ -270,6 +270,16 @@ class RevertRequest(StrictRequest):
     paragraph_indices: Optional[List[int]] = None
 
 
+class ProvideFeedbackRequest(StrictRequest):
+    selected_text: str = Field(min_length=1, max_length=10000)
+    feedback_type: str = Field(min_length=1, max_length=200)
+
+
+class SendEmailRequest(StrictRequest):
+    recipient: str = Field(min_length=1, max_length=200)
+    subject: Optional[str] = None
+
+
 # ==================== Response Schemas ====================
 
 class NoteResponse(Note):
@@ -324,6 +334,7 @@ class NoteActivitiesResponse(BaseModel):
     created: List[Note]
     updated: List[Note]
     moved: List[Note]
+    email_sent: List[Note] = []
 
 
 class OrganizationPreviewResponse(BaseModel):
@@ -414,6 +425,20 @@ class CategorizeResponse(BaseModel):
 class ApproveCategoryResponse(BaseModel):
     category: Category
     inspiration: Optional[Inspiration] = None
+
+
+class FeedbackResponse(BaseModel):
+    feedback: str
+    suggested_rewrite: Optional[str] = None
+
+
+class SendEmailResponse(BaseModel):
+    message_id: str
+    sent_at: str
+
+
+class GmailStatusResponse(BaseModel):
+    connected: bool
 
 
 # ==================== Grouped Response Schemas ====================

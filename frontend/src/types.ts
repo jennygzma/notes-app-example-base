@@ -1,7 +1,7 @@
 // ==================== Base Models ====================
 
 export interface NoteActivity {
-  type: 'created' | 'updated' | 'moved';
+  type: 'created' | 'updated' | 'moved' | 'email_sent';
   timestamp: string;
   details?: Record<string, any>;
 }
@@ -49,6 +49,7 @@ export interface DayActivities {
   created: Note[];
   updated: Note[];
   moved: Note[];
+  email_sent: Note[];
 }
 
 export interface Folder {
@@ -76,10 +77,34 @@ export interface Task {
   id: string;
   title: string;
   completed: boolean;
-  due_date: string | null;
-  google_task_id: string | null;
+  due_date?: string;
+  google_task_id?: string;
   updated_at: string;
-  last_synced_at: string | null;
+  last_synced_at?: string;
+}
+
+export interface FeedbackRequest {
+  selected_text: string;
+  feedback_type: string;
+}
+
+export interface FeedbackResponse {
+  feedback: string;
+  suggested_rewrite: string | null;
+}
+
+export interface SendEmailRequest {
+  recipient: string;
+  subject?: string;
+}
+
+export interface SendEmailResponse {
+  message_id: string;
+  sent_at: string;
+}
+
+export interface GmailStatusResponse {
+  connected: boolean;
 }
 
 export interface CreateTaskRequest {
