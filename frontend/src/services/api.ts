@@ -27,6 +27,10 @@ import {
   SearchResult,
   DiffChunk,
   RevertRequest,
+  FeedbackRequest,
+  FeedbackResponse,
+  SendEmailRequest,
+  SendEmailResponse,
 } from '../types';
 
 // ============================================================================
@@ -81,6 +85,9 @@ export const notesApi = {
   
   revertToVersion: (noteId: string, data: RevertRequest): Promise<Note> => 
     apiClient.post<Note>(`/api/notes/${noteId}/revert/`, data),
+  
+  sendEmail: (noteId: string, data: SendEmailRequest): Promise<SendEmailResponse> => 
+    apiClient.post<SendEmailResponse>(`/api/notes/${noteId}/send-email/`, data),
 };
 
 // ============================================================================
@@ -169,6 +176,9 @@ export const aiApi = {
   
   translate: (noteId: string): Promise<TranslateResponse> => 
     apiClient.post<TranslateResponse>('/api/ai/translate/', { note_id: noteId }),
+  
+  provideFeedback: (data: FeedbackRequest): Promise<FeedbackResponse> => 
+    apiClient.post<FeedbackResponse>('/api/ai/feedback/', data),
 };
 
 // ============================================================================
