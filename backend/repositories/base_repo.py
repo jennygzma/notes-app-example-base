@@ -2,7 +2,7 @@ import json
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 class BaseRepository:
     def __init__(self, file_path: Path):
@@ -27,3 +27,20 @@ class BaseRepository:
 
     def _now(self) -> str:
         return datetime.utcnow().isoformat() + 'Z'
+    
+    def _serialize_json_field(self, value: Any) -> str:
+        if value is None:
+            return json.dumps([])
+        if isinstance(value, str):
+            return value
+        return json.dumps(value)
+    
+    def _deserialize_json_field(self, value: Any, default: Any = None) -> Any:
+        if value is None:
+            return default if default is not None else []
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError:
+                return default if default is not None else []
+        return value

@@ -1,7 +1,8 @@
 import sqlite3
 import uuid
+import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
 
 class NoteRepository:
@@ -19,21 +20,42 @@ class NoteRepository:
     def _now(self) -> str:
         return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     
+    def _deserialize_json_field(self, value: Any, default: Any = None) -> Any:
+        if value is None:
+            return default if default is not None else []
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError:
+                return default if default is not None else []
+        return value
+    
+    def _serialize_json_field(self, value: Any) -> str:
+        if value is None:
+            return json.dumps([])
+        if isinstance(value, str):
+            return value
+        return json.dumps(value)
+    
     def _row_to_dict(self, row: sqlite3.Row) -> Dict:
-        return dict(row)
+        note = dict(row)
+        if "activity_history" in note:
+            note["activity_history"] = self._deserialize_json_field(note["activity_history"], [])
+        return note
     
     def create(self, title: str, body: str) -> Dict:
         note_id = self._generate_id()
         timestamp = self._now()
+        activity_history = self._serialize_json_field([])
         
         conn = self._get_connection()
         with conn:
             conn.execute(
                 """
-                INSERT INTO notes (id, title, body, is_inspiration, is_analyzed, folder_id, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO notes (id, title, body, is_inspiration, is_analyzed, folder_id, created_at, updated_at, activity_history)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (note_id, title, body, 0, 0, None, timestamp, timestamp)
+                (note_id, title, body, 0, 0, None, timestamp, timestamp, activity_history)
             )
             
             version_id = self._generate_id()
@@ -68,7 +90,8 @@ class NoteRepository:
         body: Optional[str] = None, 
         is_inspiration: Optional[bool] = None, 
         is_analyzed: Optional[bool] = None,
-        folder_id: Optional[str] = None
+        folder_id: Optional[str] = None,
+        activity_history: Optional[Any] = None
     ) -> Optional[Dict]:
         note = self.get_by_id(note_id)
         if not note:
@@ -97,6 +120,9 @@ class NoteRepository:
         if folder_id is not None:
             updates.append("folder_id = ?")
             params.append(folder_id)
+        if activity_history is not None:
+            updates.append("activity_history = ?")
+            params.append(self._serialize_json_field(activity_history))
         
         updates.append("updated_at = ?")
         params.append(timestamp)

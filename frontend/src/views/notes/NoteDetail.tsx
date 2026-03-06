@@ -7,15 +7,19 @@ import {
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HistoryIcon from '@mui/icons-material/History';
-import { Note, PlannerItem, NoteVersion, DiffChunk } from '../../types';
+import EmailIcon from '@mui/icons-material/Email';
+import { Note, PlannerItem, NoteVersion, DiffChunk, NoteActivity, SendEmailResponse } from '../../types';
 import { notesApi } from '../../services/api';
 import Button from '../../components/design-system/Button';
 import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
+import Dialog from '../../components/shared/Dialog';
 import VersionHistoryPanel from './VersionHistoryPanel';
 import VersionCompareView from './VersionCompareView';
 import DiffViewer from './DiffViewer';
+import { LLMFeedbackPanel } from './LLMFeedbackPanel';
+import { SendEmailDialog } from './SendEmailDialog';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -54,6 +58,11 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(null);
   const [showDiff, setShowDiff] = useState(false);
   const [diffs, setDiffs] = useState<DiffChunk[]>([]);
+  const [selectedText, setSelectedText] = useState('');
+  const [showFeedbackPanel, setShowFeedbackPanel] = useState(false);
+  const [sendEmailOpen, setSendEmailOpen] = useState(false);
+  const [emailDetailsOpen, setEmailDetailsOpen] = useState(false);
+  const [emailActivities, setEmailActivities] = useState<NoteActivity[]>([]);
 
   useEffect(() => {
     if (note) {
@@ -63,6 +72,9 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
       setShowHistory(false);
       setSelectedVersion(null);
       setShowDiff(false);
+      setEmailActivities(note.activity_history || []);
+      setSendEmailOpen(false);
+      setEmailDetailsOpen(false);
     }
   }, [note]);
 
@@ -165,6 +177,71 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
     }
   };
 
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    const text = selection?.toString() || '';
+    if (text.trim()) {
+      setSelectedText(text);
+      setShowFeedbackPanel(true);
+    }
+  };
+
+  const handleApplyRewrite = (rewrite: string) => {
+    if (!selectedText) return;
+    const newBody = body.replace(selectedText, rewrite);
+    setBody(newBody);
+    setHasChanges(true);
+    setSelectedText('');
+  };
+
+  const handleEmailSentSuccess = (
+    result: SendEmailResponse,
+    recipient: string,
+    subject: string
+  ) => {
+    const sentAt = result.sent_at;
+    setEmailActivities((prev) => [
+      ...prev,
+      {
+        type: 'email_sent',
+        timestamp: sentAt,
+        details: {
+          recipient,
+          subject,
+          message_id: result.message_id,
+          sent_at: sentAt,
+        },
+      },
+    ]);
+  };
+
+  const getLatestEmailActivity = (activities: NoteActivity[]) => {
+    const emailActivitiesList = activities.filter((activity) => activity.type === 'email_sent');
+    if (emailActivitiesList.length === 0) return null;
+    return emailActivitiesList.reduce((latest, current) => {
+      const latestTime = new Date(latest.timestamp).getTime();
+      const currentTime = new Date(current.timestamp).getTime();
+      return currentTime > latestTime ? current : latest;
+    });
+  };
+
+  const latestEmailActivity = getLatestEmailActivity(emailActivities);
+  const emailDetails = latestEmailActivity?.details || {};
+
+  const formatEmailDate = (timestamp: string) =>
+    new Date(timestamp).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+  const formatEmailTime = (timestamp: string) =>
+    new Date(timestamp).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+
   if (!note) {
     return (
       <Box sx={{ 
@@ -218,6 +295,31 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         >
           Link to Inspirations Dashboard
         </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleTextSelection}
+        >
+          Get AI Feedback
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<EmailIcon />}
+          color="secondary"
+          onClick={() => setSendEmailOpen(true)}
+        >
+          Send Email
+        </Button>
+        {latestEmailActivity && (
+          <Tag
+            label={`Email sent on ${formatEmailDate(latestEmailActivity.timestamp)}`}
+            variant="outlined"
+            icon={<EmailIcon fontSize="small" />}
+            color="secondary"
+            onClick={() => setEmailDetailsOpen(true)}
+          />
+        )}
         {hasChanges && (
           <Button
             variant="contained"
@@ -265,6 +367,36 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
             </>
           )}
         </Box>
+      )}
+
+      {latestEmailActivity && (
+        <Dialog
+          open={emailDetailsOpen}
+          onClose={() => setEmailDetailsOpen(false)}
+          title="Email Details"
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2">
+              <strong>Recipient:</strong> {emailDetails.recipient || 'Unknown'}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Subject:</strong> {emailDetails.subject || note.title}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Sent:</strong>{' '}
+              {latestEmailActivity?.timestamp
+                ? `${formatEmailDate(latestEmailActivity.timestamp)} at ${formatEmailTime(
+                    latestEmailActivity.timestamp
+                  )}`
+                : 'Unknown'}
+            </Typography>
+            {emailDetails.message_id && (
+              <Typography variant="body2">
+                <strong>Message ID:</strong> {emailDetails.message_id}
+              </Typography>
+            )}
+          </Box>
+        </Dialog>
       )}
 
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
@@ -318,6 +450,22 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
             onSelectVersion={handleSelectVersion}
           />
         )}
+        {showFeedbackPanel && selectedText && (
+          <LLMFeedbackPanel
+            selectedText={selectedText}
+            onApplyRewrite={handleApplyRewrite}
+            onClose={() => {
+              setShowFeedbackPanel(false);
+              setSelectedText('');
+            }}
+          />
+        )}
+        <SendEmailDialog
+          open={sendEmailOpen}
+          note={note}
+          onClose={() => setSendEmailOpen(false)}
+          onSuccess={handleEmailSentSuccess}
+        />
       </Box>
     </Box>
   );

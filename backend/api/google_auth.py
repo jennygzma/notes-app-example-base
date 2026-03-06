@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, request, jsonify, redirect
 from integrations.google.auth import GoogleAuthService
-from schemas import ErrorResponse, OAuthResponse
+from schemas import ErrorResponse, OAuthResponse, SyncStatusResponse
 
 google_auth_bp = Blueprint("google_auth", __name__, url_prefix="/api/google")
 auth_service = GoogleAuthService()
@@ -29,3 +29,10 @@ def auth_callback():
     # Redirect back to the frontend after successful OAuth.
     frontend_url = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
     return redirect(frontend_url)
+
+
+@google_auth_bp.route("/gmail/status", methods=["GET"])
+def gmail_status():
+    token = auth_service.get_valid_access_token()
+    connected = token is not None
+    return jsonify(SyncStatusResponse(connected=connected).model_dump()), 200
