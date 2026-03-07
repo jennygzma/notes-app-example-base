@@ -5,8 +5,10 @@ from services.planner_service import PlannerService
 from schemas import (
     ClassifyNoteRequest,
     TranslateNoteRequest,
+    ProvideFeedbackRequest,
     ClassifyResponse,
     TranslateResponse,
+    FeedbackResponse,
     ErrorResponse
 )
 
@@ -46,3 +48,15 @@ def translate_note():
         return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
     
     return jsonify(TranslateResponse.model_validate(result).model_dump()), 200
+
+
+@ai_bp.route('/feedback/', methods=['POST'])
+def provide_feedback():
+    try:
+        data = ProvideFeedbackRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+    
+    result = note_service.provide_feedback(data.selected_text, data.feedback_type)
+    
+    return jsonify(FeedbackResponse.model_validate(result).model_dump()), 200

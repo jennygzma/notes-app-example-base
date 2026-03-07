@@ -7,6 +7,7 @@ from schemas import (
     CreateNoteRequest,
     UpdateNoteRequest,
     PatchNoteRequest,
+    SendEmailRequest,
     NoteResponse,
     NoteListResponse,
     PlannerItemListResponse,
@@ -14,15 +15,18 @@ from schemas import (
     OrganizationPlanRequest,
     OrganizationPreviewResponse,
     OrganizationApplyResponse,
-    BulkMoveRequest,
     BulkMoveResponse,
+    BulkMoveRequest,
     SearchResultListResponse,
     NoteVersionListResponse,
     NoteVersionResponse,
     DiffChunkListResponse,
     RevertRequest,
+    SendEmailResponse,
+    GmailStatusResponse,
     ErrorResponse
 )
+from integrations.google.auth import GoogleAuthService
 
 notes_bp = Blueprint('notes', __name__, url_prefix='/api/notes')
 note_service = NoteService()
@@ -226,3 +230,38 @@ def revert_note(note_id: str):
         return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
     
     return jsonify(NoteResponse.model_validate(note).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/send-email/', methods=['POST'])
+def send_note_email(note_id: str):
+    try:
+        data = SendEmailRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+    
+    try:
+        result = note_service.send_note_as_email(
+            note_id=note_id,
+            recipient=data.recipient,
+            subject=data.subject
+        )
+        return jsonify(SendEmailResponse.model_validate(result).model_dump()), 200
+    except ValueError as e:
+        error_msg = str(e)
+        if "Gmail not connected" in error_msg:
+            return jsonify(ErrorResponse(
+                error="Gmail not connected",
+                details="Please connect your Gmail account to send emails"
+            ).model_dump()), 401
+        elif "Note not found" in error_msg:
+            return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
+        else:
+            return jsonify(ErrorResponse(error=error_msg).model_dump()), 500
+
+
+@notes_bp.route('/gmail/status/', methods=['GET'])
+def get_gmail_status():
+    auth_service = GoogleAuthService()
+    access_token = auth_service.get_valid_access_token()
+    connected = access_token is not None
+    return jsonify(GmailStatusResponse(connected=connected).model_dump()), 200

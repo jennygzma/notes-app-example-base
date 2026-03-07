@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import json
 from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
@@ -20,7 +21,17 @@ class NoteRepository:
         return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     
     def _row_to_dict(self, row: sqlite3.Row) -> Dict:
-        return dict(row)
+        note_dict = dict(row)
+        if 'activity_history' in note_dict:
+            activity_history_raw = note_dict['activity_history']
+            if activity_history_raw:
+                try:
+                    note_dict['activity_history'] = json.loads(activity_history_raw)
+                except (json.JSONDecodeError, TypeError):
+                    note_dict['activity_history'] = []
+            else:
+                note_dict['activity_history'] = []
+        return note_dict
     
     def create(self, title: str, body: str) -> Dict:
         note_id = self._generate_id()

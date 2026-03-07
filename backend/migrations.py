@@ -6,7 +6,7 @@ from typing import Optional, Dict
 from datetime import datetime
 
 
-LATEST_SCHEMA_VERSION = 4
+LATEST_SCHEMA_VERSION = 5
 
 
 def _get_db_path(db_path: Optional[Path]) -> Path:
@@ -136,6 +136,22 @@ def run_migrations(db_path: Optional[Path] = None) -> int:
             )
             _set_schema_version(conn, 4)
             version = 4
+
+        if version < 5:
+            _ensure_column(
+                conn,
+                "notes",
+                "activity_history",
+                "ALTER TABLE notes ADD COLUMN activity_history TEXT DEFAULT '[]'"
+            )
+            
+            rows = conn.execute("PRAGMA table_info(notes)").fetchall()
+            columns = [r["name"] for r in rows]
+            if "activity_history" not in columns:
+                raise RuntimeError("Migration v5 failed: activity_history column not created")
+            
+            _set_schema_version(conn, 5)
+            version = 5
 
         return version
 
