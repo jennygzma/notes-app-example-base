@@ -6,7 +6,7 @@ from typing import Optional, Dict
 from datetime import datetime
 
 
-LATEST_SCHEMA_VERSION = 3
+LATEST_SCHEMA_VERSION = 4
 
 
 def _get_db_path(db_path: Optional[Path]) -> Path:
@@ -93,6 +93,49 @@ def run_migrations(db_path: Optional[Path] = None) -> int:
             )
             _set_schema_version(conn, 3)
             version = 3
+
+        if version < 4:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS notes (
+                    id TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    body TEXT NOT NULL,
+                    is_inspiration INTEGER NOT NULL DEFAULT 0,
+                    is_analyzed INTEGER NOT NULL DEFAULT 0,
+                    folder_id TEXT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS note_versions (
+                    id TEXT PRIMARY KEY,
+                    note_id TEXT NOT NULL,
+                    version_number INTEGER NOT NULL,
+                    title TEXT NOT NULL,
+                    body TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_note_versions_note_id 
+                ON note_versions(note_id)
+                """
+            )
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_note_versions_version_number 
+                ON note_versions(note_id, version_number)
+                """
+            )
+            _set_schema_version(conn, 4)
+            version = 4
 
         return version
 

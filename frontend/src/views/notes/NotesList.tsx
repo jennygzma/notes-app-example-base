@@ -5,13 +5,10 @@ import {
   ListItemText,
   Typography,
   Box,
-  InputAdornment,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Note } from '../../types';
-import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -21,7 +18,6 @@ interface NotesListProps {
   selectedNoteId: string | null;
   onSelectNote: (note: Note) => void;
   searchQuery: string;
-  onSearchChange: (query: string) => void;
 }
 
 const NotesList: React.FC<NotesListProps> = ({
@@ -29,7 +25,6 @@ const NotesList: React.FC<NotesListProps> = ({
   selectedNoteId,
   onSelectNote,
   searchQuery,
-  onSearchChange,
 }) => {
   const getPreview = (body: string): string => {
     const firstLine = body.split('\n')[0].trim();
@@ -132,24 +127,10 @@ const NotesList: React.FC<NotesListProps> = ({
       borderColor: 'divider',
       display: 'flex',
       flexDirection: 'column',
-      height: '100vh'
+      height: '100%',
+      minHeight: 0,
+      overflow: 'hidden',
     }}>
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <TextField
-          size="small"
-          placeholder="Search notes"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-      
       <List sx={{ flex: 1, overflow: 'auto', p: 0 }}>
         {filteredNotes.length === 0 ? (
           <Box sx={{ p: 2, textAlign: 'center' }}>
