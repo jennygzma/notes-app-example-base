@@ -6,11 +6,16 @@ import {
   Stack,
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { Note, PlannerItem } from '../../types';
+import HistoryIcon from '@mui/icons-material/History';
+import { Note, PlannerItem, NoteVersion } from '../../types';
+import { notesApi } from '../../services/api';
 import Button from '../../components/design-system/Button';
 import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
+import VersionHistoryPanel from './VersionHistoryPanel';
+import VersionCompareView from './VersionCompareView';
+import DiffViewer from './DiffViewer';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -42,12 +47,17 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(null);
+  const [viewMode, setViewMode] = useState<'compare' | 'diff'>('compare');
 
   useEffect(() => {
     if (note) {
       setTitle(note.title);
       setBody(note.body);
       setHasChanges(false);
+      setShowHistory(false);
+      setSelectedVersion(null);
     }
   }, [note]);
 
@@ -77,6 +87,33 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const handleConvertToTask = async () => {
     if (note) {
       await onConvertToTask(note.id);
+    }
+  };
+
+  const handleSelectVersion = (version: NoteVersion) => {
+    setSelectedVersion(version);
+    setViewMode('compare');
+  };
+
+  const handleSeeDiff = () => {
+    setViewMode('diff');
+  };
+
+  const handleRevert = async (paragraphIndices?: number[]) => {
+    if (!note || !selectedVersion) return;
+    
+    try {
+      await notesApi.revertToVersion(note.id, {
+        version_id: selectedVersion.id,
+        paragraph_indices: paragraphIndices,
+      });
+      setTitle(note.title);
+      setBody(note.body);
+      setHasChanges(false);
+      setSelectedVersion(null);
+      setShowHistory(false);
+    } catch (error) {
+      console.error('Failed to revert:', error);
     }
   };
 
@@ -114,6 +151,14 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         alignItems: 'center',
         flexWrap: 'wrap'
       }}>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<HistoryIcon />}
+          onClick={() => setShowHistory(!showHistory)}
+        >
+          {showHistory ? 'Hide History' : 'Show History'}
+        </Button>
         <Button
           variant="outlined"
           size="small"
@@ -172,32 +217,55 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         </Box>
       )}
 
-      <Box sx={{ p: 2, flex: 1, overflow: 'auto' }}>
-        <TextField
-          value={title}
-          onChange={(e) => handleTitleChange(e.target.value)}
-          placeholder="Title"
-          variant="standard"
-          sx={{ 
-            mb: 2,
-            '& .MuiInput-root': {
-              fontSize: '1.5rem',
-              fontWeight: 600,
-            }
-          }}
-        />
-        <TextField
-          multiline
-          value={body}
-          onChange={(e) => handleBodyChange(e.target.value)}
-          placeholder="Start typing..."
-          variant="standard"
-          sx={{
-            '& .MuiInput-root': {
-              fontSize: '1rem',
-            }
-          }}
-        />
+      <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        {selectedVersion && viewMode === 'diff' ? (
+          <DiffViewer
+            noteId={note.id}
+            versionId={selectedVersion.id}
+            onRevert={handleRevert}
+          />
+        ) : selectedVersion && viewMode === 'compare' ? (
+          <VersionCompareView
+            currentNote={note}
+            selectedVersion={selectedVersion}
+            onSeeDiff={handleSeeDiff}
+            onRevert={() => handleRevert()}
+          />
+        ) : (
+          <Box sx={{ p: 2, flex: 1, overflow: 'auto' }}>
+            <TextField
+              value={title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="Title"
+              variant="standard"
+              sx={{ 
+                mb: 2,
+                '& .MuiInput-root': {
+                  fontSize: '1.5rem',
+                  fontWeight: 600,
+                }
+              }}
+            />
+            <TextField
+              multiline
+              value={body}
+              onChange={(e) => handleBodyChange(e.target.value)}
+              placeholder="Start typing..."
+              variant="standard"
+              sx={{
+                '& .MuiInput-root': {
+                  fontSize: '1rem',
+                }
+              }}
+            />
+          </Box>
+        )}
+        {showHistory && (
+          <VersionHistoryPanel
+            noteId={note.id}
+            onSelectVersion={handleSelectVersion}
+          />
+        )}
       </Box>
     </Box>
   );

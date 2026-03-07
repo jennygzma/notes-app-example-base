@@ -15,7 +15,8 @@ import NoteDetail from './NoteDetail';
 import ConvertToTaskDialog from './ConvertToTaskDialog';
 import FolderSidebar from './FolderSidebar';
 import OrganizeDialog from './OrganizeDialog';
-import { Note, PlannerItem, CategorizeResponse, TranslateResponse } from '../../types';
+import SearchResults from './SearchResults';
+import { Note, PlannerItem, CategorizeResponse, TranslateResponse, SearchResult } from '../../types';
 import { notesApi, inspirationsApi, aiApi, plannerApi, linksApi, foldersApi } from '../../services/api';
 import Dialog from '../../components/shared/Dialog';
 import Button from '../../components/design-system/Button';
@@ -33,6 +34,8 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
   const [linkedItems, setLinkedItems] = useState<PlannerItem[]>([]);
   const [noteCategory, setNoteCategory] = useState<string | null>(null);
   const [categorizingNoteId, setCategorizingNoteId] = useState<string | null>(null);
@@ -80,6 +83,27 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
       }
     }
   }, [selectedNote]);
+
+  useEffect(() => {
+    const debounceSearch = setTimeout(async () => {
+      if (searchQuery.trim().length > 0) {
+        setSearching(true);
+        try {
+          const results = await notesApi.search(searchQuery);
+          setSearchResults(results);
+        } catch (error) {
+          showSnackbar('Search failed', 'error');
+          setSearchResults([]);
+        } finally {
+          setSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceSearch);
+  }, [searchQuery]);
 
   const loadNotes = async () => {
     try {
@@ -294,6 +318,15 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
     setSnackbar({ open: true, message, severity });
   };
 
+  const handleSelectSearchResult = async (result: SearchResult) => {
+    const note = notes.find(n => n.id === result.note_id);
+    if (note) {
+      setSelectedNote(note);
+      setSearchQuery('');
+      setSearchResults([]);
+    }
+  };
+
   const filteredNotes = notes.filter(note => note.folder_id === selectedFolderId);
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -347,13 +380,22 @@ const NotesView: React.FC<NotesViewProps> = ({ initialSelectedNoteId, onNavigate
           onFolderSelect={setSelectedFolderId}
           onOrganize={handleOrganizeNotes}
         />
-        <NotesList
-          notes={filteredNotes}
-          selectedNoteId={selectedNote?.id || null}
-          onSelectNote={setSelectedNote}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
+        {searchQuery.trim().length > 0 && searchResults.length > 0 ? (
+          <Box sx={{ width: 320, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column' }}>
+            <SearchResults
+              results={searchResults}
+              onSelectResult={handleSelectSearchResult}
+            />
+          </Box>
+        ) : (
+          <NotesList
+            notes={filteredNotes}
+            selectedNoteId={selectedNote?.id || null}
+            onSelectNote={setSelectedNote}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+        )}
         <NoteDetail
           note={selectedNote}
           onUpdate={handleUpdateNote}
