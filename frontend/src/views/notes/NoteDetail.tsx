@@ -6,11 +6,16 @@ import {
   Stack,
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { Note, PlannerItem } from '../../types';
+import HistoryIcon from '@mui/icons-material/History';
+import { Note, PlannerItem, NoteVersion, DiffChunk } from '../../types';
 import Button from '../../components/design-system/Button';
 import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
+import VersionHistoryPanel from './VersionHistoryPanel';
+import VersionCompareView from './VersionCompareView';
+import DiffViewer from './DiffViewer';
+import { notesApi } from '../../services/api';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -42,6 +47,12 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [versions, setVersions] = useState<NoteVersion[]>([]);
+  const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(null);
+  const [showDiff, setShowDiff] = useState(false);
+  const [diffChunks, setDiffChunks] = useState<DiffChunk[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
 
   useEffect(() => {
     if (note) {
@@ -80,6 +91,75 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
     }
   };
 
+  const handleShowHistory = async () => {
+    if (!note) return;
+    setLoadingVersions(true);
+    try {
+      const versionList = await notesApi.getVersions(note.id);
+      setVersions(versionList);
+      setShowHistory(true);
+    } catch (error) {
+      console.error('Failed to load versions:', error);
+    } finally {
+      setLoadingVersions(false);
+    }
+  };
+
+  const handleSelectVersion = async (versionId: string) => {
+    if (!note) return;
+    try {
+      const version = await notesApi.getVersion(note.id, versionId);
+      setSelectedVersion(version);
+      setShowDiff(false);
+    } catch (error) {
+      console.error('Failed to load version:', error);
+    }
+  };
+
+  const handleShowDiff = async () => {
+    if (!note || !selectedVersion) return;
+    try {
+      const chunks = await notesApi.getDiff(note.id, selectedVersion.id);
+      setDiffChunks(chunks);
+      setShowDiff(true);
+    } catch (error) {
+      console.error('Failed to compute diff:', error);
+    }
+  };
+
+  const handleRevertFull = async () => {
+    if (!note || !selectedVersion) return;
+    try {
+      await notesApi.revertToVersion(note.id, selectedVersion.id);
+      await onUpdate(note.id, selectedVersion.title, selectedVersion.body);
+      setShowHistory(false);
+      setSelectedVersion(null);
+    } catch (error) {
+      console.error('Failed to revert:', error);
+    }
+  };
+
+  const handleRevertChunk = async (index: number) => {
+    if (!note || !selectedVersion) return;
+    try {
+      await notesApi.revertToVersion(note.id, selectedVersion.id, [index]);
+      const updatedNote = await notesApi.getById(note.id);
+      setTitle(updatedNote.title);
+      setBody(updatedNote.body);
+      const newChunks = await notesApi.getDiff(note.id, selectedVersion.id);
+      setDiffChunks(newChunks);
+    } catch (error) {
+      console.error('Failed to revert chunk:', error);
+    }
+  };
+
+  const handleCloseHistory = () => {
+    setShowHistory(false);
+    setSelectedVersion(null);
+    setShowDiff(false);
+    setDiffChunks([]);
+  };
+
   if (!note) {
     return (
       <Box sx={{ 
@@ -99,44 +179,53 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const isTranslating = translatingNoteId === note.id;
 
   return (
-    <Box sx={{ 
-      flex: 1, 
-      display: 'flex', 
-      flexDirection: 'column',
-      height: '100vh'
-    }}>
+    <Box sx={{ display: 'flex', height: '100vh' }}>
       <Box sx={{ 
-        p: 2, 
-        borderBottom: 1, 
-        borderColor: 'divider',
-        display: 'flex',
-        gap: 1,
-        alignItems: 'center',
-        flexWrap: 'wrap'
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column',
       }}>
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={(isCategorizing || isTranslating) ? <CircularProgress size={16} /> : <AutoAwesomeIcon />}
-          onClick={handleCategorize}
-          disabled={isCategorizing || isTranslating}
-        >
-          Link to Inspirations Dashboard
-        </Button>
-        {hasChanges && (
+        <Box sx={{ 
+          p: 2, 
+          borderBottom: 1, 
+          borderColor: 'divider',
+          display: 'flex',
+          gap: 1,
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
           <Button
-            variant="contained"
+            variant="outlined"
             size="small"
-            onClick={handleSave}
+            startIcon={(isCategorizing || isTranslating) ? <CircularProgress size={16} /> : <AutoAwesomeIcon />}
+            onClick={handleCategorize}
+            disabled={isCategorizing || isTranslating}
           >
-            Save
+            Link to Inspirations Dashboard
           </Button>
-        )}
-        <Box sx={{ flex: 1 }} />
-        <InlineConfirmButton
-          onConfirm={() => onDelete(note.id)}
-        />
-      </Box>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={loadingVersions ? <CircularProgress size={16} /> : <HistoryIcon />}
+            onClick={handleShowHistory}
+            disabled={loadingVersions}
+          >
+            Show History
+          </Button>
+          {hasChanges && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          )}
+          <Box sx={{ flex: 1 }} />
+          <InlineConfirmButton
+            onConfirm={() => onDelete(note.id)}
+          />
+        </Box>
 
       {(linkedItems.length > 0 || inspirationCategory) && (
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
@@ -172,33 +261,58 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         </Box>
       )}
 
-      <Box sx={{ p: 2, flex: 1, overflow: 'auto' }}>
-        <TextField
-          value={title}
-          onChange={(e) => handleTitleChange(e.target.value)}
-          placeholder="Title"
-          variant="standard"
-          sx={{ 
-            mb: 2,
-            '& .MuiInput-root': {
-              fontSize: '1.5rem',
-              fontWeight: 600,
-            }
-          }}
-        />
-        <TextField
-          multiline
-          value={body}
-          onChange={(e) => handleBodyChange(e.target.value)}
-          placeholder="Start typing..."
-          variant="standard"
-          sx={{
-            '& .MuiInput-root': {
-              fontSize: '1rem',
-            }
-          }}
-        />
+        {showDiff && selectedVersion ? (
+          <DiffViewer
+            chunks={diffChunks}
+            onRevertChunk={handleRevertChunk}
+            onClose={() => setShowDiff(false)}
+          />
+        ) : selectedVersion ? (
+          <VersionCompareView
+            currentNote={note}
+            selectedVersion={selectedVersion}
+            onShowDiff={handleShowDiff}
+            onRevertFull={handleRevertFull}
+          />
+        ) : (
+          <Box sx={{ p: 2, flex: 1, overflow: 'auto' }}>
+            <TextField
+              value={title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="Title"
+              variant="standard"
+              sx={{ 
+                mb: 2,
+                '& .MuiInput-root': {
+                  fontSize: '1.5rem',
+                  fontWeight: 600,
+                }
+              }}
+            />
+            <TextField
+              multiline
+              value={body}
+              onChange={(e) => handleBodyChange(e.target.value)}
+              placeholder="Start typing..."
+              variant="standard"
+              sx={{
+                '& .MuiInput-root': {
+                  fontSize: '1rem',
+                }
+              }}
+            />
+          </Box>
+        )}
       </Box>
+
+      {showHistory && (
+        <VersionHistoryPanel
+          versions={versions}
+          selectedVersionId={selectedVersion?.id || null}
+          onSelectVersion={handleSelectVersion}
+          onClose={handleCloseHistory}
+        />
+      )}
     </Box>
   );
 };

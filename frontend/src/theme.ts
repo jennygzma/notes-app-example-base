@@ -1,16 +1,29 @@
 import { createTheme } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+  interface Palette {
+    versionHistory: string;
+    diffHighlight: string;
+  }
+  interface PaletteOptions {
+    versionHistory?: string;
+    diffHighlight?: string;
+  }
+}
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#009688', // Deep Teal
+      main: '#009688',
     },
     secondary: {
-      main: '#F06292', // Soft Rosy
+      main: '#F06292',
     },
     error: {
       main: '#E53935',
     },
+    versionHistory: '#E8D5FF',
+    diffHighlight: '#FF9800',
   },
   typography: {
     fontFamily: '"Poppins", "Helvetica", "Arial", sans-serif',

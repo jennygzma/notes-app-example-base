@@ -23,6 +23,16 @@ class Note(BaseModel):
     activity_history: List[NoteActivity] = []
 
 
+class NoteVersion(BaseModel):
+    id: str
+    note_id: str
+    version_number: int
+    title: str
+    body: str
+    folder_id: Optional[str] = None
+    created_at: str
+
+
 class Folder(BaseModel):
     id: str
     name: str
@@ -247,6 +257,40 @@ class NoteResponse(Note):
 
 class NoteListResponse(BaseModel):
     notes: List[Note]
+
+
+class NoteVersionResponse(NoteVersion):
+    pass
+
+
+class NoteVersionListResponse(BaseModel):
+    versions: List[NoteVersion]
+
+
+class SearchResult(BaseModel):
+    note: Note
+    is_version_history: bool
+    version: Optional[NoteVersion] = None
+    match_snippet: Optional[str] = None
+
+
+class SearchResultsResponse(BaseModel):
+    results: List[SearchResult]
+
+
+class DiffChunk(BaseModel):
+    type: Literal['add', 'remove', 'unchanged']
+    content: str
+    index: int
+
+
+class DiffResponse(BaseModel):
+    chunks: List[DiffChunk]
+
+
+class RevertRequest(StrictRequest):
+    version_id: str
+    paragraph_indices: Optional[List[int]] = None
 
 
 class PlannerItemResponse(PlannerItem):
