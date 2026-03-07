@@ -21,6 +21,8 @@ from schemas import (
     NoteVersionResponse,
     DiffChunkListResponse,
     RevertRequest,
+    SendEmailRequest,
+    SendEmailResponse,
     ErrorResponse
 )
 
@@ -226,3 +228,19 @@ def revert_note(note_id: str):
         return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
     
     return jsonify(NoteResponse.model_validate(note).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/send-email/', methods=['POST'])
+def send_note_email(note_id: str):
+    try:
+        data = SendEmailRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+    
+    try:
+        result = note_service.send_note_as_email(note_id, data.recipient, data.subject)
+        return jsonify(SendEmailResponse.model_validate(result).model_dump()), 200
+    except ValueError as e:
+        return jsonify(ErrorResponse(error=str(e)).model_dump()), 400
+    except Exception as e:
+        return jsonify(ErrorResponse(error="Failed to send email", details=str(e)).model_dump()), 500

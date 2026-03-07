@@ -4,9 +4,12 @@ import {
   CircularProgress,
   Typography,
   Stack,
+  Chip,
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HistoryIcon from '@mui/icons-material/History';
+import EmailIcon from '@mui/icons-material/Email';
+import FeedbackIcon from '@mui/icons-material/Feedback';
 import { Note, PlannerItem, NoteVersion, DiffChunk } from '../../types';
 import { notesApi } from '../../services/api';
 import Button from '../../components/design-system/Button';
@@ -16,6 +19,8 @@ import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 import VersionHistoryPanel from './VersionHistoryPanel';
 import VersionCompareView from './VersionCompareView';
 import DiffViewer from './DiffViewer';
+import { SendEmailDialog } from './SendEmailDialog';
+import { LLMFeedbackPanel } from './LLMFeedbackPanel';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -54,6 +59,11 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(null);
   const [showDiff, setShowDiff] = useState(false);
   const [diffs, setDiffs] = useState<DiffChunk[]>([]);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [showFeedbackPanel, setShowFeedbackPanel] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
+  const [selectionStart, setSelectionStart] = useState(0);
+  const [selectionEnd, setSelectionEnd] = useState(0);
 
   useEffect(() => {
     if (note) {
@@ -165,6 +175,41 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
     }
   };
 
+  const handleTextSelection = (e: React.SyntheticEvent) => {
+    const target = e.target as HTMLTextAreaElement;
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+    const text = target.value.substring(start, end);
+    
+    if (text.trim()) {
+      setSelectedText(text);
+      setSelectionStart(start);
+      setSelectionEnd(end);
+    }
+  };
+
+  const handleGetFeedback = () => {
+    if (selectedText.trim()) {
+      setShowFeedbackPanel(true);
+    }
+  };
+
+  const handleApplyRewrite = (rewrittenText: string) => {
+    const newBody = body.substring(0, selectionStart) + rewrittenText + body.substring(selectionEnd);
+    setBody(newBody);
+    setHasChanges(true);
+    setShowFeedbackPanel(false);
+    setSelectedText('');
+  };
+
+  const handleEmailSuccess = () => {
+    if (note) {
+      onApplyNote({ ...note, activity_history: [...note.activity_history] });
+    }
+  };
+
+  const emailActivity = note?.activity_history.find(a => a.type === 'email_sent');
+
   if (!note) {
     return (
       <Box sx={{ 
@@ -218,6 +263,32 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         >
           Link to Inspirations Dashboard
         </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<EmailIcon />}
+          onClick={() => setShowEmailDialog(true)}
+        >
+          Send as Email
+        </Button>
+        {selectedText && (
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<FeedbackIcon />}
+            onClick={handleGetFeedback}
+          >
+            Get AI Feedback
+          </Button>
+        )}
+        {emailActivity && (
+          <Chip
+            label={`Email sent on ${new Date(emailActivity.timestamp).toLocaleDateString()}`}
+            size="small"
+            color="primary"
+            variant="outlined"
+          />
+        )}
         {hasChanges && (
           <Button
             variant="contained"
@@ -300,6 +371,7 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
                 multiline
                 value={body}
                 onChange={(e) => handleBodyChange(e.target.value)}
+                onSelect={handleTextSelection}
                 placeholder="Start typing..."
                 variant="standard"
                 sx={{
@@ -318,7 +390,22 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
             onSelectVersion={handleSelectVersion}
           />
         )}
+        {showFeedbackPanel && (
+          <LLMFeedbackPanel
+            selectedText={selectedText}
+            onApplyRewrite={handleApplyRewrite}
+            onClose={() => setShowFeedbackPanel(false)}
+          />
+        )}
       </Box>
+
+      <SendEmailDialog
+        open={showEmailDialog}
+        noteId={note.id}
+        noteTitle={note.title}
+        onClose={() => setShowEmailDialog(false)}
+        onSuccess={handleEmailSuccess}
+      />
     </Box>
   );
 };

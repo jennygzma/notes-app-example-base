@@ -14,7 +14,7 @@ class GoogleAuthService:
 
     def get_authorization_url(self) -> str:
         state = self.repo.create_state()
-        scope = "https://www.googleapis.com/auth/tasks"
+        scope = "https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/gmail.send"
         return (
             "https://accounts.google.com/o/oauth2/v2/auth"
             f"?client_id={self.client_id}"
