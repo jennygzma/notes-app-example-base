@@ -6,7 +6,7 @@ from typing import Optional, Dict
 from datetime import datetime
 
 
-LATEST_SCHEMA_VERSION = 4
+LATEST_SCHEMA_VERSION = 5
 
 
 def _get_db_path(db_path: Optional[Path]) -> Path:
@@ -105,7 +105,8 @@ def run_migrations(db_path: Optional[Path] = None) -> int:
                     is_analyzed INTEGER NOT NULL DEFAULT 0,
                     folder_id TEXT NULL,
                     created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL
+                    updated_at TEXT NOT NULL,
+                    activity_history TEXT NOT NULL DEFAULT '[]'
                 )
                 """
             )
@@ -136,6 +137,22 @@ def run_migrations(db_path: Optional[Path] = None) -> int:
             )
             _set_schema_version(conn, 4)
             version = 4
+
+        if version < 5:
+            tables = [r["name"] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+            if "notes" not in tables:
+                raise RuntimeError("Migration v5 failed: notes table does not exist. Run v4 migration first.")
+
+            _set_schema_version(conn, 5)
+            version = 5
+
+        if version >= 5:
+            _ensure_column(
+                conn,
+                "notes",
+                "activity_history",
+                "ALTER TABLE notes ADD COLUMN activity_history TEXT NOT NULL DEFAULT '[]'",
+            )
 
         return version
 

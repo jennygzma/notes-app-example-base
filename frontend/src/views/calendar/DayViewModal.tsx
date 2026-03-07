@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import EmailIcon from '@mui/icons-material/Email';
 import Dialog from '../../components/shared/Dialog';
 import { DayActivities, Task, Note } from '../../types';
 import TaskItem from './TaskItem';
@@ -50,7 +51,7 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
     });
   };
 
-  const getActivityForDate = (note: Note, type: 'created' | 'updated' | 'moved') => {
+  const getActivityForDate = (note: Note, type: 'created' | 'updated' | 'moved' | 'email_sent') => {
     const activitiesForType = note.activity_history?.filter(a => a.type === type) || [];
     const matching = activitiesForType.filter(a => formatDateLocal(new Date(a.timestamp)) === date);
     return matching[matching.length - 1];
@@ -65,7 +66,7 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
     });
   };
 
-  const sortByTime = (items: Note[], type: 'created' | 'updated' | 'moved') => {
+  const sortByTime = (items: Note[], type: 'created' | 'updated' | 'moved' | 'email_sent') => {
     return [...items].sort((a, b) => {
       const timeA = getActivityForDate(a, type)?.timestamp || a.created_at;
       const timeB = getActivityForDate(b, type)?.timestamp || b.created_at;
@@ -76,8 +77,13 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
   const createdNotes = sortByTime(activities.created, 'created');
   const updatedNotes = sortByTime(activities.updated, 'updated');
   const movedNotes = sortByTime(activities.moved, 'moved');
+  const emailSentNotes = sortByTime(activities.email_sent, 'email_sent');
 
-  const hasActivities = createdNotes.length > 0 || updatedNotes.length > 0 || movedNotes.length > 0;
+  const hasActivities =
+    createdNotes.length > 0 ||
+    updatedNotes.length > 0 ||
+    movedNotes.length > 0 ||
+    emailSentNotes.length > 0;
   const hasTasks = tasks.length > 0;
 
   const title = (
@@ -209,6 +215,51 @@ const DayViewModal: React.FC<DayViewModalProps> = ({
                         {(fromFolder || toFolder) && (
                           <Typography variant="caption" color="text.secondary" sx={{ pl: 3 }}>
                             {fromFolder || 'Unfiled'} → {toFolder || 'Unfiled'}
+                          </Typography>
+                        )}
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
+
+              {emailSentNotes.length > 0 && (
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <EmailIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+                    <Typography variant="subtitle2" color="secondary.main" gutterBottom>
+                      Email Sent ({emailSentNotes.length})
+                    </Typography>
+                  </Box>
+                  {emailSentNotes.map(note => {
+                    const activity = getActivityForDate(note, 'email_sent');
+                    const recipient = activity?.details?.recipient;
+                    return (
+                      <Box
+                        key={note.id}
+                        onClick={() => onOpenNote(note.id)}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          py: 1,
+                          px: 1.5,
+                          cursor: 'pointer',
+                          borderRadius: 1,
+                          '&:hover': {
+                            bgcolor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <Typography sx={{ flex: 1 }}>
+                          • {note.title}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {activity ? formatTime(activity.timestamp) : ''}
+                        </Typography>
+                        {recipient && (
+                          <Typography variant="caption" color="text.secondary">
+                            {recipient}
                           </Typography>
                         )}
                       </Box>

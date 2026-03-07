@@ -7,6 +7,7 @@ from schemas import (
     CreateNoteRequest,
     UpdateNoteRequest,
     PatchNoteRequest,
+    SendEmailRequest,
     NoteResponse,
     NoteListResponse,
     PlannerItemListResponse,
@@ -14,13 +15,14 @@ from schemas import (
     OrganizationPlanRequest,
     OrganizationPreviewResponse,
     OrganizationApplyResponse,
-    BulkMoveRequest,
     BulkMoveResponse,
+    BulkMoveRequest,
     SearchResultListResponse,
     NoteVersionListResponse,
     NoteVersionResponse,
     DiffChunkListResponse,
     RevertRequest,
+    SendEmailResponse,
     ErrorResponse
 )
 
@@ -226,3 +228,25 @@ def revert_note(note_id: str):
         return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
     
     return jsonify(NoteResponse.model_validate(note).model_dump()), 200
+
+
+@notes_bp.route('/<note_id>/send-email/', methods=['POST'])
+def send_note_email(note_id: str):
+    try:
+        data = SendEmailRequest.model_validate(request.json)
+    except ValidationError as e:
+        return handle_validation_error(e)
+    
+    try:
+        result = note_service.send_note_as_email(
+            note_id=note_id,
+            recipient=data.recipient,
+            subject=data.subject
+        )
+    except ValueError as e:
+        return jsonify(ErrorResponse(error=str(e)).model_dump()), 401
+    
+    if not result:
+        return jsonify(ErrorResponse(error="Note not found").model_dump()), 404
+    
+    return jsonify(SendEmailResponse.model_validate(result).model_dump()), 200

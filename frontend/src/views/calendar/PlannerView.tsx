@@ -16,12 +16,13 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
 import SyncIcon from '@mui/icons-material/Sync';
+import EmailIcon from '@mui/icons-material/Email';
 import CreateTaskDialog from './CreateTaskDialog';
 import TaskItem from './TaskItem';
 import DayViewModal from './DayViewModal';
 import { SyncPreviewDialog } from './SyncPreviewDialog';
 import { LinkGoogleDialog } from './LinkGoogleDialog';
-import { Task, CreateTaskRequest, Note, DayActivities, SyncPreviewResponse, SyncResolution } from '../../types';
+import { Task, CreateTaskRequest, DayActivities, SyncPreviewResponse, SyncResolution } from '../../types';
 import { taskApi, notesApi } from '../../services/api';
 
 type ViewType = 'weekly' | 'monthly';
@@ -128,7 +129,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
           const activities = await notesApi.getActivityByDate(dateStr);
           activitiesMap[dateStr] = activities;
         } catch {
-          activitiesMap[dateStr] = { date: dateStr, created: [], updated: [], moved: [] };
+          activitiesMap[dateStr] = { date: dateStr, created: [], updated: [], moved: [], email_sent: [] };
         }
         current.setDate(current.getDate() + 1);
       }
@@ -311,7 +312,18 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
   const getNoteActivityCount = (dateStr: string): number => {
     const activities = noteActivities[dateStr];
     if (!activities) return 0;
-    return activities.created.length + activities.updated.length + activities.moved.length;
+    return (
+      activities.created.length +
+      activities.updated.length +
+      activities.moved.length +
+      activities.email_sent.length
+    );
+  };
+
+  const getEmailActivityCount = (dateStr: string): number => {
+    const activities = noteActivities[dateStr];
+    if (!activities) return 0;
+    return activities.email_sent.length;
   };
 
   const handleDayClick = (dateStr: string) => {
@@ -423,6 +435,14 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                       {day.getDate()}
                     </Typography>
                   </Box>
+                  {getEmailActivityCount(dateStr) > 0 && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, color: 'secondary.main' }}>
+                      <EmailIcon sx={{ fontSize: 16, color: 'secondary.main' }} />
+                      <Typography variant="caption" color="secondary.main">
+                        {getEmailActivityCount(dateStr)} sent
+                      </Typography>
+                    </Box>
+                  )}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {dayTasks.map(task => (
                       <TaskItem
@@ -507,6 +527,14 @@ const PlannerView: React.FC<PlannerViewProps> = ({ initialSelectedTaskId, onNavi
                           {day.getDate()}
                         </Typography>
                       </Box>
+                      {getEmailActivityCount(dateStr) > 0 && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, color: 'secondary.main' }}>
+                          <EmailIcon sx={{ fontSize: 14, color: 'secondary.main' }} />
+                          <Typography variant="caption" color="secondary.main">
+                            {getEmailActivityCount(dateStr)}
+                          </Typography>
+                        </Box>
+                      )}
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         {dayTasks.slice(0, 3).map(task => (
                           <Typography
