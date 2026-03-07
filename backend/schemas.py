@@ -23,6 +23,17 @@ class Note(BaseModel):
     activity_history: List[NoteActivity] = []
 
 
+class NoteVersion(BaseModel):
+    version_id: str
+    note_id: str
+    content: str
+    title: str
+    folder_id: Optional[str] = None
+    tags: List[str] = []
+    created_at: str
+    version_number: int
+
+
 class Folder(BaseModel):
     id: str
     name: str
@@ -403,3 +414,32 @@ class InspirationsGroupedResponse(BaseModel):
 
 class NoteInspirationsResponse(BaseModel):
     inspirations: List[Inspiration]
+
+
+class NoteVersionResponse(NoteVersion):
+    pass
+
+
+class NoteVersionListResponse(BaseModel):
+    versions: List[NoteVersion]
+
+
+class SearchResultsResponse(BaseModel):
+    current_notes: List[Note]
+    version_history: List[NoteVersion]
+
+
+class DiffChunk(BaseModel):
+    type: Literal['unchanged', 'added', 'removed', 'changed']
+    current: str
+    version: str
+    index: int
+
+
+class DiffResponse(BaseModel):
+    chunks: List[DiffChunk]
+
+
+class RevertRequest(StrictRequest):
+    version_id: str
+    paragraph_indices: Optional[List[int]] = None

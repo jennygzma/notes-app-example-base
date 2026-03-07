@@ -6,11 +6,16 @@ import {
   Stack,
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { Note, PlannerItem } from '../../types';
+import HistoryIcon from '@mui/icons-material/History';
+import { Note, PlannerItem, NoteVersion, DiffChunk } from '../../types';
+import { notesApi } from '../../services/api';
 import Button from '../../components/design-system/Button';
 import TextField from '../../components/design-system/TextField';
 import Tag from '../../components/design-system/Tag';
 import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
+import VersionHistoryPanel from './VersionHistoryPanel';
+import VersionCompareView from './VersionCompareView';
+import DiffViewer from './DiffViewer';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -42,6 +47,12 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [versions, setVersions] = useState<NoteVersion[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(null);
+  const [viewMode, setViewMode] = useState<'edit' | 'compare' | 'diff'>('edit');
+  const [diffChunks, setDiffChunks] = useState<DiffChunk[]>([]);
 
   useEffect(() => {
     if (note) {
@@ -80,6 +91,73 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
     }
   };
 
+  const handleShowHistory = async () => {
+    if (!note) return;
+    
+    setShowHistory(true);
+    setLoadingVersions(true);
+    try {
+      const versions = await notesApi.getVersions(note.id);
+      setVersions(versions);
+    } catch (error) {
+      console.error('Failed to load versions:', error);
+    } finally {
+      setLoadingVersions(false);
+    }
+  };
+
+  const handleSelectVersion = (version: NoteVersion) => {
+    setSelectedVersion(version);
+    setViewMode('compare');
+  };
+
+  const handleSeeDiff = async () => {
+    if (!note || !selectedVersion) return;
+    
+    try {
+      const chunks = await notesApi.getDiff(note.id, selectedVersion.version_id);
+      setDiffChunks(chunks);
+      setViewMode('diff');
+    } catch (error) {
+      console.error('Failed to load diff:', error);
+    }
+  };
+
+  const handleRevertFull = async () => {
+    if (!note || !selectedVersion) return;
+    
+    try {
+      await notesApi.revertToVersion(note.id, { version_id: selectedVersion.version_id });
+      setShowHistory(false);
+      setSelectedVersion(null);
+      setViewMode('edit');
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to revert:', error);
+    }
+  };
+
+  const handleRevertParagraph = async (index: number) => {
+    if (!note || !selectedVersion) return;
+    
+    try {
+      await notesApi.revertToVersion(note.id, {
+        version_id: selectedVersion.version_id,
+        paragraph_indices: [index],
+      });
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to revert paragraph:', error);
+    }
+  };
+
+  const handleCloseHistory = () => {
+    setShowHistory(false);
+    setSelectedVersion(null);
+    setViewMode('edit');
+    setDiffChunks([]);
+  };
+
   if (!note) {
     return (
       <Box sx={{ 
@@ -98,13 +176,59 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const isCategorizing = categorizingNoteId === note.id;
   const isTranslating = translatingNoteId === note.id;
 
+  if (viewMode === 'compare' && note && selectedVersion) {
+    return (
+      <Box sx={{ flex: 1, display: 'flex', height: '100vh' }}>
+        <Box sx={{ flex: 1, p: 2 }}>
+          <VersionCompareView
+            currentNote={note}
+            selectedVersion={selectedVersion}
+            onSeeDiff={handleSeeDiff}
+            onRevertFull={handleRevertFull}
+          />
+        </Box>
+        {showHistory && (
+          <VersionHistoryPanel
+            versions={versions}
+            loading={loadingVersions}
+            onSelectVersion={handleSelectVersion}
+            onClose={handleCloseHistory}
+          />
+        )}
+      </Box>
+    );
+  }
+
+  if (viewMode === 'diff' && note && selectedVersion) {
+    return (
+      <Box sx={{ flex: 1, display: 'flex', height: '100vh' }}>
+        <Box sx={{ flex: 1 }}>
+          <DiffViewer
+            chunks={diffChunks}
+            onRevertParagraph={handleRevertParagraph}
+            onBack={() => setViewMode('compare')}
+          />
+        </Box>
+        {showHistory && (
+          <VersionHistoryPanel
+            versions={versions}
+            loading={loadingVersions}
+            onSelectVersion={handleSelectVersion}
+            onClose={handleCloseHistory}
+          />
+        )}
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ 
       flex: 1, 
       display: 'flex', 
-      flexDirection: 'column',
+      flexDirection: 'row',
       height: '100vh'
     }}>
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ 
         p: 2, 
         borderBottom: 1, 
@@ -114,6 +238,14 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         alignItems: 'center',
         flexWrap: 'wrap'
       }}>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<HistoryIcon />}
+          onClick={handleShowHistory}
+        >
+          Show History
+        </Button>
         <Button
           variant="outlined"
           size="small"
@@ -199,6 +331,15 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
           }}
         />
       </Box>
+      </Box>
+      {showHistory && (
+        <VersionHistoryPanel
+          versions={versions}
+          loading={loadingVersions}
+          onSelectVersion={handleSelectVersion}
+          onClose={handleCloseHistory}
+        />
+      )}
     </Box>
   );
 };

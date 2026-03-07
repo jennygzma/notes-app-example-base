@@ -62,6 +62,21 @@ export const notesApi = {
   
   getActivityByDate: (date: string): Promise<DayActivities> => 
     apiClient.get<DayActivities>('/api/notes/activities/', { date }),
+  
+  search: (query: string): Promise<import('../types').SearchResult> => 
+    apiClient.get<import('../types').SearchResult>('/api/notes/search/', { q: query }),
+  
+  getVersions: (noteId: string): Promise<import('../types').NoteVersion[]> => 
+    apiClient.get<{ versions: import('../types').NoteVersion[] }>(`/api/notes/${noteId}/versions/`).then(res => res.versions),
+  
+  getVersion: (noteId: string, versionId: string): Promise<import('../types').NoteVersion> => 
+    apiClient.get<import('../types').NoteVersion>(`/api/notes/${noteId}/versions/${versionId}/`),
+  
+  getDiff: (noteId: string, versionId: string): Promise<import('../types').DiffChunk[]> => 
+    apiClient.get<{ chunks: import('../types').DiffChunk[] }>(`/api/notes/${noteId}/versions/${versionId}/diff/`).then(res => res.chunks),
+  
+  revertToVersion: (noteId: string, data: import('../types').RevertRequest): Promise<Note> => 
+    apiClient.post<Note>(`/api/notes/${noteId}/revert/`, data),
 };
 
 // ============================================================================

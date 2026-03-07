@@ -1,4 +1,15 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, PaletteOptions } from '@mui/material/styles';
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    versionHistory: Palette['primary'];
+    diffHighlight: Palette['primary'];
+  }
+  interface PaletteOptions {
+    versionHistory?: PaletteOptions['primary'];
+    diffHighlight?: PaletteOptions['primary'];
+  }
+}
 
 const theme = createTheme({
   palette: {
