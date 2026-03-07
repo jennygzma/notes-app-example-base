@@ -1,7 +1,7 @@
 // ==================== Base Models ====================
 
 export interface NoteActivity {
-  type: 'created' | 'updated' | 'moved';
+  type: 'created' | 'updated' | 'moved' | 'email_sent';
   timestamp: string;
   details?: Record<string, any>;
 }
@@ -49,6 +49,7 @@ export interface DayActivities {
   created: Note[];
   updated: Note[];
   moved: Note[];
+  email_sent: Note[];
 }
 
 export interface Folder {
@@ -221,6 +222,26 @@ export interface UpdateFolderRequest {
 export interface RevertRequest {
   version_id: string;
   paragraph_indices?: number[];
+}
+
+export interface FeedbackRequest {
+  selected_text: string;
+  feedback_type: string;
+}
+
+export interface FeedbackResponse {
+  feedback: string;
+  suggested_rewrite: string | null;
+}
+
+export interface SendEmailRequest {
+  recipient: string;
+  subject?: string;
+}
+
+export interface SendEmailResponse {
+  message_id: string;
+  sent_at: string;
 }
 
 export interface PlannerFilters {

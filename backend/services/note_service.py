@@ -3,7 +3,9 @@ from typing import Dict, List, Optional
 from repositories.note_repo import NoteRepository
 from repositories.folder_repo import FolderRepository
 from integrations.llm.openai_client import LLMClient
-from datetime import datetime
+from integrations.google.auth import GoogleAuthService
+from integrations.google.gmail import GmailService
+from datetime import datetime, timezone
 import json
 import difflib
 
@@ -12,6 +14,7 @@ class NoteService:
         self.repo = NoteRepository()
         self.folder_repo = FolderRepository()
         self.llm = LLMClient()
+        self.auth_service = GoogleAuthService()
         self.prompts_dir = Path(__file__).parent.parent / "prompts"
 
     def _load_prompt(self, prompt_name: str) -> str:
@@ -142,6 +145,7 @@ class NoteService:
         created = []
         updated = []
         moved = []
+        email_sent = []
         
         for note in all_notes:
             activity_history = note.get('activity_history', [])
@@ -156,12 +160,15 @@ class NoteService:
                         updated.append(note)
                     elif activity['type'] == 'moved':
                         moved.append(note)
+                    elif activity['type'] == 'email_sent':
+                        email_sent.append(note)
         
         return {
             'date': date,
             'created': created,
             'updated': updated,
-            'moved': moved
+            'moved': moved,
+            'email_sent': email_sent
         }
     
     def search_notes(self, query: str) -> List[Dict]:
@@ -261,3 +268,53 @@ class NoteService:
         new_body = '\n\n'.join(current_paragraphs)
         
         return self.repo.update(note_id, body=new_body, title=note.get('title'))
+    
+    def provide_feedback(self, selected_text: str, feedback_type: str) -> Dict:
+        prompt_template = self._load_prompt("provide_feedback")
+        user_prompt = prompt_template.format(
+            selected_text=selected_text,
+            feedback_type=feedback_type
+        )
+        
+        return self.llm.call(
+            system_message="You are an expert writing coach providing constructive feedback.",
+            user_prompt=user_prompt,
+            use_json=True
+        )
+    
+    def send_note_as_email(self, note_id: str, recipient: str, subject: Optional[str] = None) -> Dict:
+        note = self.repo.get_by_id(note_id)
+        if not note:
+            raise ValueError("Note not found")
+        
+        access_token = self.auth_service.get_valid_access_token()
+        if not access_token:
+            raise ValueError("No valid Gmail access token. Please authenticate first.")
+        
+        email_subject = subject if subject else note['title']
+        email_body = f"{note['title']}\n\n{note['body']}"
+        
+        result = GmailService.send_email(
+            access_token=access_token,
+            to=recipient,
+            subject=email_subject,
+            body=email_body
+        )
+        
+        sent_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+        
+        activity_history = note.get('activity_history', [])
+        activity_history.append({
+            'type': 'email_sent',
+            'timestamp': sent_at,
+            'details': {
+                'recipient': recipient,
+                'subject': email_subject,
+                'message_id': result['message_id']
+            }
+        })
+        
+        return {
+            'message_id': result['message_id'],
+            'sent_at': sent_at
+        }

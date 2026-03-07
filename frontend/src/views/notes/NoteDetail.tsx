@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   CircularProgress,
   Typography,
   Stack,
+  Chip,
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HistoryIcon from '@mui/icons-material/History';
+import EmailIcon from '@mui/icons-material/Email';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { Note, PlannerItem, NoteVersion, DiffChunk } from '../../types';
 import { notesApi } from '../../services/api';
 import Button from '../../components/design-system/Button';
@@ -16,6 +19,8 @@ import InlineConfirmButton from '../../components/shared/InlineConfirmButton';
 import VersionHistoryPanel from './VersionHistoryPanel';
 import VersionCompareView from './VersionCompareView';
 import DiffViewer from './DiffViewer';
+import LLMFeedbackPanel from './LLMFeedbackPanel';
+import SendEmailDialog from './SendEmailDialog';
 
 interface NoteDetailProps {
   note: Note | null;
@@ -54,6 +59,10 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
   const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(null);
   const [showDiff, setShowDiff] = useState(false);
   const [diffs, setDiffs] = useState<DiffChunk[]>([]);
+  const [selectedText, setSelectedText] = useState('');
+  const [showFeedbackPanel, setShowFeedbackPanel] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const bodyInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (note) {
@@ -63,6 +72,8 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
       setShowHistory(false);
       setSelectedVersion(null);
       setShowDiff(false);
+      setShowFeedbackPanel(false);
+      setSelectedText('');
     }
   }, [note]);
 
@@ -165,6 +176,47 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
     }
   };
 
+  const handleTextSelection = () => {
+    if (bodyInputRef.current) {
+      const start = bodyInputRef.current.selectionStart;
+      const end = bodyInputRef.current.selectionEnd;
+      if (start !== end) {
+        setSelectedText(body.substring(start, end));
+      }
+    }
+  };
+
+  const handleGetFeedback = () => {
+    if (selectedText) {
+      setShowFeedbackPanel(true);
+    }
+  };
+
+  const handleApplyRewrite = (rewrittenText: string) => {
+    if (bodyInputRef.current && selectedText) {
+      const start = bodyInputRef.current.selectionStart;
+      const end = bodyInputRef.current.selectionEnd;
+      const newBody = body.substring(0, start) + rewrittenText + body.substring(end);
+      setBody(newBody);
+      setHasChanges(true);
+      setSelectedText('');
+    }
+  };
+
+  const handleEmailSuccess = () => {
+    if (note) {
+      onApplyNote({ ...note, body, title });
+    }
+  };
+
+  const getEmailStatus = () => {
+    if (!note) return null;
+    const emailActivity = note.activity_history.find(a => a.type === 'email_sent');
+    return emailActivity;
+  };
+
+  const emailStatus = getEmailStatus();
+
   if (!note) {
     return (
       <Box sx={{ 
@@ -218,6 +270,24 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         >
           Link to Inspirations Dashboard
         </Button>
+        {selectedText && (
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<AutoFixHighIcon />}
+            onClick={handleGetFeedback}
+          >
+            Get AI Feedback
+          </Button>
+        )}
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<EmailIcon />}
+          onClick={() => setShowEmailDialog(true)}
+        >
+          Send as Email
+        </Button>
         {hasChanges && (
           <Button
             variant="contained"
@@ -233,7 +303,7 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
         />
       </Box>
 
-      {(linkedItems.length > 0 || inspirationCategory) && (
+      {(linkedItems.length > 0 || inspirationCategory || emailStatus) && (
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
           {linkedItems.length > 0 && (
             <>
@@ -261,6 +331,19 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
                 color="primary"
                 onClick={() => onNavigateToInspiration?.(inspirationCategory)}
                 sx={{ textTransform: 'capitalize' }}
+              />
+            </>
+          )}
+          {emailStatus && (
+            <>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                Email Status:
+              </Typography>
+              <Chip
+                label={`Sent to ${emailStatus.details?.recipient || 'unknown'}`}
+                size="small"
+                color="success"
+                sx={{ mr: 1 }}
               />
             </>
           )}
@@ -300,8 +383,10 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
                 multiline
                 value={body}
                 onChange={(e) => handleBodyChange(e.target.value)}
+                onSelect={handleTextSelection}
                 placeholder="Start typing..."
                 variant="standard"
+                inputRef={bodyInputRef}
                 sx={{
                   '& .MuiInput-root': {
                     fontSize: '1rem',
@@ -318,7 +403,27 @@ const NoteDetail: React.FC<NoteDetailProps> = ({
             onSelectVersion={handleSelectVersion}
           />
         )}
+        {showFeedbackPanel && selectedText && (
+          <LLMFeedbackPanel
+            selectedText={selectedText}
+            onApplyRewrite={handleApplyRewrite}
+            onClose={() => {
+              setShowFeedbackPanel(false);
+              setSelectedText('');
+            }}
+          />
+        )}
       </Box>
+
+      {note && (
+        <SendEmailDialog
+          open={showEmailDialog}
+          noteId={note.id}
+          noteTitle={note.title}
+          onClose={() => setShowEmailDialog(false)}
+          onSuccess={handleEmailSuccess}
+        />
+      )}
     </Box>
   );
 };
